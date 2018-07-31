@@ -34,7 +34,7 @@ is integrated into the control algorithm. This  module contains an interface, wh
 the subsystem model simulation. 
 
 The basic control framework structure is illustrated in the following figure:
-(./pyDMPC/Resources/Images/Framework.png)
+![E.ON EBC RWTH Aachen University](./pyDMPC/Resources/Images/Framework.png)
 
 ### How to cite pyDMPC
 
