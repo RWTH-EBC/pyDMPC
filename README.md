@@ -26,6 +26,10 @@ and then run:
 
  `pip install -e [Path/to/your/pyDMPC/Clone]` which will install the local version of pyDMPC.
 
+### Dependencies
+
+If you intend to use Modelica models: pyDMPC currently works with the Dymola Python interface. 
+
 ### How to cite pyDMPC
 
 We continuously improve **pyDMPC** and try to keep the community up-to-date with citable papers:

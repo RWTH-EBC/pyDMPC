@@ -2,8 +2,7 @@
 """
 
 """
-#import math
-#import Init
+
 import Subsystem as SubSys
 import Init
 
@@ -17,7 +16,6 @@ class System:
         self._algorithm = Init.algorithm
         self._obj_function = Init.obj_function
 
-    
     
     def GenerateSubSys(self):
         subsystems = []
@@ -48,11 +46,12 @@ class System:
                                                Init.type_subSyst[i]))    
         subsystems.sort(key = lambda x: x.position)
         for i,subsys in enumerate(subsystems):
-            if i != 0: 
-                neighbour_name = subsystems[i-1]._name       
+            if i != 4: 
+                neighbour_name = subsystems[i+1]._name       
             else:
                 neighbour_name = None 
-            subsys.GetNeighbour(neighbour_name)   
+            subsystems[i].GetNeighbour(neighbour_name)
+            print("System: " + str(subsystems[i]._name) + ", Neighbor: " + str(neighbour_name))
         
         return subsystems    
 

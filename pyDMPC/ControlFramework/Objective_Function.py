@@ -67,7 +67,7 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
     TranslateModel(model_path, name, position)
 
     global dymola
-    obj_fnc_val = 'costCalculation.objectiveFunction'
+    obj_fnc_val = 'objectiveFunction'
     
     """ Store two .mat-files that can be read by Dymola """
     #This file contains the input setting BC1/ BC2/..

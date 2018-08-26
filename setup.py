@@ -25,5 +25,5 @@ setup(name='pydmpc',
           'Topic :: Software Development :: Code Generators',
           'Topic :: Scientific/Engineering',
           'Topic :: Utilities'],
-      install_requires=['pytz', 'client', 'scipy', 'numpy', 'datetime',
+      install_requires=['pytz', 'scipy', 'numpy', 'datetime',
       'pathos', 'modelicares'])

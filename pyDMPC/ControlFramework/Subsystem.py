@@ -6,7 +6,6 @@
 import numpy as np
 import Init
 import scipy.io as sio
-import client
 import math
 from datetime import datetime
 import pytz
@@ -50,85 +49,37 @@ class Subsystem():
         
     def GetMeasurements(self, ids_list):
 
-        #Get ID-list of unique values
-        ids_list_orig = ids_list
-        if len(ids_list) != len(set(ids_list)):
-            ids_list = list(set(ids_list))
-
-        #Get the current local time stamp
-        tz = pytz.timezone('Europe/Berlin')           
-        ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
-
         #read
         values = []
         
-        for val in ids_list:
-            value = 30.0
-            values.append(float(value))
-            
-        #Set values in correct order   
-        if len(ids_list_orig) != len(ids_list):
-            list_values = ids_list_orig[:]
-            for i,val1 in enumerate(ids_list_orig):
-                for j,val2 in enumerate(ids_list):
-                    if val1 == val2:
-                      list_values[i] = values[j]
-            values = list_values
-                                       
-    
-        #Print the current time stamp and current value
-        print(str(ts),':',str(values))  
-               
-        if len(ids_list_orig) == len(Init.measurements_IDs):
-            #Print the current time stamp and current value
-            #print(str(ts),':',str(values))
-        
-            measurementsAll = values
-            X_afterHRS = self.CalcXfromRH(values[1],values[0])
-            relHum_afterHRS = self.CalcRHfromX(X_afterHRS,values[16])
-            measurementsAll.insert(17, relHum_afterHRS)
-            measurementsAll.insert(0, 0)
-            # All relHum measurements need to be not in Percentage (as measured)
-            measurementsAll[2] = measurementsAll[2]/100
-            measurementsAll[4] = measurementsAll[4]/100
-            measurementsAll[6] = measurementsAll[6]/100
-            measurementsAll[8] = measurementsAll[8]/100
+        for val in range(1,20):
+            values.append(25)
 
-            global gl_measurements_all
-            gl_measurements_all.append(measurementsAll)
-            sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'MeasAll.mat'), {'MeasAll' :gl_measurements_all})
-
-            #Save new 'CompleteInput.mat' File
-            sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
-            
-            
-        else:
-            
-            if self._IDs_initial_values is not None: 
-                len_to_cut = len(values)-len(self._IDs_initial_values)
-                self.measurements = np.array(values[0:len_to_cut])
-                values[0:len_to_cut] = []
-                values_K =[k+273.15 for k in values]
-                self._initial_values = values_K
-            else:
-                self.measurements = np.array(values)
-                self._initial_values = None
+        values[2] = 0.005
+        values[4] = 0.005
+        values[6] = 0.005
+        values[8] = 0.005
+        values[17] = 0.005
         
-       
+        measurementsAll = values
+        self.measurements = np.array(values)
+        self._initial_values = np.array(values)
+
+        global gl_measurements_all
+        gl_measurements_all.append(measurementsAll)
+        sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'MeasAll.mat'), {'MeasAll' :gl_measurements_all})
+
+        #Save new 'CompleteInput.mat' File
+        sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
+            
+
         
 
     """ Continue util Init.stop_time (experiment time) is reached """    
     def CalcDVvalues(self, time_step, time_storage):     
         """ Get Measurements """
-        id_list = list()
-        id_list.extend(self._Id_BC2) 
-        id_list.append(self._Id_BC1) 
-        if self._IDs_initial_values is not None and len(self._IDs_initial_values)>1:
-            id_list.extend(self._IDs_initial_values) 
-        self.GetMeasurements(id_list)
-        absHum_measurements = self.CalcXfromRH(self.measurements[0], self.measurements[1])
-        self.measurements[0] = absHum_measurements
-        self.measurements = np.delete(self.measurements, 1)        
+        self.measurements = [0.005, 25]
+        self._initial_values = [0.005, 25]
         
         """ Import selected algorithm (and choose objective function) """
         if Init.algorithm == "BExMoC":
@@ -157,7 +108,7 @@ class Subsystem():
                     for i in range(0,len(self.lookUpTables[1])):
                         commands.append(0)
                         costs.append(0)
-                        outputs.append(0)
+                        outputs.append([0,0])
 
                 print(str(commands))
 
@@ -165,6 +116,7 @@ class Subsystem():
                 time_storage = time_step # store the time 
                 [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, Init.obj_function, time_storage, Init.path_lib, Init.init_conds)
                 self.lookUpTables = [storage_cost, storage_DV, storage_out]
+                print(self.neighbour_name)
                 """ Store look-up table for upstream subsystem in directory of upstream subsystem """
                 if exDestArr is not None and self.neighbour_name is not None:
                     sio.savemat((Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})   
@@ -189,11 +141,13 @@ class Subsystem():
                 global gl_commands_costs
                 tz = pytz.timezone('Europe/Berlin')
                 ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+                print(self.measurements)
+                print(outputs)
                 gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]), commands, costs, np.array([[outputs[0][0]-273.15]]), np.array([[outputs[0][1]]]), self._name, ts])
                 #gl_commands_costs.append([commands, costs, self._name, ts])
                 sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})     
                 if self._name != 'Steam_humidifier':
-                    self.SendCommands(commands[0,0])
+                    self.SendCommands(commands)
             else: 
                 commands = -1
                 

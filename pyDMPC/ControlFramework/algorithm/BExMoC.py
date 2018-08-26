@@ -188,6 +188,12 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
     grid_point_values_costs = set_of_Costvalues
     grid_point_values_out = set_of_Outputvalues
 
+    print("Grid points:")
+    print(grid_points)
+    print("values:")
+    print(grid_point_values)
+    print("measurements:")
+    print(grid_measurements)
 
     #Try to interpolate. If there is an error, use the bounds
     try:

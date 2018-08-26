@@ -81,13 +81,13 @@ def main():
             sio.savemat((Init.path_res + '\\' + s._name + '\\' + 'Costs_lookUpTable' + str(counter) + '.mat' ), {'Cost_lookUpTable': s.lookUpTables[0]})
             sio.savemat((Init.path_res + '\\' + s._name + '\\' + 'Output_Table' + str(counter) + '.mat' ), {'Output_Table': s.lookUpTables[2]})
         if time_step > 0:
-            time.sleep(600)
+            time.sleep(10)
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step
         time_step += Init.sync_rate
     import Objective_Function
     Objective_Function.CloseDymola()
-
+ 
     # End BExMoC
 
     print("Program successfully executed")
