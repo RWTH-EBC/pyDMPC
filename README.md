@@ -16,6 +16,16 @@ The control framework furthermore includes a module containing the specific cont
 The basic control framework structure is illustrated in the following figure:
 ![E.ON EBC RWTH Aachen University](./pyDMPC/Resources/Images/Framework.png)
 
+### Installation
+
+If you actively develop pyDMPC you can clone this repository by using:
+
+ `git clone [SSH-Key/Https]`
+
+and then run:
+
+ `pip install -e [Path/to/your/pyDMPC/Clone]` which will install the local version of pyDMPC.
+
 ### How to cite pyDMPC
 
 We continuously improve **pyDMPC** and try to keep the community up-to-date with citable papers:
