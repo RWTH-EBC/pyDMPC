@@ -3,7 +3,7 @@
 Models could play an increasingly important role in future building energy systems. Many model and optimization-based approaches, however, require the assumption of convexity and availability of a cost function gradient. We aim to develop approaches that function without these simplifying assumptions. Instead, we developed a flexible algorithm, in which each subsystem can be modelled using a different technique as long as the maximum computing time of the slowest model is still acceptable. Some of the models could be simulation models, potentially in a functional mockup unit, some could be simple characteristic fields and some could even be ‘external’, stored on the embedded controllers of HVAC components themselves.
 In this framework, we have implemented two different algorithms: a non-iterative algorithm and an iterative algorithm.
 
-![Architecture](./pyDMPC/Resources/Images/Architecture.png)
+![E.ON EBC RWTH Aachen University](././pyDMPC/Resources/Images/Architecture.png)
 
 ![System Decomposition](./pyDMPC/Resources/Images/SystemDecomposition.png)
 
