@@ -28,7 +28,16 @@ and then run:
 
 ### Dependencies
 
-If you intend to use Modelica models: pyDMPC currently works with the Dymola Python interface. 
+If you intend to use Modelica models: pyDMPC currently works with the Dymola Python interface.
+
+### Documentation
+The control approaches are described in  [Introduction](Tutorial/Introduction.md).
+
+Try out the short [Tutorial](Tutorial/Tutorial.md).
+
+### Future developments
+
+
 
 ### How to cite pyDMPC
 
