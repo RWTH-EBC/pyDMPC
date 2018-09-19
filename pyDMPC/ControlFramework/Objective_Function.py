@@ -41,13 +41,13 @@ def TranslateModel(model_path, name, position):
         # Open dymola library
         for lib in Init.path_lib:
             check1 = dymola.openModel(os.path.join(lib,'package.mo'))
-            print("Opening successful" + str(check1))
+            print("Opening successful " + str(check1))
 
         dymola.ExecuteCommand("Advanced.CompileWith64=2")
         dymola.cd(Init.path_res +'\\' + name)
         # Translate the model
         check2 =dymola.translateModel(model_path)
-        print("Translation successful" + str(check2))
+        print("Translation successful " + str(check2))
         if check2 is True:
             gl_model_compiled[position-1] = True
 
@@ -117,10 +117,9 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
                 tolerance=Init.tol,
                 resultFile= subsys_path  +'\dsres',
                 finalNames = final_names,
-                #initialNames = initial_names,
-                #initialValues = initial_values,
+                initialNames = initial_names,
+                initialValues = initial_values,
             )
-        #print('simulated' + str(simStat))
 
         # Get the simulation result
         sim = SimRes(os.path.join(subsys_path, 'dsres.mat'))
@@ -147,10 +146,9 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
                 tolerance=Init.tol,
                 resultFile= subsys_path  +'\dsres',
                 finalNames = final_names,
-                #initialNames = initial_names,
-                #initialValues = initial_values,
+                initialNames = initial_names,
+                initialValues = initial_values,
             )
-        #print(simStat)
 
         # Get the simulation result
         sim = SimRes(os.path.join(subsys_path, 'dsres.mat'))

@@ -4,7 +4,7 @@ model Humidifier "Mockup model of the humidifier "
   extends
     ModelicaModels.SubsystemModels.BaseClasses.AHUMockupCommunicationBaseClass;
 
-  Modelica.Blocks.Sources.Constant Tset(k=30)
+  Modelica.Blocks.Sources.Constant Tset(k=38)
     annotation (Placement(transformation(extent={{-140,-80},{-120,-60}})));
   Modelica.Blocks.Math.Product product
     annotation (Placement(transformation(extent={{-20,-10},{0,10}})));

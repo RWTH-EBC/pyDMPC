@@ -14,7 +14,6 @@ def main():
     """Create a system and multiple subsystems"""
     AHU = System.System()
     subsystems = AHU.GenerateSubSys()
-    #subsystems.reverse()  #only for BExMoC
 
     """Variables storing (time) steps"""
     time_step = 0
@@ -37,12 +36,9 @@ def main():
 
         if Init.algorithm == 'NC_DMPC':
 
-            for k in range(5):
-                if Init.parallelization == False:
-                    for s in subsystems:
-                        print(s._name)
-                        commands = s.CalcDVvalues(time_step, time_storage,k)
-                else:
+            """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
+            for k in range(2):
+                if Init.parallelization:
                     def f(s):
                         commands = s.CalcDVvalues(time_step, time_storage,k)
                         return commands
@@ -50,11 +46,16 @@ def main():
                     p = Pool(4)
                     commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
 
-            print(commands)
+                else:
+                    for s in subsystems:
+                        commands = s.CalcDVvalues(time_step, time_storage,k)
+
+                print(commands)
 
 
         elif Init.algorithm == 'BExMoC':
 
+            #Consider each subsystem sequentially
             for s in subsystems:
                 print(s._name)
 
@@ -63,6 +64,7 @@ def main():
 
                 print(s._name, commands)
 
+                #Save the look-up tables in .mat files
                 (sio.savemat((Init.path_res + '\\' + s._name + '\\' +
                 'DV_lookUpTable' + str(counter) + '.mat' ),
                 {'DV_lookUpTable': s.lookUpTables[1]}))
@@ -75,19 +77,16 @@ def main():
                 'Output_Table' + str(counter) + '.mat' ),
                 {'Output_Table': s.lookUpTables[2]}))
 
+        #For real time experiments, the excecution needs to be paused
         if Init.realtime:
             if time_step > 0:
                 time.sleep(max(Init.sync_rate-time.time()+start,0))
                 start = time.time()
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step
-        print(time_step)
         time_step += Init.sync_rate
         counter += 1
-        print(time_step)
 
     Objective_Function.CloseDymola()
-
-    print("Program successfully executed")
 
 if __name__=="__main__": main()

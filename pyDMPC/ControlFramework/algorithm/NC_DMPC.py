@@ -61,39 +61,29 @@ def Iteration(s, time_step):
 
 
     for BC in BCsettings:
-        #print('counter:', counter)
         j = 0
 
         while j < len(s.values_BCs):
             storage_cost[counter,j] = storage_DV[counter,j] = storage_out[counter,j] = storage_grid[counter+1,j] = storage_grid_alt2[counter*2,j] = storage_grid_alt2[counter*2+1,j] = BC[j]
             j += 1
 
-        # Perform a minimization using the defined objective function
+        """ Perform a minimization using the defined objective function """
         # Could be set in Init and passed as an attribute
         Objective_Function.ChangeDir(s._name)
-        """Different Optimization Algorithms"""
-        #obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s._name, s._model_path, s.position, s._output_vars),method='Nelder-Mead',options={'maxiter':100, 'fatol':0.0001, 'disp':True, 'xatol':0.1 })
-        #obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s._name, s._model_path, s.position, s._output_vars),method='L-BFGS-B',bounds=s._bounds_DVs,options={'maxfun':20, 'fatol':0.01, 'disp':True, 'xatol':0.1, 'eps':2 })
-        #obj_fun_val = differential_evolution(Objective_Function.Obj,bounds=s._bounds_DVs,args = (BC, s._name, s._model_path, s.position,s._output_vars), disp=True, tol =0.1)
         boundaries = s._bounds_DVs #[low, high]
 
 
         if boundaries[0] != boundaries[1]:
             ranges = [slice(boundaries[0],boundaries[1]+5, 5)]
-            '''
-            obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s._name, s._model_path, s.position,s._output_vars, s._initial_names, s._initial_values), disp=True, full_output=True, finish = None)
 
-            init_conds = obj_fun_val[0]-5
-            '''
             cons = ({'type':'ineq','fun': lambda x: x-boundaries[0]},
                     {'type':'ineq','fun': lambda x: boundaries[1]-x})
 
-            obj_fun_val = minimize(Objective_Function.Obj,[50.0],args = (BC, s._name, s._model_path, s.position, s._output_vars, s._initial_names, s._initial_values),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
-            #print(obj_fun_val)
+            obj_fun_val = minimize(Objective_Function.Obj,[50.0],args = (BC, s._name, s._model_path, s.position, s._output_vars, s._initial_names, s._initial_values),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':50})
+
         else:
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s._name, s._model_path, s.position,s._output_vars, s._initial_names, s._initial_values), disp=True, full_output=True, finish = None)
-
 
         if isinstance(obj_fun_val, tuple):
             """ fill storage_grid """
@@ -127,7 +117,7 @@ def Iteration(s, time_step):
                 DV_values = obj_fun_val[0]
             else:
                 DV_values = obj_fun_val.get('x')
-            #print(DV_values)
+
             storage_DV[counter,j] = DV_values.item(j-len(s.values_BCs))
             j += 1
 
@@ -174,7 +164,6 @@ def Iteration(s, time_step):
 
         """ Get Output Variables """
         output_vals = Objective_Function.GetOutputVars()
-        print(output_vals)
 
         """ fill look-up table Out """
         k = len(s.values_BCs)

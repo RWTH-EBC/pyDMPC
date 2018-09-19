@@ -30,14 +30,13 @@ class Subsystem():
         self.position = position
         self.num_VarsOut = num_VarsOut
         self._bounds_DVs = bounds_DVs
-        #self.measurements_SubSys = [[20],[0.005]]  # order: [[BC1,..],[BC2,..]]
         self.values_BCs = None
         self.lookUpTables = None
         self._model_path = model_path
         self._names_BCs = names_BCs
 
-        self._Id_BC1 = Id_BC1 #T
-        self._Id_BC2 = Id_BC2 #relHum + T_hum
+        self._Id_BC1 = Id_BC1
+        self._Id_BC2 = Id_BC2
         self._names_DVs = names_DVs
         self._output_vars = output_vars
         self._initial_names = initial_names
@@ -49,7 +48,7 @@ class Subsystem():
 
     def GetMeasurements(self, ids_list):
 
-        #read
+        """Only returns dummy values at the moment"""
         values = []
 
         for val in range(1,20):
@@ -73,8 +72,6 @@ class Subsystem():
         sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
 
 
-
-
     """ Continue util Init.stop_time (experiment time) is reached """
     def CalcDVvalues(self, time_step, time_storage, iter):
         """ Get Measurements """
@@ -90,8 +87,6 @@ class Subsystem():
                 if self.values_BCs is None:
                     self.values_BCs = BExMoC.CalcBCvalues(Init.amount_vals_BCs, Init.exp_BCs,
                                                  Init.center_vals_BCs, Init.factors_BCs, Init.amount_lower_vals, Init.amount_upper_vals)
-
-            """ Execute if new optimization is requested """
 
             """ Get initial_values for simulation """
             # Check if optimization phase is due
@@ -110,13 +105,11 @@ class Subsystem():
                         costs.append(0)
                         outputs.append([0,0])
 
-                #print(str(commands))
-
             else:
                 time_storage = time_step # store the time
                 [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, Init.obj_function, time_storage, Init.path_lib, Init.init_conds)
                 self.lookUpTables = [storage_cost, storage_DV, storage_out]
-                #print(self.neighbour_name)
+
                 """ Store look-up table for upstream subsystem in directory of upstream subsystem """
                 if exDestArr is not None and self.neighbour_name is not None:
                     sio.savemat((Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
@@ -141,10 +134,9 @@ class Subsystem():
                 global gl_commands_costs
                 tz = pytz.timezone('Europe/Berlin')
                 ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
-                #print(self.measurements)
-                #print(outputs)
+
                 gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]), commands, costs, np.array([[outputs[0][0]]]), np.array([[outputs[0][1]]]), self._name, ts])
-                #gl_commands_costs.append([commands, costs, self._name, ts])
+
                 sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
                 if self._name != 'Steam_humidifier':
                     self.SendCommands(commands)
@@ -159,13 +151,12 @@ class Subsystem():
 
             if iter == 0 or self.neighbour_name is None:
                 BC_1 = self.measurements[::-1]
-                #if len(BC_1) ==1:
                 BC_2 = [BC_1[0]*1.5, BC_1[1]+0.000005]
             else:
                 BC_dict = sio.loadmat(Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
-                print(BC_dict)
-                #Sort Input Conditions because "exDestArr" must be strictly increaing  """
+
+                """ Sort Input Conditions because "exDestArr" must be strictly increaing  """
                 if len(arrayBC[1]) ==4:
                     absHum_measurements1 = self.CalcXfromRH(arrayBC[1][3]*100, arrayBC[1][2])
                     absHum_measurements2 = self.CalcXfromRH(arrayBC[2][3]*100, arrayBC[2][2])
@@ -183,13 +174,11 @@ class Subsystem():
 
             for i in range(len(BC_1)):
                 if BC_1[i]<BC_2[i]:
-                    values_BCs.append([BC_1[i], BC_2[i]])  #[[BC_1[0], BC_2[0]]]
+                    values_BCs.append([BC_1[i], BC_2[i]])
                 else:
-                    values_BCs.append([BC_2[i], BC_1[i]])  #[[BC_1[0], BC_2[0]]]
+                    values_BCs.append([BC_2[i], BC_1[i]])
             self.values_BCs = values_BCs
-            print(values_BCs)
 
-            #if time_step == 0:
             last_DV = Init.init_DVs[0]
             """ Store last_DV in own directory """
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': last_DV})
@@ -204,24 +193,28 @@ class Subsystem():
             """ Load, determine and store new "last_DV" """
             new_last_DV = last_DV*Init.convex_factor+(1-Init.convex_factor)*storage_DV[0][2]
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': new_last_DV})
-            #print(new_last_DV)
+
             """ Store costs in neighbour's folder """
             if exDestArr is not None and self.neighbour_name is not None:
                 sio.savemat((Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
+
             """ Store output values in own directory """
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + Init.fileName_Output + '.mat'), {Init.tableName_Output: storage_out})
+
             """ Store costs in own directory for evaluation only"""
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'Costs.mat'), {Init.tableName_Output: storage_cost})
             commands = float(new_last_DV)
             tz = pytz.timezone('Europe/Berlin')
             ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
             gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]),np.array([[commands]]), np.array([[storage_cost[0][1]]]),  np.array([[storage_out[0][2]]]),np.array([[storage_out[0][3]]]), self._name, ts])
+
             """ For evaluation only"""
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
+
             """ Send commands """
             if self._name != 'Steam_humidifier' and  time_step-time_storage == Init.optimization_interval-Init.sync_rate:
                 self.SendCommands(commands)
-            print(commands)
+
             return commands
 
     def SendCommands(self, commands):
@@ -241,7 +234,7 @@ class Subsystem():
         ci = 279.82
         di = 333.7
 
-        pressure = pressure/100     # calculations require hekto pascal (equal mbar)
+        pressure = pressure/100     # calculations require hekto pascal
 
         if T_hum > 0:
              EFw = 1 + 10**-4 *(7.2 + pressure * (0.0320 + 5.9*10**-6 * T_hum**2));
