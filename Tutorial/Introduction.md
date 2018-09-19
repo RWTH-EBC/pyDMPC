@@ -15,12 +15,12 @@ For the proposed algorithm, two cost functions can be selected: one aims to opti
 The iterative algorithm is optimizes all subsystems in parallel in multiple iterations until convergence is achieved. It is henceforth called NC-DMPC, indicating the neighbor communication. In each iteration, the coupling variables, namely the disturbances z and the resulting cost gradient ∂J/∂z of the downstream neighbors are fixed.
 However, due to the fact that the subsystem model is treated as a black box, the gradient of the minimized subsystem cost must be approximated in the current operating point. Thus, each subsystem is optimized twice and the gradient of the transformed minimized costs is obtained according to the following equation:
 
-![Gradient Approximation](../pyDMPC/Resources/Images/GradientApproximation.png)
+![Gradient Approximation](../pyDMPC/Resources/Images/FormulaGradientApproximation.png)
 
 In the next iteration, the upstream subsystem uses this gradient to estimate the cost that its output would cause in the downstream subsystem. The cost can thus be added to the local cost function of that upstream subsystem.
 In order to prevent that the upstream subsystem creates a disturbance that deviates too far from the range the cost gradient was calculated for, we define the piecewise function
 
-![Piecewise Cost Function](../pyDMPC/Resources/Images/PiecewiseCostFunction.png)
+![Piecewise Cost Function](../pyDMPC/Resources/Images/FormulaPiecewiseCostFunction.png)
 
 The positive factors β_1 and  β_2 ensure that the cost increases significantly if the algorithm calculates a value for z(k) that deviates from the originally considered range. In the optimization process, this prevents the algorithm from considering solutions that include too large deviations.
 
