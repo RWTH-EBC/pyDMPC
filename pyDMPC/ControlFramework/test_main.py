@@ -50,7 +50,7 @@ def main():
                     for s in subsystems:
                         commands = s.CalcDVvalues(time_step, time_storage,k)
 
-                print(commands)
+                #print(commands)
 
 
         elif Init.algorithm == 'BExMoC':
@@ -62,7 +62,7 @@ def main():
                 """The main calculations are carried out by invoking the :func:'CalcDVvalues' method. The BExMoC algorithm exchanges tables between the subsystems in a .mat format"""
                 commands = s.CalcDVvalues(time_step, time_storage,0)
 
-                print(s._name, commands)
+                #print(s._name, commands)
 
                 #Save the look-up tables in .mat files
                 (sio.savemat((Init.path_res + '\\' + s._name + '\\' +

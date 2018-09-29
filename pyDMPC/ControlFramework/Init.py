@@ -14,16 +14,16 @@ measurements_IDs = ['4120.L04_.AEMWB04_Temp Aussenluft', '4120.L04_.AEMWB03_Feuc
                     '4120.L04_.AEMWB17_Temp RL NE', '4120.L04_.AEMWB05_Temp nach WRG']
 
 """ General algorithm settings """
-algorithm = 'NC_DMPC'   #choices: 'NC_DMPC', 'BExMoC'
+algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
 parallelization = False  #run calculations in parallel if possible
 realtime = True         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
-factors_BCs = [10, 0.3]              # order: BC1, BC2, ...
+factors_BCs = [3, 0.3]              # order: BC1, BC2, ...
 center_vals_BCs = [30, 0.001]
-amount_lower_vals = [1, 0]
-amount_upper_vals = [1, 1]
+amount_lower_vals = [2, 0]
+amount_upper_vals = [2, 1]
 exp_BCs = [1.4, 1]
 amount_vals_BCs = [1, 1]
 
@@ -41,7 +41,7 @@ set_point = [20, 0.005]     #set points of the controlled variables
 """ Time and Interval Settings """
 sim_time_global = 10000          # -> not used yet
 sync_rate = 10*60                 # Synchronisation rate in seconds
-optimization_interval = 20*60    # After one interval the optimization is repeated
+optimization_interval = 2*60    # After one interval the optimization is repeated
 prediction_horizon = 3600        #Common prediction horizon in seconds
 
 """ Simulation Settings for Dymola """
@@ -50,6 +50,7 @@ path_res = r'C:\TEMP\Dymola\LookUps_Backup_01_03'
 path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
 path_lib2 = r'C:\Git\modelica-buildings\Buildings'
 path_lib3 = r'C:\Git\SimContrCaseStudies\SimulationMPC\SimulationMPC'
+path_fmu = r'C:\TEMP\Dymola\LookUps_Backup_01_03\ModelicaModels_ControlledSystems_ControlledSystemBoundaries.fmu'
 #path_lib = [path_lib1, path_lib2, path_lib3]
 path_lib = [path_lib1]
 start_time = 0.0

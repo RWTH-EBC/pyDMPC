@@ -211,6 +211,11 @@ class Subsystem():
             """ For evaluation only"""
             sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
 
+            print(str(self._name) + " command: " + str(commands))
+            print(str(self._name) + " costs: " + str(storage_cost[0][1]))
+            print(str(self._name) + " output: " + str(storage_out[0][2]))
+
+
             """ Send commands """
             if self._name != 'Steam_humidifier' and  time_step-time_storage == Init.optimization_interval-Init.sync_rate:
                 self.SendCommands(commands)
