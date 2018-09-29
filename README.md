@@ -29,6 +29,14 @@ and then run:
 ### Dependencies
 
 If you intend to use Modelica models: pyDMPC currently works with the Dymola Python interface.
+- pathos
+- modelicares
+- pyFMI (see below)
+
+### pyFMI
+In order to use pyFMI, please follow these instructions:
+- Download wheel files pyFMI and assimulo for your python version (https://www.lfd.uci.edu/~gohlke/pythonlibs/)
+- execute `pip install wheel_file_path.whl`
 
 ### Documentation
 The control approaches are described in  [Introduction](Tutorial/Introduction.md).
