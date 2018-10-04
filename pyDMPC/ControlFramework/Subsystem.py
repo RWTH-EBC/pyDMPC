@@ -19,7 +19,7 @@ class Subsystem():
                  num_DVs,num_BCs, init_DecVars, sim_time,
                  bounds_DVs,model_path, names_BCs,
                    num_VarsOut, Id_BC1, Id_BC2, names_DVs,
-                   output_vars, initial_names, IDs_initial_values,
+                   output_vars, initial_names, IDs_initial_values,cost_par,
                    type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
@@ -34,7 +34,7 @@ class Subsystem():
         self.lookUpTables = None
         self._model_path = model_path
         self._names_BCs = names_BCs
-
+        self._cost_par = cost_par
         self._Id_BC1 = Id_BC1
         self._Id_BC2 = Id_BC2
         self._names_DVs = names_DVs
