@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
+'''Object function module that can be used by each of the agents in order to determine costs
+'''
 
-"""
 import Init
 import numpy as np
 gl_model_compiled = [False]*(Init.amount_consumer+Init.amount_generator)
@@ -12,7 +11,6 @@ gl_output = None
 
 gl_res_grid = np.zeros([2,1])
 
-
 def TranslateModel(model_path, name, position):
     global gl_model_compiled
     if  gl_model_compiled[position-1] == False:
@@ -22,13 +20,7 @@ def TranslateModel(model_path, name, position):
 
         if dymola is None:
             # Work-around for the environment variable
-            sys.path.insert(0, os.path.join('C:\\',
-                                            'Program Files',
-                                            'Dymola 2018 FD01',
-                                            'Modelica',
-                                            'Library',
-                                            'python_interface',
-                                            'dymola.egg'))
+            sys.path.insert(0, os.path.join(r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'))
 
 
             # Import Dymola Package
@@ -52,19 +44,18 @@ def TranslateModel(model_path, name, position):
             gl_model_compiled[position-1] = True
 
 
-def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, initial_values):
+def Obj(values_DVs, BC, s):
 
     import Init
     import os
     from modelicares import SimRes
     import numpy as np
-
+    import scipy.interpolate as interpolate
     import scipy.io as sio
-
 
     """ Simulation """
     # Open dymola library
-    TranslateModel(model_path, name, position)
+    TranslateModel(s._model_path, s._name, s.position)
 
     global dymola
     obj_fnc_val = 'objectiveFunction'
@@ -87,7 +78,7 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
             DV_array[0][i2+1] = val2
 
 
-    subsys_path = Init.path_res +'\\' + name
+    subsys_path = Init.path_res +'\\' + s._name
     sio.savemat((subsys_path +'\\'+ Init.fileName_DVsInputTable + '.mat'), {Init.tableName_DVsInputTable :DV_array})
     sio.savemat((subsys_path +'\\'+ Init.fileName_BCsInputTable + '.mat'), {Init.tableName_BCsInputTable :BC_array})
 
@@ -96,9 +87,9 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
 
     try:
         """Simulation"""
-        if initial_names is None:
+        if s._initial_names is None:
             simStat = dymola.simulateExtendedModel(
-            problem=model_path,
+            problem=s._model_path,
             startTime=Init.start_time,
             stopTime=Init.stop_time,
             outputInterval=Init.incr,
@@ -109,7 +100,7 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
             )
         else:
             simStat = dymola.simulateExtendedModel(
-                problem=model_path,
+                problem=s._model_path,
                 startTime=Init.start_time,
                 stopTime=Init.stop_time,
                 outputInterval=Init.incr,
@@ -117,17 +108,17 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
                 tolerance=Init.tol,
                 resultFile= subsys_path  +'\dsres',
                 finalNames = final_names,
-                initialNames = initial_names,
-                initialValues = initial_values,
+                initialNames = s._initial_names,
+                initialValues = s._initial_values,
             )
 
         # Get the simulation result
         sim = SimRes(os.path.join(subsys_path, 'dsres.mat'))
     except:
         """Simulation"""
-        if initial_names is None:
+        if s._initial_names is None:
             simStat = dymola.simulateExtendedModel(
-            problem=model_path,
+            problem=s._model_path,
             startTime=Init.start_time,
             stopTime=Init.stop_time,
             outputInterval=Init.incr,
@@ -138,7 +129,7 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
             )
         else:
             simStat = dymola.simulateExtendedModel(
-                problem=model_path,
+                problem=s._model_path,
                 startTime=Init.start_time,
                 stopTime=Init.stop_time,
                 outputInterval=Init.incr,
@@ -146,8 +137,8 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
                 tolerance=Init.tol,
                 resultFile= subsys_path  +'\dsres',
                 finalNames = final_names,
-                initialNames = initial_names,
-                initialValues = initial_values,
+                initialNames = s._initial_names,
+                initialValues = s._initial_values,
             )
 
         # Get the simulation result
@@ -162,24 +153,53 @@ def Obj(values_DVs, BC, name, model_path, position, output_vars, initial_names, 
     elif new_values_DVs[-1] < bounds[0]:
         penalty_val = 10
 
-    obj_fnc_vals = sim[obj_fnc_val].values()
-    obj_fnc_vals = obj_fnc_vals + penalty_val
+    cost_par = sim[s._cost_par].values()
+    cost_total = 0
 
     #store output
     output_list = []
-    if output_vars is not None:
-        for val in output_vars:
-            output_vals =sim[val].values()
+    output_traj = []
+    if s._output_vars is not None:
+        for val in s._output_vars:
+            output_vals = sim[val].values()
             output_list.append(output_vals[-1])
+            output_traj.append(sim[val].values())
         global gl_output
         gl_output = output_list
+
+
+    """all other subsystems + costs of downstream system"""
+    k = 0
+    if s._name != 'Steam_humidifier':
+
+        x = sio.loadmat(Init.path_res + '\\' + s._name + '\\' + Init.fileName_Cost + '.mat') #storage_cost from downstream system
+        storage_cost = x[Init.tableName_Cost]
+
+        """Interpolation"""
+        costs_neighbor = interpolate.interp2d(storage_cost[0,1:],storage_cost[1:,0],storage_cost[1:,1:], kind = 'linear', fill_value = 10000)
+
+        for tout in output_traj[0]:
+            cost_total += cost_par[k]*Init.cost_factor + costs_neighbor(0.007,tout-273)
+            k += 1
+        cost_total = cost_total/len(output_traj[0])
+        print(costs_neighbor(0.007,tout-273))
+        print(tout)
+    else:
+        for tout in output_traj[0]:
+            cost_total += cost_par[k]*Init.cost_factor + 50*(tout-273-Init.set_point[0])**2
+            k += 1
+        cost_total = cost_total/len(output_traj[0])
+        print(tout)
+
+    '''Temporary objective function value'''
+    obj_fnc_vals = [1]
 
     """ Track Optimizer """
     global gl_res_grid
     step = np.array([[float(values_DVs)], [obj_fnc_vals[-1]]])
     gl_res_grid = np.append(gl_res_grid,step,axis = 1)
 
-    return obj_fnc_vals[-1]
+    return cost_total
 
 
 def CloseDymola():
