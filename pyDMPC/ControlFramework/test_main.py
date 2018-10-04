@@ -3,12 +3,26 @@ This is a test module for new implementations.
 """
 
 import System
-import time
+import Subsystem
 import Init
+import time
 import numpy as np
 import scipy.io as sio
 from pathos.multiprocessing import ProcessingPool as Pool
 import Objective_Function
+from pyfmi import load_fmu
+'''
+Load the FMU model, set the experiment and initialize the inputs
+
+model = load_fmu(Init.path_fmu)
+model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
+model.set('humidifierWSP1',0)
+model.set('valveHRS',0)
+model.set('valvePreHeater',0)
+model.set('valveHeater',0)
+model.set('valveCooler',0)
+model.initialize()
+'''
 
 def main():
     """Create a system and multiple subsystems"""
