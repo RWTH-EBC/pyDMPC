@@ -51,6 +51,7 @@ class System:
                 Init.output_vars[i],
                 Init.initial_names[i],
                 Init.IDs_initial_values[i],
+                Init.lenInitials[i],
                 Init.cost_par[i],
                 Init.type_subSyst[i])
                 )

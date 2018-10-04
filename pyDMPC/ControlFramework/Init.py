@@ -98,6 +98,7 @@ initial_names= [] #for simulation
 IDs_initial_values= [] #for simulation
 cost_par = [] #for MassFlowRate
 valveSettings = [] #for FMU
+lenInitials = []
 
 """ Subsystems """
 # Heat recovery system
@@ -112,13 +113,10 @@ Id_BC1.append(measurements_IDs[0])
 Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
-'''
 initial_names.append(["OutgoingHex.ele[1].mas.T","OutgoingHex.ele[2].mas.T","OutgoingHex.ele[3].mas.T","OutgoingHex.ele[4].mas.T",
                       "IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T"])
 IDs_initial_values.append([measurements_IDs[2],measurements_IDs[2],measurements_IDs[2],measurements_IDs[2],measurements_IDs[16],measurements_IDs[16],measurements_IDs[16],measurements_IDs[16]])
-'''
-initial_names.append(None)
-IDs_initial_values.append(None)
+lenInitials.append(8)
 cost_par.append('RecirculationPressure.ports[1].m_flow')
 valveSettings.append('valveHRS')
 
@@ -134,12 +132,9 @@ Id_BC1.append(measurements_IDs[16]) #FMU
 Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
-'''
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append([measurements_IDs[8],measurements_IDs[8],measurements_IDs[8],measurements_IDs[8]])
-'''
-initial_names.append(None)
-IDs_initial_values.append(None)
+lenInitials.append(4)
 cost_par.append('val.port_1.m_flow')
 valveSettings.append('valvePreHeater')
 
@@ -155,12 +150,9 @@ Id_BC1.append(measurements_IDs[8]) #FMU
 Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
-'''
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append([measurements_IDs[9],measurements_IDs[9],measurements_IDs[9],measurements_IDs[9]])
-'''
-initial_names.append(None)
-IDs_initial_values.append(None)
+lenInitials.append(4)
 cost_par.append('CoolerValve.port_b.m_flow')
 valveSettings.append('valveCooler')
 
@@ -170,7 +162,7 @@ position.append(2)
 type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
-bounds_DVs.append([0,80])
+bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Heater')
 Id_BC1.append(measurements_IDs[9]) #FMU
 Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
@@ -178,8 +170,7 @@ names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append([measurements_IDs[10],measurements_IDs[10],measurements_IDs[10],measurements_IDs[10]])
-initial_names.append(None)
-IDs_initial_values.append(None)
+lenInitials.append(4)
 cost_par.append('val.port_1.m_flow')
 valveSettings.append('valveHeater')
 
@@ -197,5 +188,6 @@ names_DVs.append("humidifierWSP1")
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC Humdidifier
 initial_names.append(None)
 IDs_initial_values.append(None)
+lenInitials.append(0)
 cost_par.append('product3.y')
 valveSettings.append('humidifierWSP1')

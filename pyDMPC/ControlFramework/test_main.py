@@ -64,9 +64,6 @@ def main():
                     for s in subsystems:
                         commands = s.CalcDVvalues(time_step, time_storage,k)
 
-                #print(commands)
-
-
         elif Init.algorithm == 'BExMoC':
 
             #Consider each subsystem sequentially

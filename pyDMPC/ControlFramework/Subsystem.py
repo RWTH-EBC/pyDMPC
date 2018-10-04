@@ -19,7 +19,7 @@ class Subsystem():
                  num_DVs,num_BCs, init_DecVars, sim_time,
                  bounds_DVs,model_path, names_BCs,
                    num_VarsOut, Id_BC1, Id_BC2, names_DVs,
-                   output_vars, initial_names, IDs_initial_values,cost_par,
+                   output_vars, initial_names, IDs_initial_values,lenInitials,cost_par,
                    type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
@@ -34,6 +34,7 @@ class Subsystem():
         self.lookUpTables = None
         self._model_path = model_path
         self._names_BCs = names_BCs
+        self._lenInitials = lenInitials
         self._cost_par = cost_par
         self._Id_BC1 = Id_BC1
         self._Id_BC2 = Id_BC2
@@ -62,7 +63,7 @@ class Subsystem():
 
         measurementsAll = values
         self.measurements = np.array(values)
-        self._initial_values = np.array(values)
+        #self._initial_values = np.array(values)
 
         global gl_measurements_all
         gl_measurements_all.append(measurementsAll)
@@ -76,7 +77,9 @@ class Subsystem():
     def CalcDVvalues(self, time_step, time_storage, iter):
         """ Get Measurements """
         self.measurements = [0.005, 25]
-        self._initial_values = [0.005, 25]
+        self._initial_values = []
+        for k in range(self._lenInitials):
+            self._initial_values.append(298)
 
         """ Import selected algorithm (and choose objective function) """
         if Init.algorithm == "BExMoC":
