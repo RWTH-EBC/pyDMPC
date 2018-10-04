@@ -9,7 +9,8 @@ model Humidifier "Detailed model of the humidifier"
 
   extends
     ModelicaModels.Subsystems.BaseClasses.HumidifierBaseClass(vol(nPorts=5),
-      SteamSource(nPorts=1));
+      SteamSource(nPorts=1),
+    HumidifierCharacteristics(fileName="InHumidifier.txt"));
 equation
   connect(vol.ports[1], IntakeAirSource.ports[1]) annotation (Line(points={{-40,
           -40},{-42,-40},{-42,-50},{-66,-50},{-66,12},{-100,12}}, color={0,127,
@@ -25,5 +26,12 @@ equation
   connect(decisionVariables.y[1], gain.u) annotation (Line(points={{-63,-108},{
           236,-108},{236,-130},{176,-130}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-        coordinateSystem(preserveAspectRatio=false)));
+        coordinateSystem(preserveAspectRatio=false)),
+    experiment,
+    __Dymola_experimentSetupOutput,
+    __Dymola_experimentFlags(
+      Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+      Evaluate=false,
+      OutputCPUtime=false,
+      OutputFlatModelica=false));
 end Humidifier;

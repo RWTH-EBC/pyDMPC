@@ -7,7 +7,8 @@ model HeatRecovery "Detailed model of heat recovery system"
     IntakeAirSource(nPorts=1),
     IntakeAirSink(nPorts=2));
 
-  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass;
+  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass(
+      ValveCharacteristicCurve(fileName="HrcValve.txt"));
   Modelica.Fluid.Sources.MassFlowSource_T extractAirSource(
     m_flow=0.5,
     redeclare package Medium = MediumAir,
@@ -31,8 +32,8 @@ model HeatRecovery "Detailed model of heat recovery system"
   Modelica.Blocks.Sources.Constant Pressure1(k=defaultPressure)
     "Default pressure"
     annotation (Placement(transformation(extent={{384,0},{364,20}})));
-  Modelica.Blocks.Sources.Constant density(k=1.2) "Default density" annotation
-    (Placement(transformation(
+  Modelica.Blocks.Sources.Constant density(k=1.2) "Default density" annotation (
+     Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=180,
         origin={234,100})));
@@ -67,12 +68,12 @@ equation
           127,255}));
   connect(IntakeHex.port_b2, IntakeAirSink.ports[2]) annotation (Line(points={{
           20,-60},{150,-60},{150,12},{170,12}}, color={0,127,255}));
-  connect(IntakeHex.port_b2, supplyAirTemperature.port) annotation (Line(points
-        ={{20,-60},{106,-60},{106,38},{104,38}}, color={0,127,255}));
+  connect(IntakeHex.port_b2, supplyAirTemperature.port) annotation (Line(points=
+         {{20,-60},{106,-60},{106,38},{104,38}}, color={0,127,255}));
   connect(supplyAirHumidity.port, IntakeHex.port_b2)
     annotation (Line(points={{66,38},{66,-60},{20,-60}}, color={0,127,255}));
-  connect(volumeFlow.y[2], VolumeToMassFlowOutgoing.u1) annotation (Line(points
-        ={{-1.7,96},{-36,96},{-36,148},{292,148},{292,94},{322,94}}, color={0,0,
+  connect(volumeFlow.y[2], VolumeToMassFlowOutgoing.u1) annotation (Line(points=
+         {{-1.7,96},{-36,96},{-36,148},{292,148},{292,94},{322,94}}, color={0,0,
           127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false), graphics={

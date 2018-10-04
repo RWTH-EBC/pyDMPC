@@ -12,11 +12,6 @@ model HeatExchangerBaseClass
     "Name of the file containing the efficiency";
   parameter Real specificCost=15 "cost in ct/kWh";
 
-  Modelica.Blocks.Interfaces.RealInput T_in "Prescribed boundary temperature"
-    annotation (Placement(transformation(
-        extent={{-20,-20},{20,20}},
-        rotation=90,
-        origin={56,-220})));
   Buildings.Fluid.Sensors.Temperature senTemp1(redeclare package Medium =
         MediumWater)
     annotation (Placement(transformation(extent={{72,-122},{92,-102}})));
@@ -76,8 +71,6 @@ equation
           123,-112},{182,-112},{182,-160},{210,-160}}, color={0,0,127}));
   connect(ValveCharacteristicCurve.u[1],gain3. y) annotation (Line(points={{-8,-110},
           {-10,-110},{-10,-108},{-13.4,-108}},                color={0,0,127}));
-  connect(T_in, warmWaterSource.T_in)
-    annotation (Line(points={{56,-220},{56,-182}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false)));
 end HeatExchangerBaseClass;

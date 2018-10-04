@@ -21,6 +21,11 @@ model HeatExchangerPorts
         extent={{-20,-20},{20,20}},
         rotation=90,
         origin={-54,-220})));
+  Modelica.Blocks.Interfaces.RealInput T_in "Prescribed boundary temperature"
+    annotation (Placement(transformation(
+        extent={{-20,-20},{20,20}},
+        rotation=90,
+        origin={56,-220})));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false)));
 end HeatExchangerPorts;

@@ -8,7 +8,13 @@ model Cooler "Detailed model of the cooler"
     IntakeAirSink(nPorts=1));
 
   extends
-    ModelicaModels.Subsystems.BaseClasses.CoolerBaseClass;
+    ModelicaModels.Subsystems.BaseClasses.CoolerBaseClass(
+      ValveCharacteristicCurve(fileName="CoolerValve.txt"));
+  Modelica.Blocks.Sources.Constant Temperature(k=273 + 12) annotation (
+      Placement(transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-50,-190})));
 equation
   connect(IntakeAirSource.ports[1], hex.port_a2)
     annotation (Line(points={{-100,12},{60,12}}, color={0,127,255}));
@@ -22,6 +28,8 @@ equation
           12},{92,12},{92,38},{104,38}}, color={0,127,255}));
   connect(senTemp1.port, hex.port_a1) annotation (Line(points={{82,-122},{84,
           -122},{84,-130},{68,-130},{68,-24},{80,-24},{80,0}}, color={0,127,255}));
+  connect(Temperature.y, warmWaterSource.T_in) annotation (Line(points={{-39,
+          -190},{56,-190},{56,-182}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false)));
 end Cooler;

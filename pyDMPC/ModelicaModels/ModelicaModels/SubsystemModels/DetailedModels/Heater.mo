@@ -6,10 +6,16 @@ model Heater "Subsystem model of the heater"
     IntakeAirSource(nPorts=1),
     IntakeAirSink(nPorts=1));
 
-  extends ModelicaModels.Subsystems.BaseClasses.HeaterBaseClass;
+  extends ModelicaModels.Subsystems.BaseClasses.HeaterBaseClass(
+      ValveCharacteristicCurve(fileName="MainHeaterValve.txt"));
 
 
 
+  Modelica.Blocks.Sources.Constant Temperature(k=273 + 50) annotation (
+      Placement(transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-50,-190})));
 equation
   connect(hex.port_b2, supplyAirTemperature.port)
     annotation (Line(points={{80,12},{104,12},{104,38}}, color={0,127,255}));
@@ -24,5 +30,7 @@ equation
     annotation (Line(points={{80,12},{170,12}}, color={0,127,255}));
   connect(decisionVariables.y[1], gain3.u)
     annotation (Line(points={{-63,-108},{-27.2,-108}}, color={0,0,127}));
+  connect(Temperature.y, warmWaterSource.T_in) annotation (Line(points={{-39,
+          -190},{56,-190},{56,-182}}, color={0,0,127}));
   annotation (experiment(StopTime=3600, Interval=10));
 end Heater;
