@@ -85,16 +85,16 @@ def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
             ranges = [slice(boundaries[0],boundaries[1]+5, 5)]
 
             """ First conduct a brute force search """
-            obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s._name, s._model_path, s.position,s._output_vars, s._initial_names, s._initial_values), disp=True, full_output=True, finish = None)
+            obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
             init_conds = obj_fun_val[0]-5
             cons = ({'type':'ineq','fun': lambda x: x-boundaries[0]},
                     {'type':'ineq','fun': lambda x: boundaries[1]-x})
 
             """ Perform an addtional optimization to refine the previous findings """
-            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s._name, s._model_path, s.position, s._output_vars, s._initial_names, s._initial_values),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
+            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
         else:
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
-            obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s._name, s._model_path, s.position,s._output_vars, s._initial_names, s._initial_values), disp=True, full_output=True, finish = None)
+            obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
 
         if isinstance(obj_fun_val, tuple):
             """ fill storage_grid """
