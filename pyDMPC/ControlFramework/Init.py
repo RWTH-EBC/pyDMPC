@@ -6,12 +6,12 @@ amount_consumer = 4
 amount_generator = 1
 
 """Data point IDs in the controlled system"""
-measurements_IDs = ['4120.L04_.AEMWB04_Temp Aussenluft', '4120.L04_.AEMWB03_Feuchte Aussen', '4120.L04_.AEMWB24_Temp Fortluft',
-                    '4120.L04_.AEMWB25_Feuchte FO-Luft',  '4120.L04_.AEMWB20_Temp ABL Gesamt', '4120.L04_.AEMWB21_Feuchte Abluft',
-                    '4120.L04_.AEMWB08_Temp nach NE',  '4120.L04_.VEGYMW__Feuchte Zuluft','4120.L04_.AEMWB06_Temp nach VE',
-                    '4120.L04_.AEMWB07_Temp n Kuehler','4120.L04_.AEMWB08_Temp nach NE', '4120.MONI.AEMW105 Dist Lab h T in',
-                    '4120.K08_.AEMWB02_Temp VL ULK', '4120.MONI.AEMW105 Dist Lab h T in', '4120.L04_.AEMWB16_Temp RL VE',
-                    '4120.L04_.AEMWB17_Temp RL NE', '4120.L04_.AEMWB05_Temp nach WRG']
+measurements_IDs = ['outdoorTemperature.y', 'outdoorHumidity.y', 'outgoingAirOutletTemperatureC.Celsius',
+                    'inOutlets.OutgoingAirRelHumid.phi', 'roomTemperature.y', 'roomHumidity.y',
+                    'heaterTemperatureC.Celsius', 'outdoorHumidity.y', 'preHeaterTemperatureC.Celsius',
+                    'coolerTemperatureC.Celsius', 'heaterTemperatureC.Celsius', 'highTemperatureCircuit.y',
+                    'coolingCircuit.y', 'highTemperatureCircuit.y', 'preHeater.returnTempInC.Celsius',
+                    'heater.returnTempInC.Celsius', 'hRCTemperatureC.Celsius']
 
 """ General algorithm settings """
 algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
@@ -20,7 +20,7 @@ realtime = True         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
-factors_BCs = [3, 0.3]              # order: BC1, BC2, ...
+factors_BCs = [3, 0.01]              # order: BC1, BC2, ...
 center_vals_BCs = [30, 0.001]
 amount_lower_vals = [2, 0]
 amount_upper_vals = [2, 1]
@@ -36,7 +36,9 @@ cost_gradient = 0
 
 """ Set objective function """
 obj_function = 'Monetary'   #choices: 'Exergy', 'Monetary'
-set_point = [20, 0.005]     #set points of the controlled variables
+set_point = [30, 0.005]     #set points of the controlled variables
+tolerance = 1
+cost_factor = 0.0001
 
 """ Time and Interval Settings """
 sim_time_global = 10000          # -> not used yet
@@ -46,13 +48,13 @@ prediction_horizon = 3600        #Common prediction horizon in seconds
 
 """ Simulation Settings for Dymola """
 # Directory where the simulation results are stored
-path_res = r'C:\TEMP\Dymola\LookUps_Backup_01_03'
+path_res = r'C:\TEMP\08_FinalDocs\LookUps_Backup_01_03'
 path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
 path_lib2 = r'C:\Git\modelica-buildings\Buildings'
-path_lib3 = r'C:\Git\SimContrCaseStudies\SimulationMPC\SimulationMPC'
-path_fmu = r'C:\TEMP\Dymola\LookUps_Backup_01_03\ModelicaModels_ControlledSystems_ControlledSystemBoundaries.fmu'
-#path_lib = [path_lib1, path_lib2, path_lib3]
-path_lib = [path_lib1]
+path_lib3 = r'C:\Git\AixLib\AixLib'
+path_fmu = r'C:\TEMP\08_FinalDocs\LookUps_Backup_01_03\ModelicaModels_ControlledSystems_ControlledSystemBoundaries.fmu'
+path_lib = [path_lib1, path_lib2, path_lib3]
+#path_lib = [path_lib1]
 start_time = 0.0
 stop_time = prediction_horizon   # Stop time of simulation in seconds
 incr = 10
@@ -94,6 +96,8 @@ Id_BC2 = [] #relHum, T_relHum
 output_vars = []
 initial_names= [] #for simulation
 IDs_initial_values= [] #for simulation
+cost_par = [] #for MassFlowRate
+valveSettings = [] #for FMU
 
 """ Subsystems """
 # Heat recovery system
@@ -103,13 +107,20 @@ type_subSyst.append('generator')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
-model_path.append('ModelicaModels.SubsystemModels.HeatRecovery')
-Id_BC1.append('4120.L04_.AEMWB07_Temp n Kuehler')
-Id_BC2.append(['4120.L04_.AEMWB03_Feuchte Aussen','4120.L04_.AEMWB04_Temp Aussenluft'])
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.HeatRecovery')
+Id_BC1.append(measurements_IDs[0])
+Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
-output_vars.append(["add.y","variation.y[2]"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+'''
+initial_names.append(["OutgoingHex.ele[1].mas.T","OutgoingHex.ele[2].mas.T","OutgoingHex.ele[3].mas.T","OutgoingHex.ele[4].mas.T",
+                      "IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T"])
+IDs_initial_values.append([measurements_IDs[2],measurements_IDs[2],measurements_IDs[2],measurements_IDs[2],measurements_IDs[16],measurements_IDs[16],measurements_IDs[16],measurements_IDs[16]])
+'''
 initial_names.append(None)
-IDs_initial_values.append([''])
+IDs_initial_values.append(None)
+cost_par.append('RecirculationPressure.ports[1].m_flow')
+valveSettings.append('valveHRS')
 
 # Pre-heater
 name.append('Pre_heater')
@@ -118,13 +129,19 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
-model_path.append('ModelicaModels.SubsystemModels.Heater')
-Id_BC1.append('4120.L04_.AEMWB07_Temp n Kuehler')
-Id_BC2.append(['4120.L04_.AEMWB03_Feuchte Aussen','4120.L04_.AEMWB04_Temp Aussenluft'])
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.PreHeater')
+Id_BC1.append(measurements_IDs[16]) #FMU
+Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
-output_vars.append(["add.y","variation.y[2]"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+'''
+initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
+IDs_initial_values.append([measurements_IDs[8],measurements_IDs[8],measurements_IDs[8],measurements_IDs[8]])
+'''
 initial_names.append(None)
-IDs_initial_values.append([''])
+IDs_initial_values.append(None)
+cost_par.append('val.port_1.m_flow')
+valveSettings.append('valvePreHeater')
 
 # Cooler
 name.append('Cooler')
@@ -133,13 +150,19 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
-model_path.append('ModelicaModels.SubsystemModels.Cooler')
-Id_BC1.append('4120.L04_.AEMWB07_Temp n Kuehler')
-Id_BC2.append(['4120.L04_.AEMWB03_Feuchte Aussen','4120.L04_.AEMWB04_Temp Aussenluft'])
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Cooler')
+Id_BC1.append(measurements_IDs[8]) #FMU
+Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
-output_vars.append(["add.y","variation.y[2]"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+'''
+initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
+IDs_initial_values.append([measurements_IDs[9],measurements_IDs[9],measurements_IDs[9],measurements_IDs[9]])
+'''
 initial_names.append(None)
-IDs_initial_values.append([''])
+IDs_initial_values.append(None)
+cost_par.append('CoolerValve.port_b.m_flow')
+valveSettings.append('valveCooler')
 
 # Heater
 name.append('Heater')
@@ -148,13 +171,17 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,80])
-model_path.append('ModelicaModels.SubsystemModels.Heater')
-Id_BC1.append('4120.L04_.AEMWB07_Temp n Kuehler')
-Id_BC2.append(['4120.L04_.AEMWB03_Feuchte Aussen','4120.L04_.AEMWB04_Temp Aussenluft'])
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Heater')
+Id_BC1.append(measurements_IDs[9]) #FMU
+Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
 names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
-output_vars.append(["add.y","variation.y[2]"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
+IDs_initial_values.append([measurements_IDs[10],measurements_IDs[10],measurements_IDs[10],measurements_IDs[10]])
 initial_names.append(None)
-IDs_initial_values.append([''])
+IDs_initial_values.append(None)
+cost_par.append('val.port_1.m_flow')
+valveSettings.append('valveHeater')
 
 # Steam_humidifier
 name.append('Steam_humidifier')
@@ -163,10 +190,12 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,0])
-model_path.append('ModelicaModels.SubsystemModels.Humidifier')
-Id_BC1.append('4120.L04_.AEMWB07_Temp n Kuehler')
-Id_BC2.append(['4120.L04_.AEMWB03_Feuchte Aussen','4120.L04_.AEMWB04_Temp Aussenluft'])
-names_DVs.append('Humidifier_DV')
-output_vars.append(["variation.y[1]","variation.y[2]"]) #NC_DMPC Humdidifier
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Humidifier')
+Id_BC1.append(measurements_IDs[10])
+Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
+names_DVs.append("humidifierWSP1")
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC Humdidifier
 initial_names.append(None)
 IDs_initial_values.append(None)
+cost_par.append('product3.y')
+valveSettings.append('humidifierWSP1')
