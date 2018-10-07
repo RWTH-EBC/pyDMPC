@@ -36,7 +36,7 @@ def TranslateModel(model_path, name, position):
             print("Opening successful " + str(check1))
 
         dymola.ExecuteCommand("Advanced.CompileWith64=2")
-        dymola.cd(Init.path_res +'\\' + name)
+        dymola.cd(Init.path_res +'\\'+Init.name_wkdir+'\\' + name)
         # Translate the model
         check2 =dymola.translateModel(model_path)
         print("Translation successful " + str(check2))
@@ -78,7 +78,7 @@ def Obj(values_DVs, BC, s):
             DV_array[0][i2+1] = val2
 
 
-    subsys_path = Init.path_res +'\\' + s._name
+    subsys_path = Init.path_res +'\\'+Init.name_wkdir+'\\' + s._name
     sio.savemat((subsys_path +'\\'+ Init.fileName_DVsInputTable + '.mat'), {Init.tableName_DVsInputTable :DV_array})
     sio.savemat((subsys_path +'\\'+ Init.fileName_BCsInputTable + '.mat'), {Init.tableName_BCsInputTable :BC_array})
 
@@ -172,7 +172,7 @@ def Obj(values_DVs, BC, s):
     k = 0
     if s._name != 'Steam_humidifier':
 
-        x = sio.loadmat(Init.path_res + '\\' + s._name + '\\' + Init.fileName_Cost + '.mat') #storage_cost from downstream system
+        x = sio.loadmat(Init.path_res + '\\'+Init.name_wkdir+'\\' + s._name + '\\' + Init.fileName_Cost + '.mat') #storage_cost from downstream system
         storage_cost = x[Init.tableName_Cost]
 
         """Interpolation"""
@@ -213,7 +213,7 @@ def CloseDymola():
 def ChangeDir(name):
     global dymola
     if dymola is not None:
-        dymola.cd(Init.path_res +'\\' + name)
+        dymola.cd(Init.path_res +'\\'+ Init.name_wkdir +'\\' + name)
 
 
 def GetOutputVars():
