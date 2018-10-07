@@ -22,6 +22,8 @@ equation
           {142,0},{200,0}}, color={0,127,255}));
   connect(senTemp1.port, val.port_3) annotation (Line(points={{82,-122},{82,
           -130},{76,-130},{76,-100},{70,-100}}, color={0,127,255}));
-  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-        coordinateSystem(preserveAspectRatio=false)));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,
+            -220},{200,100}})),                                  Diagram(
+        coordinateSystem(preserveAspectRatio=false, extent={{-240,-220},{200,
+            100}})));
 end Heater;

@@ -4,7 +4,9 @@ model PreHeaterBaseClass "Base class of the pre-heater"
     ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(hex(
         UA_nominal=756), Pressure1(k=375),
     warmWaterSource(nPorts=1),
-    waterSink(nPorts=1));
+    waterSink(nPorts=1),
+    ValveCharacteristicCurve(tableOnFile=false,
+      table=[0,0; 0.25,0; 0.5,0; 0.7,0.0125; 0.9,0.3; 1,0.34375]));
   AixLib.Fluid.Actuators.Valves.ThreeWayLinear    val(
     redeclare package Medium = MediumWater,
     m_flow_nominal=0.5,

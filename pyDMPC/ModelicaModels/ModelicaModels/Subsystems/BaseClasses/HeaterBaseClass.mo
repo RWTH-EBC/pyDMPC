@@ -4,9 +4,11 @@ model HeaterBaseClass "Base class of the heater"
     ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
     hex(UA_nominal=1521),
     Pressure1(k=300),
-    ValveCharacteristicCurve(fileName="Heater/MainHeaterValve.txt"),
     warmWaterSource(nPorts=1),
-    waterSink(nPorts=1));
+    waterSink(nPorts=1),
+    ValveCharacteristicCurve(
+    tableOnFile=false,
+    table=[0,0; 0.1,0.1; 0.9,0.9; 1,1]));
 
 
   AixLib.Fluid.Actuators.Valves.ThreeWayLinear    val(

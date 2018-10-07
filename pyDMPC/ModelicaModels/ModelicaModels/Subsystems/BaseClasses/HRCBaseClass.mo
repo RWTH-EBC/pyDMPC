@@ -54,10 +54,8 @@ parameter Modelica.SIunits.Pressure defaultPressure = 101300 "Default pressure";
         extent={{10,-10},{-10,10}},
         rotation=90,
         origin={0,0})));
-  Modelica.Blocks.Tables.CombiTable1D ValveCharacteristicCurve(
-    tableOnFile=true,
-    tableName="valve",
-    fileName="HeatRecovery/HrcValve.txt")
+  Modelica.Blocks.Tables.CombiTable1D ValveCharacteristicCurve(tableOnFile=false,
+      table=[0,0; 0.25,0; 0.5,0.025; 0.7,1; 0.9,1; 1,1])
     annotation (Placement(transformation(extent={{-58,-10},{-38,10}})));
   Modelica.Blocks.Math.Gain gain2(k=1/100)
     annotation (Placement(transformation(extent={{-100,-10},{-80,10}})));

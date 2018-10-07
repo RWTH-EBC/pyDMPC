@@ -30,10 +30,7 @@ model HumidifierBaseClass "Base class of the humdifier"
         rotation=180,
         origin={164,-130})));
   Modelica.Blocks.Tables.CombiTable1D HumidifierCharacteristics(
-    tableOnFile=true,
-    tableName="Humidifier",
-    fileName="Steam_humidifier/InHumidifier.txt")
-                                  annotation (Placement(transformation(
+    tableOnFile=false, table=[0,0; 1,0.012])            annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=0,
         origin={130,-130})));
