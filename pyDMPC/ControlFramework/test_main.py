@@ -11,23 +11,65 @@ import scipy.io as sio
 from pathos.multiprocessing import ProcessingPool as Pool
 import Objective_Function
 from pyfmi import load_fmu
-'''
-Load the FMU model, set the experiment and initialize the inputs
+import os
+import sys
 
-model = load_fmu(Init.path_fmu)
-model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
-model.set('humidifierWSP1',0)
-model.set('valveHRS',0)
-model.set('valvePreHeater',0)
-model.set('valveHeater',0)
-model.set('valveCooler',0)
-model.initialize()
-'''
 
 def main():
     """Create a system and multiple subsystems"""
     AHU = System.System()
     subsystems = AHU.GenerateSubSys()
+
+    """Prepare the working Directory"""
+    os.chdir(Init.path_res)
+    os.mkdir(str(Init.name_wkdir))
+    os.chdir(str(Init.name_wkdir))
+
+    for s in subsystems:
+        os.mkdir(s._name)
+
+    os.mkdir("Inputs")
+
+    '''
+    Load the FMU model, set the experiment and initialize the inputs
+    '''
+    global dymola
+    dymola = None
+    # Work-around for the environment variable
+    sys.path.insert(0, os.path.join(str(Init.path_dymola)))
+
+    # Import Dymola Package
+    from dymola.dymola_interface import DymolaInterface
+
+    # Start the interface
+    dymola = DymolaInterface()
+
+    """ Simulation """
+    # Open dymola library
+
+    for lib in Init.path_lib:
+        check1 = dymola.openModel(os.path.join(lib,'package.mo'))
+        print("Opening successful " + str(check1))
+
+
+    dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
+
+    # Translate the model to FMU
+    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", false, "'+Init.name_fmu+'", "2", "all", false, 0)')
+
+    log = dymola.getLastErrorLog()
+    print(log)
+    '''
+    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
+
+    model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
+    model.set('humidifierWSP1',0)
+    model.set('valveHRS',0)
+    model.set('valvePreHeater',0)
+    model.set('valveHeater',0)
+    model.set('valveCooler',0)
+    model.initialize()
+    '''
 
     """Variables storing (time) steps"""
     time_step = 0
@@ -76,15 +118,15 @@ def main():
                 #print(s._name, commands)
 
                 #Save the look-up tables in .mat files
-                (sio.savemat((Init.path_res + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
                 'DV_lookUpTable' + str(counter) + '.mat' ),
                 {'DV_lookUpTable': s.lookUpTables[1]}))
 
-                (sio.savemat((Init.path_res + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
                 'Costs_lookUpTable' + str(counter) + '.mat' ),
                 {'Cost_lookUpTable': s.lookUpTables[0]}))
 
-                (sio.savemat((Init.path_res + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
                 'Output_Table' + str(counter) + '.mat' ),
                 {'Output_Table': s.lookUpTables[2]}))
 
