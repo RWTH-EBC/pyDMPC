@@ -67,10 +67,10 @@ class Subsystem():
 
         global gl_measurements_all
         gl_measurements_all.append(measurementsAll)
-        sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'MeasAll.mat'), {'MeasAll' :gl_measurements_all})
+        #sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'MeasAll.mat'), #{'MeasAll' :gl_measurements_all})
 
         #Save new 'CompleteInput.mat' File
-        sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
+        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
 
 
     """ Continue util Init.stop_time (experiment time) is reached """
@@ -115,9 +115,9 @@ class Subsystem():
 
                 """ Store look-up table for upstream subsystem in directory of upstream subsystem """
                 if exDestArr is not None and self.neighbour_name is not None:
-                    sio.savemat((Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
+                    sio.savemat((Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
                 """Store optimizer results"""
-                sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrackCounter11': res_grid})
+                sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrackCounter11': res_grid})
 
                 try:
                     [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1],
@@ -140,7 +140,7 @@ class Subsystem():
 
                 gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]), commands, costs, np.array([[outputs[0][0]]]), np.array([[outputs[0][1]]]), self._name, ts])
 
-                sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
+                sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
                 if self._name != 'Steam_humidifier':
                     self.SendCommands(commands)
             else:
@@ -156,7 +156,7 @@ class Subsystem():
                 BC_1 = self.measurements[::-1]
                 BC_2 = [BC_1[0]*1.5, BC_1[1]+0.000005]
             else:
-                BC_dict = sio.loadmat(Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
+                BC_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
 
                 """ Sort Input Conditions because "exDestArr" must be strictly increaing  """
@@ -184,35 +184,35 @@ class Subsystem():
 
             last_DV = Init.init_DVs[0]
             """ Store last_DV in own directory """
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': last_DV})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': last_DV})
 
             self.values_BCs = values_BCs
             """ Load "last_DV" """
-            last_DV_dict = sio.loadmat(Init.path_res + '\\' + self._name + '\\' + 'last_DV.mat')
+            last_DV_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat')
             last_DV = last_DV_dict['last_DV']
             [storage_cost, storage_DV, storage_out, exDestArr, storage_grid]  = NC_DMPC.Iteration(self, time_step)
             """Store optimizer results"""
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrack': storage_grid})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrack': storage_grid})
             """ Load, determine and store new "last_DV" """
             new_last_DV = last_DV*Init.convex_factor+(1-Init.convex_factor)*storage_DV[0][2]
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': new_last_DV})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': new_last_DV})
 
             """ Store costs in neighbour's folder """
             if exDestArr is not None and self.neighbour_name is not None:
-                sio.savemat((Init.path_res +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
+                sio.savemat((Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
 
             """ Store output values in own directory """
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + Init.fileName_Output + '.mat'), {Init.tableName_Output: storage_out})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + Init.fileName_Output + '.mat'), {Init.tableName_Output: storage_out})
 
             """ Store costs in own directory for evaluation only"""
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'Costs.mat'), {Init.tableName_Output: storage_cost})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'Costs.mat'), {Init.tableName_Output: storage_cost})
             commands = float(new_last_DV)
             tz = pytz.timezone('Europe/Berlin')
             ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
             gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]),np.array([[commands]]), np.array([[storage_cost[0][1]]]),  np.array([[storage_out[0][2]]]),np.array([[storage_out[0][3]]]), self._name, ts])
 
             """ For evaluation only"""
-            sio.savemat((Init.path_res + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
 
             print(str(self._name) + " command: " + str(commands))
             print(str(self._name) + " costs: " + str(storage_cost[0][1]))
