@@ -15,7 +15,7 @@ measurements_IDs = ['outdoorTemperature.y', 'outdoorHumidity.y', 'outgoingAirOut
 
 """ General algorithm settings """
 algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
-parallelization = False  #run calculations in parallel if possible
+parallelization = True  #run calculations in parallel if possible
 realtime = True         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
@@ -46,21 +46,45 @@ sync_rate = 10*60                 # Synchronisation rate in seconds
 optimization_interval = 2*60    # After one interval the optimization is repeated
 prediction_horizon = 3600        #Common prediction horizon in seconds
 
-""" Simulation Settings for Dymola """
-# Directory where the simulation results are stored
-path_res = r'C:\TEMP\08_FinalDocs\LookUps_Backup_01_03'
+""" Directories and Modelica libraries """
+# Path where the main working directory shall be created
+path_res = r'C:\TEMP'
+
+# Name of the main working directory
+name_wkdir = r'pyDMPC_wkdir12'
+
+# Path to the Modelica libraries to be loaded
 path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
 path_lib2 = r'C:\Git\modelica-buildings\Buildings'
 path_lib3 = r'C:\Git\AixLib\AixLib'
-path_fmu = r'C:\TEMP\08_FinalDocs\LookUps_Backup_01_03\ModelicaModels_ControlledSystems_ControlledSystemBoundaries.fmu'
 path_lib = [path_lib1, path_lib2, path_lib3]
-#path_lib = [path_lib1]
+
+# Modelica model to be used as controlled system in a FMU
+path_fmu = r'ModelicaModels.ControlledSystems.ControlledSystemBoundaries'
+
+# Name of the FMU file to be created
+name_fmu = 'pyDMPCFMU'
+
+# Path to the *.egg file containing the Python-Dymola-Interface
+path_dymola = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
+
+""" Simulation settings """
+# Start time of simulation in seconds
 start_time = 0.0
-stop_time = prediction_horizon   # Stop time of simulation in seconds
+
+# Stop time of simulation in seconds
+stop_time = prediction_horizon
+
+# Increments of the equidistant output time grid
 incr = 10
+
+# Tolerance for the Modelica solver
 tol = 0.0001
+
 # Initial conditions for the optimization
 init_conds = [50]
+
+""" Setting for the *.mat files to be used in Dymola """
 fileName_BCsInputTable = 'variation'
 tableName_BCsInputTable = 'tab1'
 fileName_DVsInputTable = 'decisionVariables'
@@ -69,7 +93,6 @@ fileName_Cost = 'exDestArr'
 tableName_Cost = 'tab1'
 fileName_Output = 'outputs'
 tableName_Output = 'output'
-
 
 """ Same values for all subsystems !priority if not 'None'! """
 init_DecVars_global = 0
