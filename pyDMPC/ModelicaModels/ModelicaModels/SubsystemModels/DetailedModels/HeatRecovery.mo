@@ -5,10 +5,10 @@ model HeatRecovery "Detailed model of heat recovery system"
     ModelicaModels.SubsystemModels.BaseClasses.HeatExchangerCommunicationBaseClass(
      Pressure(k=system.p_ambient),
     IntakeAirSource(nPorts=1),
-    IntakeAirSink(nPorts=2));
+    IntakeAirSink(nPorts=2),
+    volumeFlow(tableOnFile=false, table=[0,0.31,0.29]));
 
-  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass(
-      ValveCharacteristicCurve(fileName="HrcValve.txt"));
+  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass;
   Modelica.Fluid.Sources.MassFlowSource_T extractAirSource(
     m_flow=0.5,
     redeclare package Medium = MediumAir,

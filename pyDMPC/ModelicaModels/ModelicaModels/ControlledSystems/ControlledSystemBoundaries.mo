@@ -2,7 +2,7 @@ within ModelicaModels.ControlledSystems;
 model ControlledSystemBoundaries
   "Version of controlled system with boundary conditions"
   extends ModelicaModels.BaseClasses.ControlledSystemBaseClass(volumeFlow(
-        fileName="Inputs/VolumeFlow.txt"));
+        tableOnFile=false, table=[0,0.31,0.29]));
   Modelica.Blocks.Sources.Sine     outdoorTemperature(
     amplitude=10,
     freqHz=1/7200,
@@ -112,8 +112,7 @@ equation
   connect(highTemperatureCircuit.y, toKelvin2.Celsius) annotation (Line(points=
           {{-59,130},{-54.5,130},{-54.5,130},{-50,130}}, color={0,0,127}));
   connect(toKelvin2.Kelvin, heater.T_in) annotation (Line(points={{-27,130},{
-          112.32,130},{112.32,45.2}},
-                                  color={0,0,127}));
+          107.6,130},{107.6,20}}, color={0,0,127}));
   connect(toKelvin2.Kelvin, preHeater.T_in) annotation (Line(points={{-27,130},
           {-10,130},{-10,44},{-47.68,44},{-47.68,45.2}},
                                                      color={0,0,127}));
@@ -133,9 +132,8 @@ equation
   connect(cooler.valveOpening, valveCooler) annotation (Line(points={{8.12,
           -44.2},{8.12,-63.5},{16,-63.5},{16,-106}},
                                               color={0,0,127}));
-  connect(heater.valveOpening, valveHeater) annotation (Line(points={{88.12,
-          45.2},{88.12,52},{96,52},{96,82}},
-                                      color={0,0,127}));
+  connect(heater.valveOpening, valveHeater) annotation (Line(points={{96.6,20},
+          {96.6,52},{96,52},{96,82}}, color={0,0,127}));
   connect(humidifier.humidifierWSP, humidifierWSP1)
     annotation (Line(points={{212,13},{224,13},{224,54}}, color={0,0,127}));
   connect(inOutlets.portExhaustAirOut, outgoingAirOutletTemperature.port)

@@ -5,12 +5,12 @@ model Humidifier "Detailed model of the humidifier"
     ModelicaModels.SubsystemModels.BaseClasses.HeatExchangerCommunicationBaseClass(
      Pressure(k=system.p_ambient),
     IntakeAirSource(nPorts=1),
-    IntakeAirSink(nPorts=1));
+    IntakeAirSink(nPorts=1),
+    volumeFlow(tableOnFile=false, table=[0,0.31,0.29]));
 
   extends
     ModelicaModels.Subsystems.BaseClasses.HumidifierBaseClass(vol(nPorts=5),
-      SteamSource(nPorts=1),
-    HumidifierCharacteristics(fileName="InHumidifier.txt"));
+      SteamSource(nPorts=1));
 equation
   connect(vol.ports[1], IntakeAirSource.ports[1]) annotation (Line(points={{-40,
           -40},{-42,-40},{-42,-50},{-66,-50},{-66,12},{-100,12}}, color={0,127,

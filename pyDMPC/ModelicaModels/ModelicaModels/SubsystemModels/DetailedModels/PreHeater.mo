@@ -5,11 +5,11 @@ model PreHeater "Detailed model of the pre heater"
     ModelicaModels.SubsystemModels.BaseClasses.HeatExchangerCommunicationBaseClass(
      Pressure(k=defaultPressure),
     IntakeAirSource(nPorts=1),
-    IntakeAirSink(nPorts=1));
+    IntakeAirSink(nPorts=1),
+    volumeFlow(tableOnFile=false, table=[0,0.31,0.29]));
 
   extends
-    ModelicaModels.Subsystems.BaseClasses.PreHeaterBaseClass(
-      ValveCharacteristicCurve(fileName="PreHeaterValve.txt"));
+    ModelicaModels.Subsystems.BaseClasses.PreHeaterBaseClass;
 
   Modelica.Blocks.Sources.Constant Temperature(k=273 + 50) annotation (
       Placement(transformation(

@@ -6,63 +6,36 @@ model HeatExchangerMockupCommunicationBaseClass
 
 
 
-  Modelica.Blocks.Tables.CombiTable2D exDestArr(
-    tableOnFile=true,
-    tableName="tab1",
-    smoothness=Modelica.Blocks.Types.Smoothness.LinearSegments,
-    fileName="exDestArr.mat")
-    "Outputs the mean exergetic or monetary cost of the downstream subsystems"
-                                 annotation (Placement(transformation(
+  Modelica.Blocks.Math.Gain gainTemperature(k=0.1)
+    "Temperature gain to transform the decision variable into temperature difference"
+    annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
-        rotation=0,
-        origin={44,-15})));
-  Modelica.Blocks.Math.Sum sum(nin=2)
-                               "Sum all costs"
-    annotation (Placement(transformation(extent={{90,-24},{110,-4}})));
-  Modelica.Blocks.Math.Gain gain(k=0.1)
-    annotation (Placement(transformation(extent={{-44,-118},{-24,-98}})));
-  Modelica.Blocks.Sources.Constant xRefWater(k=0.005)
-    annotation (Placement(transformation(extent={{-50,-32},{-30,-12}})));
+        rotation=90,
+        origin={-28,-28})));
+  HumiditySensor humiditySensor
+    annotation (Placement(transformation(extent={{-10,-140},{10,-120}})));
+  Modelica.Blocks.Math.Gain gainHumidity(k=0.01)
+    "Humidity gain to transform the decision variable into humidity difference"
+    annotation (Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=270,
+        origin={-28,-72})));
 equation
-  connect(exDestArr.y,sum. u[1]) annotation (Line(points={{55,-15},{58,-15},{88,
-          -15}},                    color={0,0,127}));
-  connect(decisionVariables.y[1],gain. u) annotation (Line(points={{-63,-108},{
-          -54,-108},{-46,-108}}, color={0,0,127}));
-  connect(sum.y, objectiveFunction)
-    annotation (Line(points={{111,-14},{230,-14},{230,0}},   color={0,0,127}));
-  connect(xRefWater.y, exDestArr.u2) annotation (Line(points={{-29,-22},{2,-22},
-          {2,-21},{32,-21}}, color={0,0,127}));
-  connect(add.y, exDestArr.u1) annotation (Line(points={{-59,90},{2,90},{2,-9},
-          {32,-9}}, color={0,0,127}));
-  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,-200},
-            {240,220}}), graphics={
-        Rectangle(extent={{-240,220},{240,-200}}, lineColor={28,108,200}),
-        Line(points={{-180,200},{-180,-140},{160,-140},{140,-120},{140,-160},{160,
-              -140}}, color={28,108,200}),
+  connect(decisionVariables.y[1], gainTemperature.u)
+    annotation (Line(points={{-59,-50},{-28,-50},{-28,-40}}, color={0,0,127}));
+  connect(gainTemperature.y, supplyAirTemperature.u3)
+    annotation (Line(points={{-28,-17},{-28,-8},{-12,-8}}, color={0,0,127}));
+  connect(decisionVariables.y[1], gainHumidity.u)
+    annotation (Line(points={{-59,-50},{-28,-50},{-28,-60}}, color={0,0,127}));
+  connect(gainHumidity.y, humiditySensor.u1) annotation (Line(points={{-28,-83},
+          {-28,-124},{-12,-124}}, color={0,0,127}));
+  connect(variation.y[2], humiditySensor.u2) annotation (Line(points={{-59,70},
+          {-28,70},{-28,100},{-120,100},{-120,-136},{-12,-136}}, color={0,0,127}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-160,
+            -160},{140,120}}),
+                         graphics={
+        Rectangle(extent={{-160,120},{140,-160}}, lineColor={28,108,200}),
         Line(points={{-180,200},{-160,180},{-200,180},{-180,200}}, color={28,108,
               200})}),          Diagram(coordinateSystem(preserveAspectRatio=
-            false, extent={{-240,-200},{240,220}}), graphics={Text(
-            extent={{-392,208},{-404,156}},
-            lineColor={238,46,47},
-            horizontalAlignment=TextAlignment.Left,
-          textString="Measurement Data
-
-1: outside air temperature
-2: outside air rel.humidity
-3: exhaust air temperature
-4: exhaust air rel.humidity
-5: outgoing air temperature
-6: outgoing air rel.humidity
-7: supply air temperature
-8: supply rel.humidity
-9: temperature after pre-heater
-10: temperature after cooler
-11: temperature after heater
-12: temperature water pre-heater
-13: temperature water cooler
-14: temperature water heater
-15: water return pre-heater
-16: water return heater
-17: Temperature after recuperator
-18: Humidity after recuperator")}));
+            false, extent={{-160,-160},{140,120}})));
 end HeatExchangerMockupCommunicationBaseClass;
