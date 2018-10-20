@@ -43,8 +43,14 @@ The control approaches are described in  [Introduction](Tutorial/Introduction.md
 
 Try out the short [Tutorial](Tutorial/Tutorial.md).
 
-### Future developments
+### Use the GUI - in progress -
+Wooey is a browser-based UI.
 
+cd C:\WinPython-64bit-3.6.2.0\scripts\ProjectName
+
+celery -A ProjectName worker --pool=eventlet -l info
+
+python manage.py runserver
 
 
 ### How to cite pyDMPC
