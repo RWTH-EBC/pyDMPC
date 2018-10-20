@@ -93,6 +93,9 @@ model ControlledSystemBoundaries
     annotation (Placement(transformation(extent={{312,20},{332,40}})));
   Modelica.Thermal.HeatTransfer.Celsius.FromKelvin heaterTemperatureC
     annotation (Placement(transformation(extent={{172,22},{192,42}})));
+  AixLib.Fluid.Sensors.RelativeHumidity outgoingAirOutletTemperatureHumidity(
+      redeclare package Medium = MediumAir) "Relative humidity after HRC"
+    annotation (Placement(transformation(extent={{-256,48},{-236,68}})));
 equation
   connect(roomHumidity.y, x_indoor.phi) annotation (Line(points={{140.7,183},{
           66,183},{66,182},{40,182}}, color={0,0,127}));
@@ -151,4 +154,7 @@ equation
     annotation (Line(points={{295,30},{310,30}}, color={0,0,127}));
   connect(heaterTemperature.T, heaterTemperatureC.Kelvin)
     annotation (Line(points={{161,32},{170,32}}, color={0,0,127}));
+  connect(outgoingAirOutletTemperatureHumidity.port, inOutlets.portExhaustAirOut)
+    annotation (Line(points={{-246,48},{-246,38},{-220,38},{-220,20.5625},{
+          -205.701,20.5625}}, color={0,127,255}));
 end ControlledSystemBoundaries;

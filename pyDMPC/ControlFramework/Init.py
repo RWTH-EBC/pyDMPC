@@ -11,7 +11,7 @@ measurements_IDs = ['outdoorTemperature.y', 'outdoorHumidity.y', 'outgoingAirOut
                     'heaterTemperatureC.Celsius', 'outdoorHumidity.y', 'preHeaterTemperatureC.Celsius',
                     'coolerTemperatureC.Celsius', 'heaterTemperatureC.Celsius', 'highTemperatureCircuit.y',
                     'coolingCircuit.y', 'highTemperatureCircuit.y', 'preHeater.returnTempInC.Celsius',
-                    'heater.returnTempInC.Celsius', 'hRCTemperatureC.Celsius']
+                    'heater.returnTempInC.Celsius', 'hRCTemperatureC.Celsius','outgoingAirOutletTemperatureHumidity.phi','outgoingAirOutletTemperatureHumidity.phi']
 
 """ General algorithm settings """
 algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
@@ -51,7 +51,7 @@ prediction_horizon = 3600        #Common prediction horizon in seconds
 path_res = r'C:\TEMP'
 
 # Name of the main working directory
-name_wkdir = r'pyDMPC_wkdir12'
+name_wkdir = r'pyDMPC_wkdir'
 
 # Path to the Modelica libraries to be loaded
 path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
