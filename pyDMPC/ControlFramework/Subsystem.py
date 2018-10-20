@@ -47,34 +47,18 @@ class Subsystem():
     def GetNeighbour(self, neighbour_name):
         self.neighbour_name = neighbour_name
 
-    def GetMeasurements(self, ids_list):
+    def GetMeasurements(self, ids_list, model):
 
-        """Only returns dummy values at the moment"""
         values = []
 
-        for val in range(1,20):
-            values.append(25)
+        for val in ids_list:
+            value = model.get(val) #FMU
+            values.append(np.asscalar(value))
 
-        values[2] = 0.005
-        values[4] = 0.005
-        values[6] = 0.005
-        values[8] = 0.005
-        values[17] = 0.005
-
-        measurementsAll = values
-        self.measurements = np.array(values)
-        #self._initial_values = np.array(values)
-
-        global gl_measurements_all
-        gl_measurements_all.append(measurementsAll)
-        #sio.savemat((Init.path_res +'\\' + 'Inputs' +'\\' + 'MeasAll.mat'), #{'MeasAll' :gl_measurements_all})
-
-        #Save new 'CompleteInput.mat' File
-        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(measurementsAll)})
-
+        return values
 
     """ Continue util Init.stop_time (experiment time) is reached """
-    def CalcDVvalues(self, time_step, time_storage, iter):
+    def CalcDVvalues(self, time_step, time_storage, iter, model):
         """ Get Measurements """
         self.measurements = [0.005, 25]
         self._initial_values = []
