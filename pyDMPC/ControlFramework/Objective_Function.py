@@ -182,13 +182,16 @@ def Obj(values_DVs, BC, s):
             cost_total += cost_par[k]*Init.cost_factor + costs_neighbor(0.007,tout-273)
             k += 1
         cost_total = cost_total/len(output_traj[0])
-        print(costs_neighbor(0.007,tout-273))
+        print(s._name + " actuators : " + str(values_DVs))
+        print(cost_total)
         print(tout)
     else:
         for tout in output_traj[0]:
             cost_total += cost_par[k]*Init.cost_factor + 50*(tout-273-Init.set_point[0])**2
             k += 1
         cost_total = cost_total/len(output_traj[0])
+        print(s._name + " actuators : " + str(values_DVs))
+        print(cost_total)
         print(tout)
 
     '''Temporary objective function value'''
