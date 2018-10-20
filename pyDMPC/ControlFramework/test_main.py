@@ -13,7 +13,11 @@ import Objective_Function
 from pyfmi import load_fmu
 import os
 import sys
+import configparser
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+opening = config['General']['opening']
 
 def main():
     """Create a system and multiple subsystems"""
@@ -49,13 +53,13 @@ def main():
 
     for lib in Init.path_lib:
         check1 = dymola.openModel(os.path.join(lib,'package.mo'))
-        print("Opening successful " + str(check1))
+        print(str(opening) + str(check1))
 
 
     dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
 
     # Translate the model to FMU
-    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", false, "'+Init.name_fmu+'", "2", "all", false, 0)')
+    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+Init.name_fmu+'", "2", "all", false, 0)')
 
     log = dymola.getLastErrorLog()
     print(log)
@@ -88,7 +92,15 @@ def main():
 
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
-        subsystems[0].GetMeasurements(AHU._measurements_IDs) #GetMeasurements
+
+        command_all = []
+
+        '''Request any of the subsystems to get all the measurements. Each of the subsytems will get their own measurements individually'''
+        values = subsystems[0].GetMeasurements(AHU._measurements_IDs, model)
+        print(values)
+
+        #Save new 'CompleteInput.mat' File
+        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(values)})
 
         if Init.algorithm == 'NC_DMPC':
 
@@ -96,7 +108,7 @@ def main():
             for k in range(2):
                 if Init.parallelization:
                     def f(s):
-                        commands = s.CalcDVvalues(time_step, time_storage,k)
+                        commands = s.CalcDVvalues(time_step, time_storage,k,model)
                         return commands
 
                     p = Pool(4)
@@ -104,7 +116,9 @@ def main():
 
                 else:
                     for s in subsystems:
-                        commands = s.CalcDVvalues(time_step, time_storage,k)
+                        commands = s.CalcDVvalues(time_step, time_storage,k,model)
+
+                    command_all.append(commands)
 
         elif Init.algorithm == 'BExMoC':
 
@@ -113,7 +127,8 @@ def main():
                 print(s._name)
 
                 """The main calculations are carried out by invoking the :func:'CalcDVvalues' method. The BExMoC algorithm exchanges tables between the subsystems in a .mat format"""
-                commands = s.CalcDVvalues(time_step, time_storage,0)
+                commands = (s.CalcDVvalues(time_step, time_storage,0, model))
+                command_all.append(commands)
 
                 #print(s._name, commands)
 
@@ -135,6 +150,10 @@ def main():
             if time_step > 0:
                 time.sleep(max(Init.sync_rate-time.time()+start,0))
                 start = time.time()
+        else:
+            for l,val in enumerate(command_all):
+                model.set(Init.valveSettings[l], max (0, min(command[l], 100)))
+                model.do_step(0+time_step, 1, True)
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step
         time_step += Init.sync_rate
