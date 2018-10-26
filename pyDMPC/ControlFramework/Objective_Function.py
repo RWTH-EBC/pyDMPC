@@ -179,20 +179,22 @@ def Obj(values_DVs, BC, s):
         costs_neighbor = interpolate.interp2d(storage_cost[0,1:],storage_cost[1:,0],storage_cost[1:,1:], kind = 'linear', fill_value = 10000)
 
         for tout in output_traj[0]:
-            cost_total += cost_par[k]*Init.cost_factor + costs_neighbor(0.007,tout-273)
+            #cost_total += cost_par[k]*Init.cost_factor + costs_neighbor(0.007,tout-273)
+            cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.007,tout-273)
             k += 1
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
-        print(cost_total)
-        print(tout)
+        print("cost_neighbor: " + str(costs_neighbor(0.007,tout-273)))
+        print("cost_total: " + str(cost_total))
+        print("output: " + str(tout))
     else:
         for tout in output_traj[0]:
             cost_total += cost_par[k]*Init.cost_factor + 50*(tout-273-Init.set_point[0])**2
             k += 1
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
-        print(cost_total)
-        print(tout)
+        print("cost_total: " + str(cost_total))
+        print("output: " + str(tout))
 
     '''Temporary objective function value'''
     obj_fnc_vals = [1]
