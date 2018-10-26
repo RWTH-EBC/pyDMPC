@@ -14,6 +14,7 @@ from pyfmi import load_fmu
 import os
 import sys
 import configparser
+import matplotlib.pyplot as plt
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -59,21 +60,21 @@ def main():
     dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
 
     # Translate the model to FMU
-    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+Init.name_fmu+'", "2", "all", false, 0)')
+    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+Init.name_fmu+'", "1", "cs", false, 0)')
 
     log = dymola.getLastErrorLog()
     print(log)
-    '''
+
     model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
-    model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
+    #model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
     model.set('humidifierWSP1',0)
     model.set('valveHRS',0)
     model.set('valvePreHeater',0)
     model.set('valveHeater',0)
     model.set('valveCooler',0)
     model.initialize()
-    '''
+
 
     """Variables storing (time) steps"""
     time_step = 0
@@ -90,14 +91,29 @@ def main():
     3. BExMoC algorithm
     """
 
+    contr_var = [30]
+    fig=plt.figure()
+
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
 
         command_all = []
 
         '''Request any of the subsystems to get all the measurements. Each of the subsytems will get their own measurements individually'''
-        values = subsystems[0].GetMeasurements(AHU._measurements_IDs, model)
+        #values = subsystems[0].GetMeasurements(AHU._measurements_IDs, model)
+        values = 0
+
+        for val in Init.measurements_IDs:
+            value = model.get(val) #FMU
+            values.append(np.asscalar(value))
         print(values)
+
+        '''Plot the current temperature trajectory'''
+        plt.close('all')
+        contr_var.append(values[6])
+        plt.plot(contr_var)
+        plt.show(block=False)
+        plt.savefig(fname='supplyTemp'+str(counter),format='pdf')
 
         #Save new 'CompleteInput.mat' File
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(values)})
@@ -128,6 +144,7 @@ def main():
 
                 """The main calculations are carried out by invoking the :func:'CalcDVvalues' method. The BExMoC algorithm exchanges tables between the subsystems in a .mat format"""
                 commands = (s.CalcDVvalues(time_step, time_storage,0, model))
+                #commands = [[0]]
                 command_all.append(commands)
 
                 #print(s._name, commands)
@@ -152,8 +169,11 @@ def main():
                 start = time.time()
         else:
             for l,val in enumerate(command_all):
-                model.set(Init.valveSettings[l], max (0, min(command[l], 100)))
-                model.do_step(0+time_step, 1, True)
+                model.set(Init.valveSettings[l], max(0, min(val, 100)))
+                print(val)
+
+            model.do_step(time_step, Init.sync_rate)
+
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step
         time_step += Init.sync_rate

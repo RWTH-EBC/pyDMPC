@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-
-"""
-
 import numpy as np
 import Init
 import scipy.io as sio
@@ -19,7 +14,7 @@ class Subsystem():
                  num_DVs,num_BCs, init_DecVars, sim_time,
                  bounds_DVs,model_path, names_BCs,
                    num_VarsOut, Id_BC1, Id_BC2, names_DVs,
-                   output_vars, initial_names, IDs_initial_values,lenInitials,cost_par,
+                   output_vars, initial_names, IDs_initial_values,IDs_inputs,lenInitials,cost_par,
                    type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
@@ -42,6 +37,7 @@ class Subsystem():
         self._output_vars = output_vars
         self._initial_names = initial_names
         self._IDs_initial_values = IDs_initial_values
+        self._IDs_inputs = IDs_inputs
 
 
     def GetNeighbour(self, neighbour_name):
@@ -54,16 +50,21 @@ class Subsystem():
         for val in ids_list:
             value = model.get(val) #FMU
             values.append(np.asscalar(value))
+        print(values)
 
         return values
 
     """ Continue util Init.stop_time (experiment time) is reached """
     def CalcDVvalues(self, time_step, time_storage, iter, model):
         """ Get Measurements """
-        self.measurements = [0.005, 25]
-        self._initial_values = []
-        for k in range(self._lenInitials):
-            self._initial_values.append(298)
+        self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+
+        self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, self.measurements[1])
+
+        if self._IDs_initial_values is not None:
+            self._initial_values = self.GetMeasurements(self._IDs_initial_values, model)
+        else:
+            self._initial_values = []
 
         """ Import selected algorithm (and choose objective function) """
         if Init.algorithm == "BExMoC":
@@ -106,6 +107,11 @@ class Subsystem():
                 try:
                     [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1],
                                                 self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
+
+                    print('measurements: ' + str(self.measurements))
+                    print('commands: ' +str(commands))
+                    print('outputs: ' +str(outputs))
+
                 except:
                     commands = []
                     costs = []
@@ -115,6 +121,7 @@ class Subsystem():
                         commands.append(0)
                         costs.append(0)
                         outputs.append(0)
+                    print("Interpolation failed")
 
             if time_storage != time_step:
                 """ Store global commands""" # just for analysis
@@ -127,8 +134,6 @@ class Subsystem():
                 sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
                 if self._name != 'Steam_humidifier':
                     self.SendCommands(commands)
-            else:
-                commands = -1
 
             return commands
         elif Init.algorithm == "NC_DMPC":
