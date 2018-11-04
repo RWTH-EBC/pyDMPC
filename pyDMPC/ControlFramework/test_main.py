@@ -92,6 +92,7 @@ def main():
     """
 
     contr_var = [30]
+    input = [30]
     fig=plt.figure()
 
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
@@ -108,12 +109,7 @@ def main():
             values.append(np.asscalar(value))
         print(values)
 
-        '''Plot the current temperature trajectory'''
-        plt.close('all')
-        contr_var.append(values[6])
-        plt.plot(contr_var)
-        plt.show(block=False)
-        plt.savefig(fname='supplyTemp'+str(counter),format='pdf')
+
 
         #Save new 'CompleteInput.mat' File
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(values)})
@@ -162,6 +158,12 @@ def main():
                 'Output_Table' + str(counter) + '.mat' ),
                 {'Output_Table': s.lookUpTables[2]}))
 
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
+                'command' + str(counter) + '.mat' ),
+                {'Output_Table': commands}))
+
+
+
         #For real time experiments, the excecution needs to be paused
         if Init.realtime:
             if time_step > 0:
@@ -169,8 +171,16 @@ def main():
                 start = time.time()
         else:
             for l,val in enumerate(command_all):
-                model.set(Init.valveSettings[l], max(0, min(val, 100)))
+                model.set(Init.valveSettings[3-l], max(0, min(val, 100)))
                 print(val)
+
+            '''Plot the current temperature trajectory'''
+            plt.close('all')
+            contr_var.append(values[9])
+            input.append(values[10])
+            plt.plot(contr_var)
+            plt.show(block=False)
+            plt.savefig('supplyTemp'+str(counter),format='pdf')
 
             model.do_step(time_step, Init.sync_rate)
 
