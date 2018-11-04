@@ -176,6 +176,7 @@ def Obj(values_DVs, BC, s):
         storage_cost = x[Init.tableName_Cost]
 
         """Interpolation"""
+        '''Ensure to change the cost_par back later'''
         costs_neighbor = interpolate.interp2d(storage_cost[0,1:],storage_cost[1:,0],storage_cost[1:,1:], kind = 'linear', fill_value = 10000)
 
         for tout in output_traj[0]:
@@ -189,8 +190,11 @@ def Obj(values_DVs, BC, s):
         print("output: " + str(tout))
     else:
         for tout in output_traj[0]:
-            cost_total += cost_par[k]*Init.cost_factor + 50*(tout-273-Init.set_point[0])**2
-            k += 1
+            if abs(tout-273-Init.set_point[0]) > 0.5:
+                cost_total += cost_par[k]*Init.cost_factor + 50*(abs(tout-273-Init.set_point[0])-0.5)**2
+                k += 1
+            else:
+                cost_total = 0
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
         print("cost_total: " + str(cost_total))
