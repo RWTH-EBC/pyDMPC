@@ -2,11 +2,8 @@ within ModelicaModels.SubsystemModels.BaseClasses;
 model HeatExchangerCommunicationBaseClass
   "Base class containing the communication blocks for the heat exchanger models"
 
-  extends ModelicaModels.BaseClasses.BaseClass;
-
-  parameter String resultFileName="HexResult.txt"
-    "File on which data is present";
-  parameter String header="Objective function value" "Header for result file";
+  replaceable package MediumAir = AixLib.Media.Air;
+  replaceable package MediumWater = AixLib.Media.Water;
 
   Modelica.Fluid.Sources.MassFlowSource_T IntakeAirSource(
     m_flow=0.5,
@@ -47,13 +44,13 @@ model HeatExchangerCommunicationBaseClass
         transformation(
         extent={{-10,-10},{10,10}},
         rotation=0,
-        origin={-74,-108})));
+        origin={-76,-110})));
   Modelica.Blocks.Sources.CombiTimeTable MeasuredData(
     tableOnFile=true,
     tableName="InputTable",
     extrapolation=Modelica.Blocks.Types.Extrapolation.HoldLastPoint,
-    columns=2:19,
-    fileName="../Inputs/CompleteInput.mat")
+    fileName="CompleteInput.mat",
+    columns=2:3)
     annotation (Placement(transformation(extent={{-240,186},{-206,220}})));
   Modelica.Blocks.Sources.CombiTimeTable volumeFlow(
     tableOnFile=true,
@@ -85,15 +82,6 @@ model HeatExchangerCommunicationBaseClass
     annotation (Placement(transformation(extent={{70,80},{90,100}})));
   AixLib.Utilities.Psychrometrics.ToDryAir toDryAir
     annotation (Placement(transformation(extent={{100,80},{120,100}})));
-  Modelica.Blocks.Math.Add add4(k2=-1)
-    annotation (Placement(transformation(extent={{-10,-10},{10,10}},
-        rotation=270,
-        origin={-188,162})));
-  Modelica.Blocks.Sources.Constant phiset1(k=1)  annotation (Placement(
-        transformation(
-        extent={{10,10},{-10,-10}},
-        rotation=0,
-        origin={-156,220})));
 
   AixLib.Fluid.Sensors.RelativeHumidity supplyAirHumidity(redeclare package
       Medium = MediumAir) "Relative humidity of supply air"
@@ -108,6 +96,13 @@ model HeatExchangerCommunicationBaseClass
         origin={186,48})));
 
 
+  Modelica.Blocks.Math.Gain convertPercent(k=1/100) "Convert from percent"
+    annotation (Placement(transformation(
+        extent={{-6,-6},{6,6}},
+        rotation=270,
+        origin={-100,168})));
+  AixLib.Utilities.Psychrometrics.ToTotalAir toTotAir
+    annotation (Placement(transformation(extent={{-200,-20},{-180,0}})));
 equation
 
 
@@ -126,8 +121,6 @@ equation
           203},{-132,203},{-132,182}}, color={0,0,127}));
   connect(toKelvin3.Kelvin, x_pTphi1.T) annotation (Line(points={{-132,159},{-132,
           159},{-132,132},{-132,118},{-68,118}}, color={0,0,127}));
-  connect(MeasuredData.y[2], x_pTphi1.phi) annotation (Line(points={{-204.3,203},
-          {-100,203},{-100,112},{-68,112}}, color={0,0,127}));
   connect(Pressure.y, x_pTphi1.p_in) annotation (Line(points={{-121,-30},{-128,-30},
           {-128,-12},{-76,-12},{-76,124},{-68,124}},
                                                    color={0,0,127}));
@@ -136,44 +129,23 @@ equation
   connect(Pressure.y, x_pTphi2.p_in) annotation (Line(points={{-121,-30},{-128,
           -30},{-128,-12},{-76,-12},{-76,70},{40,70},{40,96},{68,96}},
         color={0,0,127}));
-  connect(phiset1.y, add4.u1) annotation (Line(points={{-167,220},{-182,220},{-182,
-          174}},      color={0,0,127}));
-  connect(add4.y, IntakeAirSource.X_in[2]) annotation (Line(points={{-188,151},{
-          -188,151},{-188,146},{-182,146},{-182,8},{-122,8}}, color={0,0,127}));
-  connect(variation.y[2], IntakeAirSource.X_in[1]) annotation (Line(points={{-219,
-          140},{-206,140},{-206,8},{-122,8}}, color={0,0,127}));
-  connect(variation.y[2], add4.u2) annotation (Line(points={{-219,140},{-206,140},
-          {-206,182},{-194,182},{-194,174}}, color={0,0,127}));
   connect(supplyAirTemperature.T, x_pTphi2.T) annotation (Line(points={{111,48},
           {160,48},{160,74},{58,74},{58,90},{68,90}}, color={0,0,127}));
   connect(supplyAirHumidity.phi, x_pTphi2.phi) annotation (Line(points={{77,48},
           {82,48},{82,66},{64,66},{64,84},{68,84}},   color={0,0,127}));
   connect(supplyAirTemperature.T, fromKelvin.Kelvin)
     annotation (Line(points={{111,48},{174,48},{174,48}}, color={0,0,127}));
-  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,
-            -200},{500,220}})), Diagram(coordinateSystem(preserveAspectRatio=
-            false, extent={{-240,-200},{500,220}}), graphics={Text(
-            extent={{-392,208},{-404,156}},
-            lineColor={238,46,47},
-            horizontalAlignment=TextAlignment.Left,
-          textString="Measurement Data
-
-1: outside air temperature
-2: outside air rel.humidity
-3: exhaust air temperature
-4: exhaust air rel.humidity
-5: outgoing air temperature
-6: outgoing air rel.humidity
-7: supply air temperature
-8: supply rel.humidity
-9: temperature after pre-heater
-10: temperature after cooler
-11: temperature after heater
-12: temperature water pre-heater
-13: temperature water cooler
-14: temperature water heater
-15: water return pre-heater
-16: water return heater
-17: Temperature after recuperator
-18: Humidity after recuperator")}));
+  connect(MeasuredData.y[2], convertPercent.u) annotation (Line(points={{-204.3,
+          203},{-100,203},{-100,175.2}}, color={0,0,127}));
+  connect(convertPercent.y, x_pTphi1.phi) annotation (Line(points={{-100,161.4},
+          {-100,112},{-68,112}}, color={0,0,127}));
+  connect(toTotAir.XiTotalAir, IntakeAirSource.X_in[1]) annotation (Line(points=
+         {{-179,-10},{-150,-10},{-150,8},{-122,8}}, color={0,0,127}));
+  connect(toTotAir.XNonVapor, IntakeAirSource.X_in[2]) annotation (Line(points={
+          {-179,-14},{-150,-14},{-150,8},{-122,8}}, color={0,0,127}));
+  connect(variation.y[2], toTotAir.XiDry) annotation (Line(points={{-219,140},{-208,
+          140},{-208,-10},{-201,-10}}, color={0,0,127}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,-200},
+            {200,220}})),       Diagram(coordinateSystem(preserveAspectRatio=
+            false, extent={{-240,-200},{200,220}})));
 end HeatExchangerCommunicationBaseClass;

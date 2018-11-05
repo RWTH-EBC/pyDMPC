@@ -36,21 +36,6 @@ model ControlledSystemBoundaries
         extent={{10,10},{-10,-10}},
         rotation=180,
         origin={-330,120})));
-  Modelica.Blocks.Sources.Constant highTemperatureCircuit(k=65)
-    annotation (Placement(transformation(extent={{-80,118},{-60,138}})));
-  Modelica.Blocks.Sources.Constant
-                               coolingCircuit(k=6)
-    annotation (Placement(transformation(extent={{-2,100},{18,120}})));
-  Modelica.Thermal.HeatTransfer.Celsius.ToKelvin toKelvin2 annotation (
-      Placement(transformation(
-        extent={{10,10},{-10,-10}},
-        rotation=180,
-        origin={-38,130})));
-  Modelica.Thermal.HeatTransfer.Celsius.ToKelvin toKelvin3 annotation (
-      Placement(transformation(
-        extent={{10,10},{-10,-10}},
-        rotation=90,
-        origin={28,72})));
   Modelica.Blocks.Interfaces.RealInput valveHRS
     "Opening of the HRC valve (0..100 %)" annotation (Placement(transformation(
         extent={{-20,-20},{20,20}},
@@ -161,8 +146,8 @@ model ControlledSystemBoundaries
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={276,76})));
-  Modelica.Blocks.Interfaces.RealOutput supplyAirTemperatureCOutput annotation
-    (Placement(transformation(
+  Modelica.Blocks.Interfaces.RealOutput supplyAirTemperatureCOutput annotation (
+     Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={294,76})));
@@ -201,7 +186,7 @@ model ControlledSystemBoundaries
         extent={{-10,-10},{10,10}},
         rotation=270,
         origin={142,-68})));
-  Modelica.Blocks.Sources.RealExpression realExpression[4](y=inOutlets.OutgoingHex.ele[
+  Modelica.Blocks.Sources.RealExpression realExpression[4](y=inOutlets.hex.ele[
         :].mas.T)
     annotation (Placement(transformation(extent={{-200,-142},{-180,-122}})));
   Modelica.Blocks.Interfaces.RealOutput inOutletsOutgoingHexele1masT
@@ -285,18 +270,6 @@ equation
   connect(outdoorHumidity.y, x_outdoor.phi) annotation (Line(points={{-362.6,76},
           {-340,76},{-340,-16},{-376,-16},{-376,-44},{-362,-44}}, color={0,0,
           127}));
-  connect(coolingCircuit.y, toKelvin3.Celsius)
-    annotation (Line(points={{19,110},{27.6,110},{28,84}}, color={0,0,127}));
-  connect(toKelvin3.Kelvin, cooler.T_in) annotation (Line(points={{28,61},{28,
-          40},{56,40},{56,-28},{32.32,-28},{32.32,-44.2}},
-                                                       color={0,0,127}));
-  connect(highTemperatureCircuit.y, toKelvin2.Celsius) annotation (Line(points={{-59,128},
-          {-54.5,128},{-54.5,130},{-50,130}},            color={0,0,127}));
-  connect(toKelvin2.Kelvin, heater.T_in) annotation (Line(points={{-27,130},{
-          107.6,130},{107.6,20}}, color={0,0,127}));
-  connect(toKelvin2.Kelvin, preHeater.T_in) annotation (Line(points={{-27,130},
-          {-10,130},{-10,44},{-47.68,44},{-47.68,45.2}},
-                                                     color={0,0,127}));
   connect(toKelvin1.Kelvin, freshAirSource.T_in) annotation (Line(points={{-319,
           120},{-310,120},{-310,120},{-310,-36},{-304,-36}}, color={0,0,127}));
   connect(roomTemperature.y, toKelvin.Celsius) annotation (Line(points={{140.7,
@@ -305,20 +278,23 @@ equation
           154},{62,176},{40,176}}, color={0,0,127}));
   connect(extractAirSource.T_in, toKelvin.Kelvin) annotation (Line(points={{-78,
           182},{4,182},{4,154},{81,154}}, color={0,0,127}));
-  connect(inOutlets.valveOpening, valveHRS) annotation (Line(points={{-166.716,
-          26.3125},{-166.716,116.156},{-166,116.156},{-166,206}}, color={0,0,
+  connect(inOutlets.valveOpening, valveHRS) annotation (Line(points={{-181.059,
+          0.352941},{-181.059,116.156},{-166,116.156},{-166,206}},color={0,0,
           127}));
-  connect(preHeater.valveOpening, valvePreHeater) annotation (Line(points={{-71.88,
-          45.2},{-71.88,47},{-64,47},{-64,90}},    color={0,0,127}));
-  connect(cooler.valveOpening, valveCooler) annotation (Line(points={{8.12,
-          -44.2},{8.12,-63.5},{16,-63.5},{16,-106}},
+  connect(preHeater.valveOpening, valvePreHeater) annotation (Line(points={{
+          -75.7143,11.9231},{-75.7143,47},{-64,47},{-64,90}},
+                                                   color={0,0,127}));
+  connect(cooler.valveOpening, valveCooler) annotation (Line(points={{4.28571,
+          -10.9231},{4.28571,-63.5},{16,-63.5},{16,-106}},
                                               color={0,0,127}));
-  connect(heater.valveOpening, valveHeater) annotation (Line(points={{96.6,20},
-          {96.6,52},{96,52},{96,82}}, color={0,0,127}));
+  connect(heater.valveOpening, valveHeater) annotation (Line(points={{84.2857,
+          3.94118},{84.2857,52},{96,52},{96,82}},
+                                      color={0,0,127}));
   connect(humidifier.humidifierWSP, humidifierWSP1)
-    annotation (Line(points={{212,13},{224,13},{224,54}}, color={0,0,127}));
-  connect(inOutlets.portExhaustAirOut, outgoingAirOutletTemperature.port)
-    annotation (Line(points={{-205.701,20.5625},{-205.701,31.2813},{-214,
+    annotation (Line(points={{212.491,3.28},{224,3.28},{224,54}},
+                                                          color={0,0,127}));
+  connect(inOutlets.portExhaustAirIn, outgoingAirOutletTemperature.port)
+    annotation (Line(points={{-144.371,29.5765},{-144.371,31.2813},{-214,
           31.2813},{-214,40}}, color={0,127,255}));
   connect(outgoingAirOutletTemperature.T, outgoingAirOutletTemperatureC.Kelvin)
     annotation (Line(points={{-207,50},{-198,50}}, color={0,0,127}));
@@ -332,9 +308,9 @@ equation
     annotation (Line(points={{295,30},{310,30}}, color={0,0,127}));
   connect(heaterTemperature.T, heaterTemperatureC.Kelvin)
     annotation (Line(points={{161,32},{170,32}}, color={0,0,127}));
-  connect(outgoingAirOutletHumidity.port, inOutlets.portExhaustAirOut)
-    annotation (Line(points={{-246,48},{-246,38},{-220,38},{-220,20.5625},{
-          -205.701,20.5625}}, color={0,127,255}));
+  connect(outgoingAirOutletHumidity.port, inOutlets.portExhaustAirIn)
+    annotation (Line(points={{-246,48},{-246,38},{-220,38},{-220,29.5765},{
+          -144.371,29.5765}}, color={0,127,255}));
   connect(outgoingAirOutletHumidity.phi, outgoingAirOutletHumidityOutput)
     annotation (Line(points={{-235,58},{-230,58},{-230,202}}, color={0,0,127}));
   connect(outdoorHumidity.y, outdoorHumidityOutput) annotation (Line(points={{
@@ -371,17 +347,15 @@ equation
           140.7,132},{132,132},{132,150},{212,150},{212,178}}, color={0,0,127}));
   connect(roomHumidity.y, roomHumidityOutput) annotation (Line(points={{140.7,
           183},{126,183},{126,156},{190,156},{190,176}}, color={0,0,127}));
-  connect(coolingCircuit.y, coolingCircuitOutput)
-    annotation (Line(points={{19,110},{32,110},{32,142}}, color={0,0,127}));
-  connect(highTemperatureCircuit.y, highTemperatureCircuitOutput) annotation (
-      Line(points={{-59,128},{-56,128},{-56,152},{-54,152},{-54,154}}, color={0,
-          0,127}));
   connect(cooler.returnTemperature, coolerReturnTemperatureOutput) annotation (
-      Line(points={{66.2,-31.6},{78,-31.6},{78,-62}}, color={0,0,127}));
+      Line(points={{43.5714,-5.10769},{78,-5.10769},{78,-62}},
+                                                      color={0,0,127}));
   connect(preHeater.returnTemperature, preHeaterReturnTemperatureOutput)
-    annotation (Line(points={{-13.8,32.6},{-12,32.6},{-12,-66}}, color={0,0,127}));
+    annotation (Line(points={{-36.4286,6.10769},{-12,6.10769},{-12,-66}},
+                                                                 color={0,0,127}));
   connect(heater.returnTemperature, heaterReturnTemperatureOutput) annotation (
-      Line(points={{123,12.125},{142,12.125},{142,-68}}, color={0,0,127}));
+      Line(points={{123.571,-0.505882},{142,-0.505882},{142,-68}},
+                                                         color={0,0,127}));
   connect(realExpression[1].y, inOutletsOutgoingHexele1masT) annotation (Line(
         points={{-179,-132},{-168,-132},{-168,-116},{-150,-116}}, color={0,0,
           127}));
@@ -430,4 +404,10 @@ equation
           117,-176},{126,-176},{126,-180},{146,-180}}, color={0,0,127}));
   connect(realExpression4[4].y, heaterhexele4masT) annotation (Line(points={{
           117,-176},{128,-176},{128,-190},{146,-190}}, color={0,0,127}));
+  connect(preHeater.waterInflowTemperature, highTemperatureCircuitOutput)
+    annotation (Line(points={{-44.2857,11.9231},{-36,11.9231},{-36,116},{-54,
+          116},{-54,154}}, color={0,0,127}));
+  connect(cooler.waterInflowTemperature, coolingCircuitOutput) annotation (Line(
+        points={{35.7143,-10.9231},{56,-10.9231},{56,68},{32,68},{32,142}},
+        color={0,0,127}));
 end ControlledSystemBoundaries;

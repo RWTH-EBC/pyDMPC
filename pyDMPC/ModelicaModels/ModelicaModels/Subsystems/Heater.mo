@@ -4,26 +4,21 @@ model Heater
 
   extends ModelicaModels.Subsystems.BaseClasses.HeaterBaseClass;
 
-  extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(senTemp1(
-       redeclare package Medium = MediumWater));
-
-  extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerPorts(
-  portSupplyAirIn(redeclare package Medium = MediumAir),
-  portSupplyAirOut(redeclare package Medium = MediumAir));
+  extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerPorts;
 
 equation
-  connect(T_in, warmWaterSource.T_in)
-    annotation (Line(points={{56,-220},{56,-182},{56,-182}}, color={0,0,127}));
-  connect(valveOpening, gain3.u) annotation (Line(points={{-54,-220},{-54,-220},
-          {-54,-114},{-54,-108},{-27.2,-108}}, color={0,0,127}));
-  connect(portSupplyAirIn, hex.port_a2) annotation (Line(points={{-240,0},{-2,0},
-          {-2,12},{60,12}}, color={0,127,255}));
-  connect(hex.port_b2, portSupplyAirOut) annotation (Line(points={{80,12},{142,12},
-          {142,0},{200,0}}, color={0,127,255}));
-  connect(senTemp1.port, val.port_3) annotation (Line(points={{82,-122},{82,
-          -130},{76,-130},{76,-100},{70,-100}}, color={0,127,255}));
-  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-240,
-            -220},{200,100}})),                                  Diagram(
-        coordinateSystem(preserveAspectRatio=false, extent={{-240,-220},{200,
-            100}})));
+  connect(portSupplyAirIn, hex.port_a2) annotation (Line(points={{-100,0},{-84,
+          0},{-84,70},{-12,70}},
+                            color={0,127,255}));
+  connect(hex.port_b2, portSupplyAirOut) annotation (Line(points={{8,70},{80,70},
+          {80,0},{100,0}},  color={0,127,255}));
+  connect(valveOpening, convertCommand.u) annotation (Line(points={{-100,-90},{
+          -66,-90},{-66,-68},{-112,-68},{-112,-50},{-103.2,-50}}, color={0,0,
+          127}));
+  connect(Temperature.y, waterInflowTemperature) annotation (Line(points={{-119,
+          -128},{78,-128},{78,-90},{100,-90}}, color={0,0,127}));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-140,
+            -220},{140,120}})),                                  Diagram(
+        coordinateSystem(preserveAspectRatio=false, extent={{-140,-220},{140,
+            120}})));
 end Heater;

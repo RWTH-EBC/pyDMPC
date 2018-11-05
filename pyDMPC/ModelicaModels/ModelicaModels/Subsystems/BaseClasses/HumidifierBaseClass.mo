@@ -12,7 +12,7 @@ model HumidifierBaseClass "Base class of the humdifier"
     redeclare package Medium = MediumAir,
     m_flow_nominal=0.5,
     V=0.1)
-    annotation (Placement(transformation(extent={{-50,-40},{-30,-20}})));
+    annotation (Placement(transformation(extent={{-60,22},{-40,42}})));
   Modelica.Fluid.Sources.MassFlowSource_T  SteamSource(
     m_flow=0.5,
     redeclare package Medium = MediumAir,
@@ -24,78 +24,51 @@ model HumidifierBaseClass "Base class of the humdifier"
              annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=180,
-        origin={50,-140})));
-  Modelica.Blocks.Math.Gain gain(k=1/100) annotation (Placement(transformation(
-        extent={{-10,-10},{10,10}},
-        rotation=180,
-        origin={164,-130})));
+        origin={2,-34})));
   Modelica.Blocks.Tables.CombiTable1D HumidifierCharacteristics(
     tableOnFile=false, table=[0,0; 1,0.012])            annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=0,
-        origin={130,-130})));
+        origin={82,-24})));
 
   Modelica.Blocks.Sources.Constant SteamFlowNominal(k=0.2) annotation (
       Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=0,
-        origin={130,-166})));
+        origin={82,-60})));
   Modelica.Blocks.Math.Product product3
     annotation (Placement(transformation(extent={{-10,-10},{10,10}},
         rotation=180,
-        origin={90,-160})));
+        origin={42,-54})));
   Modelica.Blocks.Sources.Constant steamTemperature(k=100 + 273.15)
     annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=0,
-        origin={90,-120})));
+        origin={42,-14})));
 
+  inner Modelica.Fluid.System system
+    annotation (Placement(transformation(extent={{-100,80},{-80,100}})));
 equation
 
   connect(HumidifierCharacteristics.y[1], product3.u2) annotation (Line(
-      points={{119,-130},{110,-130},{110,-154},{102,-154}},
+      points={{71,-24},{62,-24},{62,-48},{54,-48}},
       color={0,0,127},
       smooth=Smooth.None));
   connect(SteamFlowNominal.y, product3.u1) annotation (Line(
-      points={{119,-166},{102,-166}},
+      points={{71,-60},{54,-60}},
       color={0,0,127},
       smooth=Smooth.None));
   connect(product3.y, SteamSource.m_flow_in) annotation (Line(
-      points={{79,-160},{70,-160},{70,-148},{60,-148}},
+      points={{31,-54},{22,-54},{22,-42},{12,-42}},
       color={0,0,127},
       smooth=Smooth.None));
 
   connect(steamTemperature.y, SteamSource.T_in)
-    annotation (Line(points={{79,-120},{70,-120},{70,-144},{62,-144}},
+    annotation (Line(points={{31,-14},{22,-14},{22,-38},{14,-38}},
                                                           color={0,0,127}));
-  connect(gain.y, HumidifierCharacteristics.u[1]) annotation (Line(points={{153,
-          -130},{142,-130}},            color={0,0,127}));
-   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-260,
-            -200},{280,240}})), Diagram(coordinateSystem(preserveAspectRatio=false,
-                   extent={{-260,-200},{280,240}}), graphics={Text(
-            extent={{-366,216},{-378,164}},
-            lineColor={238,46,47},
-            horizontalAlignment=TextAlignment.Left,
-          textString="Measurement Data
-
-1: outside air temperature
-2: outside air rel.humidity
-3: exhaust air temperature
-4: exhaust air rel.humidity
-5: outgoing air temperature
-6: outgoing air rel.humidity
-7: supply air temperature
-8: supply rel.humidity
-9: temperature after pre-heater
-10: temperature after cooler
-11: temperature after heater
-12: temperature water pre-heater
-13: temperature water cooler
-14: temperature water heater
-15: water return pre-heater
-16: water return heater
-17: Temperature after recuperator
-18: Humidity after recuperator")}),
+   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+            -100},{120,100}})), Diagram(coordinateSystem(preserveAspectRatio=false,
+                   extent={{-100,-100},{100,100}})),
     experiment(StopTime=3600, Interval=60),
     __Dymola_experimentSetupOutput);
 end HumidifierBaseClass;

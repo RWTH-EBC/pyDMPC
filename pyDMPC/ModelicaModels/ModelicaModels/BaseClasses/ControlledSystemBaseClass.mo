@@ -8,7 +8,7 @@ model ControlledSystemBaseClass "Base class of the controlled system"
 
   ModelicaModels.Subsystems.InOutlets inOutlets(
       defaultPressure=defaultPressure)
-    annotation (Placement(transformation(extent={{-206,-20},{-126,30}})));
+    annotation (Placement(transformation(extent={{-186,-18},{-144,30}})));
   ModelicaModels.Subsystems.Heater heater(
     defaultPressure=defaultPressure,
     specificCost=5,
@@ -62,7 +62,7 @@ model ControlledSystemBaseClass "Base class of the controlled system"
       Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=180,
-        origin={-236,20})));
+        origin={-238,30})));
   AixLib.Fluid.FixedResistances.PressureDrop supplyPressureDrop(
     m_flow_nominal=0.3,
     dp_nominal=350,
@@ -158,27 +158,28 @@ model ControlledSystemBaseClass "Base class of the controlled system"
     annotation (Placement(transformation(extent={{-126,24},{-106,44}})));
 equation
   connect(inOutlets.portSupplyAirOut, preHeater.portSupplyAirIn) annotation (
-      Line(points={{-126.358,0.25},{-105.179,0.25},{-105.179,-0.16},{-117.64,
-          -0.16}},
+      Line(points={{-156.6,13.0588},{-105.179,13.0588},{-105.179,-2.61538},{
+          -75.5571,-2.61538}},
         color={0,127,255}));
   connect(preHeater.portSupplyAirOut, cooler.portSupplyAirIn) annotation (Line(
-        points={{-7.2,-0.16},{-37.64,-0.16},{-37.64,1.16}},color={0,127,255}));
+        points={{-44.6,-2.61538},{4.44286,-2.61538},{4.44286,3.61538}},
+                                                           color={0,127,255}));
   connect(cooler.portSupplyAirOut, heater.portSupplyAirIn) annotation (Line(
-        points={{72.8,1.16},{62,-0.16},{42.36,-0.16}},  color={0,127,255}));
+        points={{35.4,3.61538},{35.4,-7.17647},{84.4429,-7.17647}},
+                                                        color={0,127,255}));
   connect(heater.portSupplyAirOut, humidifier.portSupplyAirIn) annotation (Line(
-        points={{152.8,-0.16},{142,0.4},{157.8,0.4}},       color={0,127,255}));
-  connect(inOutlets.portExhaustAirOut, exhaustPressureDrop.port_a) annotation (
-      Line(points={{-205.701,20.5625},{-214.851,20.5625},{-214.851,20},{-226,20}},
+        points={{115.4,-7.17647},{115.4,-15.2},{158,-15.2}},color={0,127,255}));
+  connect(inOutlets.portExhaustAirIn, exhaustPressureDrop.port_a) annotation (
+      Line(points={{-144.371,29.5765},{-214.851,29.5765},{-214.851,30},{-228,30}},
         color={0,127,255}));
   connect(exhaustPressureDrop.port_b, exhaustAirSink.ports[1]) annotation (Line(
-        points={{-246,20},{-264,20},{-264,40},{-280,40}}, color={0,127,255}));
+        points={{-248,30},{-264,30},{-264,40},{-280,40}}, color={0,127,255}));
   connect(humidifier.portSupplyAirOut, supplyPressureDrop.port_a) annotation (
-      Line(points={{208,0.4},{217,0.4},{217,0},{226,0}}, color={0,127,255}));
-  connect(extractAirSource.ports[1], inOutlets.portExtractAirIn) annotation (
-      Line(points={{-100,178},{-112,178},{-112,19.8125},{-126.06,19.8125}},
-        color={0,127,255}));
+      Line(points={{212.245,-14.98},{217,-14.98},{217,0},{226,0}},
+                                                         color={0,127,255}));
   connect(freshAirSource.ports[1], inOutlets.portSupplyAirIn) annotation (Line(
-        points={{-282,-40},{-246,-40},{-246,0.375},{-205.761,0.375}}, color={0,
+        points={{-282,-40},{-246,-40},{-246,13.0588},{-180.935,13.0588}},
+                                                                      color={0,
           127,255}));
   connect(supplyPressureDrop.port_b, supplyAirSink.ports[1])
     annotation (Line(points={{246,0},{298,0}}, color={0,127,255}));
@@ -211,26 +212,31 @@ equation
   connect(toKelvinSet.Kelvin, x_set.T) annotation (Line(points={{-339,-96},{
           -280,-96},{-280,-127},{-262.6,-127}}, color={0,0,127}));
   connect(heaterTemperature.port, heater.portSupplyAirOut) annotation (Line(
-        points={{154,22},{154,-0.16},{152.8,-0.16}},
+        points={{154,22},{154,-7.17647},{115.4,-7.17647}},
                                                color={0,127,255}));
   connect(heaterHumidity.port, heater.portSupplyAirOut) annotation (Line(points={{128,24},
-          {128,24},{128,-0.16},{152.8,-0.16}},    color={0,127,255}));
+          {128,-7.17647},{115.4,-7.17647}},       color={0,127,255}));
   connect(coolerHumidity.port, cooler.portSupplyAirOut) annotation (Line(points={{48,24},
-          {52,24},{52,6},{52,1.16},{72.8,1.16}},     color={0,127,255}));
+          {52,24},{52,6},{52,3.61538},{35.4,3.61538}},
+                                                     color={0,127,255}));
   connect(coolerTemperature.port, cooler.portSupplyAirOut)
-    annotation (Line(points={{72,22},{72,1.16},{72.8,1.16}},
+    annotation (Line(points={{72,22},{72,3.61538},{35.4,3.61538}},
                                                          color={0,127,255}));
   connect(preHeaterHumidity.port, preHeater.portSupplyAirOut) annotation (Line(
-        points={{-28,20},{-28,-0.16},{-7.2,-0.16}},
+        points={{-28,20},{-28,-2.61538},{-44.6,-2.61538}},
                                                color={0,127,255}));
   connect(preHeaterTemperature.port, preHeater.portSupplyAirOut)
-    annotation (Line(points={{-6,20},{-6,-0.16},{-7.2,-0.16}},
+    annotation (Line(points={{-6,20},{-6,-2.61538},{-44.6,-2.61538}},
                                                           color={0,127,255}));
   connect(hRCTemperature.port, inOutlets.portSupplyAirOut) annotation (Line(
-        points={{-88,20},{-88,0.25},{-126.358,0.25}}, color={0,127,255}));
+        points={{-88,20},{-88,13.0588},{-156.6,13.0588}},
+                                                      color={0,127,255}));
   connect(hRCHumidity.port, inOutlets.portSupplyAirOut) annotation (Line(points={{-116,24},
-          {-116,24},{-116,10},{-116,0.25},{-126.358,0.25}},           color={0,
+          {-116,13.0588},{-156.6,13.0588}},                           color={0,
           127,255}));
+  connect(extractAirSource.ports[1], inOutlets.portExhaustAirIn) annotation (
+      Line(points={{-100,178},{-136,178},{-136,29.5765},{-144.371,29.5765}},
+        color={0,127,255}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-400,
             -140},{380,220}})),
                           Diagram(coordinateSystem(preserveAspectRatio=false,

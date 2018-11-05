@@ -4,11 +4,11 @@ model HeaterBaseClass "Base class of the heater"
     ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
     hex(UA_nominal=1521),
     Pressure1(k=300),
-    warmWaterSource(nPorts=1),
-    waterSink(nPorts=1),
     ValveCharacteristicCurve(
     tableOnFile=false,
-    table=[0,0; 0.1,0.1; 0.9,0.9; 1,1]));
+    table=[0,0; 0.1,0.1; 0.9,0.9; 1,1]),
+    warmWaterSource(nPorts=1),
+    waterSink(nPorts=1));
 
 
   AixLib.Fluid.Actuators.Valves.ThreeWayLinear    val(
@@ -19,28 +19,29 @@ model HeaterBaseClass "Base class of the heater"
                    annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
-        origin={60,-100})));
+        origin={14,-30})));
   AixLib.Fluid.Movers.FlowControlled_dp    CurculationPump(redeclare package
       Medium = MediumWater, m_flow_nominal=0.5) annotation (Placement(
         transformation(
         extent={{10,10},{-10,-10}},
         rotation=270,
-        origin={60,-70})));
+        origin={14,2})));
 equation
-  connect(val.port_2,CurculationPump. port_a) annotation (Line(points={{60,-90},
-          {60,-86},{60,-80}}, color={0,127,255}));
-  connect(CurculationPump.port_b, hex.port_a1) annotation (Line(points={{60,-60},
-          {92,-60},{92,-24},{92,0},{80,0}},   color={0,127,255}));
-  connect(hex.port_b1,val. port_3) annotation (Line(points={{60,0},{54,0},{54,
-          -28},{100,-28},{100,-100},{70,-100}},
+  connect(val.port_2,CurculationPump. port_a) annotation (Line(points={{14,-20},
+          {14,-8}},           color={0,127,255}));
+  connect(CurculationPump.port_b, hex.port_a1) annotation (Line(points={{14,12},
+          {14,58},{8,58}},                    color={0,127,255}));
+  connect(hex.port_b1,val. port_3) annotation (Line(points={{-12,58},{-20,58},{
+          -20,20},{40,20},{40,-30},{24,-30}},
                                            color={0,127,255}));
-  connect(ValveCharacteristicCurve.y[1],val. y) annotation (Line(points={{15,-110},
-          {26,-110},{38,-110},{38,-100},{48,-100}},
-                                          color={0,0,127}));
-  connect(Pressure1.y,CurculationPump. dp_in)
-    annotation (Line(points={{21,-70},{48,-70},{48,-70}},   color={0,0,127}));
-  connect(warmWaterSource.ports[1], val.port_1)
-    annotation (Line(points={{60,-160},{60,-110}}, color={0,127,255}));
-  connect(waterSink.ports[1], val.port_3) annotation (Line(points={{80,-160},{
-          80,-100},{70,-100}}, color={0,127,255}));
+  connect(ValveCharacteristicCurve.y[1],val. y) annotation (Line(points={{-59,-50},
+          {-20,-50},{-20,-30},{2,-30}},   color={0,0,127}));
+  connect(val.port_1, warmWaterSource.ports[1]) annotation (Line(points={{14,
+          -40},{14,-72},{-12,-72},{-12,-102}}, color={0,127,255}));
+  connect(hex.port_b1, waterSink.ports[1]) annotation (Line(points={{-12,58},{
+          -20,58},{-20,20},{40,20},{40,-86},{8,-86},{8,-102}}, color={0,127,255}));
+  connect(hex.port_b1, senTemp1.port) annotation (Line(points={{-12,58},{-20,58},
+          {-20,20},{40,20},{40,-68},{10,-68},{10,-64}}, color={0,127,255}));
+  connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
+          {-44,-10},{-44,2},{2,2}}, color={0,0,127}));
 end HeaterBaseClass;
