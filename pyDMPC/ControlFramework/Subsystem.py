@@ -13,8 +13,8 @@ class Subsystem():
     def __init__(self, name, position,
                  num_DVs,num_BCs, init_DecVars, sim_time,
                  bounds_DVs,model_path, names_BCs,
-                   num_VarsOut, Id_BC1, Id_BC2, names_DVs,
-                   output_vars, initial_names, IDs_initial_values,IDs_inputs,lenInitials,cost_par,
+                   num_VarsOut, names_DVs,
+                   output_vars, initial_names, IDs_initial_values,IDs_inputs,cost_par,
                    type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
@@ -29,10 +29,7 @@ class Subsystem():
         self.lookUpTables = None
         self._model_path = model_path
         self._names_BCs = names_BCs
-        self._lenInitials = lenInitials
         self._cost_par = cost_par
-        self._Id_BC1 = Id_BC1
-        self._Id_BC2 = Id_BC2
         self._names_DVs = names_DVs
         self._output_vars = output_vars
         self._initial_names = initial_names
@@ -50,7 +47,11 @@ class Subsystem():
         for val in ids_list:
             value = model.get(val) #FMU
             values.append(np.asscalar(value))
+
+        values.insert(0, 0.0)
         print(values)
+        #Save new 'CompleteInput.mat' File
+        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
 
         return values
 
@@ -83,6 +84,8 @@ class Subsystem():
                 try:
                     [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1],
                                                 self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
+
+
                 except:
                     commands = []
                     costs = []

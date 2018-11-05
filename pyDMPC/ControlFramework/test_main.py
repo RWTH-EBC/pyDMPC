@@ -16,8 +16,9 @@ import sys
 import configparser
 import matplotlib.pyplot as plt
 
+"""PRELIMINARY Configuration"""
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(Init.path_res + r'\config.ini')
 opening = config['General']['opening']
 
 def main():
@@ -30,14 +31,13 @@ def main():
     os.mkdir(str(Init.name_wkdir))
     os.chdir(str(Init.name_wkdir))
 
+    """Create one directory for each of the subsystems and one for the inputs"""
     for s in subsystems:
         os.mkdir(s._name)
 
     os.mkdir("Inputs")
 
-    '''
-    Load the FMU model, set the experiment and initialize the inputs
-    '''
+    """Load the FMU model, set the experiment and initialize the inputs"""
     global dymola
     dymola = None
     # Work-around for the environment variable
@@ -56,25 +56,23 @@ def main():
         check1 = dymola.openModel(os.path.join(lib,'package.mo'))
         print(str(opening) + str(check1))
 
-
     dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
 
     # Translate the model to FMU
-    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+Init.name_fmu+'", "1", "cs", false, 0)')
+    dymola.ExecuteCommand('Advanced.CompileWith64=2')
+    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+ Init.name_fmu+'", "1", "cs", false, 0)')
 
     log = dymola.getLastErrorLog()
     print(log)
 
     model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
-    #model.setup_experiment(start_time = Init.start_time + 1, stop_time = 60000, tolerance = Init.tol)
     model.set('humidifierWSP1',0)
     model.set('valveHRS',0)
     model.set('valvePreHeater',0)
     model.set('valveHeater',0)
     model.set('valveCooler',0)
     model.initialize()
-
 
     """Variables storing (time) steps"""
     time_step = 0
@@ -91,28 +89,10 @@ def main():
     3. BExMoC algorithm
     """
 
-    contr_var = [30]
-    input = [30]
-    fig=plt.figure()
-
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
 
         command_all = []
-
-        '''Request any of the subsystems to get all the measurements. Each of the subsytems will get their own measurements individually'''
-        #values = subsystems[0].GetMeasurements(AHU._measurements_IDs, model)
-        values = 0
-
-        for val in Init.measurements_IDs:
-            value = model.get(val) #FMU
-            values.append(np.asscalar(value))
-        print(values)
-
-
-
-        #Save new 'CompleteInput.mat' File
-        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\Inputs\\CompleteInput.mat'), {'InputTable' :np.array(values)})
 
         if Init.algorithm == 'NC_DMPC':
 
@@ -140,10 +120,8 @@ def main():
 
                 """The main calculations are carried out by invoking the :func:'CalcDVvalues' method. The BExMoC algorithm exchanges tables between the subsystems in a .mat format"""
                 commands = (s.CalcDVvalues(time_step, time_storage,0, model))
-                #commands = [[0]]
-                command_all.append(commands)
 
-                #print(s._name, commands)
+                command_all.append(commands)
 
                 #Save the look-up tables in .mat files
                 (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
@@ -171,7 +149,7 @@ def main():
                 start = time.time()
         else:
             for l,val in enumerate(command_all):
-                model.set(Init.valveSettings[3-l], max(0, min(val, 100)))
+                model.set(Init.names_DVs[3-l], max(0, min(val, 100)))
                 print(val)
 
             '''Plot the current temperature trajectory'''

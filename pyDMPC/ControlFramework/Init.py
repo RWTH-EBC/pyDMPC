@@ -51,7 +51,7 @@ prediction_horizon = 3600        #Common prediction horizon in seconds
 path_res = r'C:\TEMP'
 
 # Name of the main working directory
-name_wkdir = r'pyDMPC_wkdir'
+name_wkdir = r'pyDMPC_wkdir21'
 
 # Path to the Modelica libraries to be loaded
 path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
@@ -114,14 +114,10 @@ bounds_DVs = []
 model_path = []
 names_DVs = []
 names_BCs = []
-Id_BC1 = [] #T
-Id_BC2 = [] #relHum, T_relHum
 output_vars = []
 initial_names= [] #for simulation
 IDs_initial_values= [] #for simulation
 cost_par = [] #for MassFlowRate
-valveSettings = [] #for FMU
-lenInitials = []
 IDs_inputs = []
 
 """ Subsystems """
@@ -133,16 +129,12 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.HeatRecovery')
-Id_BC1.append(measurements_IDs[0])
-Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
-names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
+names_DVs.append('valveHRS')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["OutgoingHex.ele[1].mas.T","OutgoingHex.ele[2].mas.T","OutgoingHex.ele[3].mas.T","OutgoingHex.ele[4].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T"])
 IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexele2masT","inOutletsOutgoingHexele3masT","inOutletsOutgoingHexele4masT","inOutletsIntakeHexele1masT","inOutletsIntakeHexele2masT","inOutletsIntakeHexele3masT","inOutletsIntakeHexele4masT"])
 IDs_inputs.append([ 'outdoorHumidityOutput','outdoorTemperatureOutput'])
-lenInitials.append(8)
 cost_par.append('RecirculationPressure.ports[1].m_flow')
-valveSettings.append('valveHRS')
 
 # Pre-heater
 name.append('Pre_heater')
@@ -152,16 +144,12 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.PreHeater')
-Id_BC1.append(measurements_IDs[16]) #FMU
-Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
-names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
+names_DVs.append('valvePreHeater')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["preHeaterhexele1masT","preHeaterhexele2masT","preHeaterhexele3masT","preHeaterhexele4masT"])
 IDs_inputs.append(["hRCHumidityOutput","hRCTemperatureCOutput"])
-lenInitials.append(4)
 cost_par.append('val.port_1.m_flow')
-valveSettings.append('valvePreHeater')
 
 # Cooler
 name.append('Cooler')
@@ -171,16 +159,12 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Cooler')
-Id_BC1.append(measurements_IDs[8]) #FMU
-Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
-names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
+names_DVs.append('valveCooler')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["coolerhexele1masT","coolerhexele2masT","coolerhexele3masT","coolerhexele4masT"])
 IDs_inputs.append(["preHeaterHumidityOutput","preHeaterTemperatureCOutput"])
-lenInitials.append(4)
 cost_par.append('CoolerValve.port_b.m_flow')
-valveSettings.append('valveCooler')
 
 # Heater
 name.append('Heater')
@@ -190,16 +174,12 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Heater')
-Id_BC1.append(measurements_IDs[9]) #FMU
-Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
-names_DVs.append('4120.L04_.AASYY17_NE-Ventil')
+names_DVs.append('valveHeater')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele3masT","heaterhexele4masT"])
 IDs_inputs.append(["coolerHumidityOutput","coolerTemperatureCOutput"])
-lenInitials.append(4)
 cost_par.append('val.port_1.m_flow')
-valveSettings.append('valveHeater')
 
 # Steam_humidifier
 name.append('Steam_humidifier')
@@ -209,13 +189,9 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,0])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Humidifier')
-Id_BC1.append(measurements_IDs[10])
-Id_BC2.append([measurements_IDs[1],measurements_IDs[0]])
-names_DVs.append("humidifierWSP1")
+names_DVs.append('humidifierWSP1')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC Humdidifier
 initial_names.append(None)
 IDs_initial_values.append(None)
 IDs_inputs.append(["heaterHumidityOutput","heaterTemperatureCOutput"])
-lenInitials.append(0)
 cost_par.append('product3.y')
-valveSettings.append('humidifierWSP1')

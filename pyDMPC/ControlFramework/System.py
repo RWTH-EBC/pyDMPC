@@ -46,18 +46,17 @@ class System:
                 Init.model_path[i],
                 Init.names_BCs[i],
                 Init.num_VarsOut[i],
-                Init.Id_BC1[i], Init.Id_BC2[i],
                 Init.names_DVs[i],
                 Init.output_vars[i],
                 Init.initial_names[i],
                 Init.IDs_initial_values[i],
                 Init.IDs_inputs[i],
-                Init.lenInitials[i],
                 Init.cost_par[i],
                 Init.type_subSyst[i])
                 )
         subsystems.sort(key = lambda x: x.position)
         for i,subsys in enumerate(subsystems):
+            '''CHECK'''
             if i != 4:
                 neighbour_name = subsystems[i+1]._name
             else:
