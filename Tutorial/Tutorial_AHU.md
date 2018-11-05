@@ -65,7 +65,17 @@ name.append('Heat_recovery_system')
 position.append(5)
 type_subSyst.append('generator')
 ```
-
+Next, make the necessary specifications regarding the variables, i.e. the number of decision variables in that subsystem, the number of output variables and the bounds of the decision variables
+```bash
+num_DecVars.append(1)
+num_VarsOut.append(2)
+bounds_DVs.append([0,100])
+```
+All the other parameters are either paths or they map the names of variables in the subsystem models to the data points in the controlled system.  
+The model path refers to the Modelica package, in which the respective subsystem model is included.
+```bash
+model_path.append('ModelicaModels.SubsystemModels.DetailedModels.HeatRecovery')
+```
 
 
 ## Set up the Modelica models
