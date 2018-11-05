@@ -16,11 +16,6 @@ import sys
 import configparser
 import matplotlib.pyplot as plt
 
-"""PRELIMINARY Configuration"""
-config = configparser.ConfigParser()
-config.read(Init.path_res + r'\config.ini')
-opening = config['General']['opening']
-
 def main():
     """Create a system and multiple subsystems"""
     AHU = System.System()
@@ -54,7 +49,7 @@ def main():
 
     for lib in Init.path_lib:
         check1 = dymola.openModel(os.path.join(lib,'package.mo'))
-        print(str(opening) + str(check1))
+        print('Opening successful ' + str(check1))
 
     dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
 
