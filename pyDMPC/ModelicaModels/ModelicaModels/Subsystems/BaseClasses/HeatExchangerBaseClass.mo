@@ -57,10 +57,8 @@ model HeatExchangerBaseClass
     annotation (Placement(transformation(extent={{10,-10},{-10,10}},
         rotation=180,
         origin={-70,-10})));
-  Modelica.Blocks.Tables.CombiTable1D ValveCharacteristicCurve(
-    tableOnFile=true,
-    tableName="valve",
-    fileName="PreHeater/PreHeaterValve.txt")
+  Modelica.Blocks.Tables.CombiTable1D ValveCharacteristicCurve(tableOnFile=
+        false)
     annotation (Placement(transformation(extent={{-80,-60},{-60,-40}})));
   Modelica.Blocks.Sources.Constant Temperature(k=273 + 50) annotation (
       Placement(transformation(
