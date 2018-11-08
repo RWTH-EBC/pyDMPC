@@ -54,11 +54,10 @@ def main():
     dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
 
     # Translate the model to FMU
-    dymola.ExecuteCommand('Advanced.CompileWith64=2')
-    dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+ Init.name_fmu+'", "1", "cs", false, 0)')
-
-    log = dymola.getLastErrorLog()
-    print(log)
+    if Init.create_FMU:
+        dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+ Init.name_fmu+'", "1", "cs", false, 0)')
+    else:
+        shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
     model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
@@ -74,6 +73,7 @@ def main():
     time_storage = 0
     start = time.time()
     counter = 0
+    supplyTemmps = []
 
     """Variables storing commands"""
     storage_commands = np.zeros([5,1])
@@ -147,15 +147,19 @@ def main():
                 model.set(Init.names_DVs[3-l], max(0, min(val, 100)))
                 print(val)
 
-            '''Plot the current temperature trajectory'''
+            '''Plot the current temperature trajectory
             plt.close('all')
             contr_var.append(values[9])
             input.append(values[10])
             plt.plot(contr_var)
             plt.show(block=False)
             plt.savefig('supplyTemp'+str(counter),format='pdf')
-
+            '''
             model.do_step(time_step, Init.sync_rate)
+            supplyTemp = model.get("heaterTemperatureCOutput") #FMU
+            supplyTemps.append(np.asscalar(supplyTemp))
+
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + 'SupplyTemp.mat'), {'SupplyTemp' :np.array(supplyTemps)})
 
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step
