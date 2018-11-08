@@ -40,7 +40,7 @@ class Subsystem():
     def GetNeighbour(self, neighbour_name):
         self.neighbour_name = neighbour_name
 
-    def GetMeasurements(self, ids_list, model):
+    def GetMeasurements(self, ids_list, model, export):
 
         values = []
 
@@ -48,22 +48,24 @@ class Subsystem():
             value = model.get(val) #FMU
             values.append(np.asscalar(value))
 
-        values.insert(0, 0.0)
-        print(values)
-        #Save new 'CompleteInput.mat' File
-        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
+        if export:
+            values_exp = values
+            values_exp.insert(0, 0.0)
+            print(values_exp)
+            #Save new 'CompleteInput.mat' File
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values_exp)})
 
         return values
 
     """ Continue util Init.stop_time (experiment time) is reached """
     def CalcDVvalues(self, time_step, time_storage, iter, model):
         """ Get Measurements """
-        self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+        self.measurements = self.GetMeasurements(self._IDs_inputs, model,True)
 
         self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, self.measurements[1])
 
         if self._IDs_initial_values is not None:
-            self._initial_values = self.GetMeasurements(self._IDs_initial_values, model)
+            self._initial_values = self.GetMeasurements(self._IDs_initial_values, model,False)
         else:
             self._initial_values = []
 
