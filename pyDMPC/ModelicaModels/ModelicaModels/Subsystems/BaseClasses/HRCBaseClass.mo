@@ -2,7 +2,8 @@ within ModelicaModels.Subsystems.BaseClasses;
 model HRCBaseClass
   "Subsystem model including dampers and heat recovery system"
 
-extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass;
+extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
+      ValveCharacteristicCurve(table=[0.0,0.0; 1,1]));
 
 parameter Modelica.SIunits.MassFlowRate mFlowNomOut=1
     "Nominal mass flow rate OutgoingAir";
