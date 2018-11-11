@@ -68,6 +68,8 @@ def main():
     model.set('valveHeater',0)
     model.set('valveCooler',0)
     model.initialize()
+    model.do_step(0, Init.sync_rate)
+    time_step += Init.sync_rate
 
     """Variables storing (time) steps"""
     time_step = 0
