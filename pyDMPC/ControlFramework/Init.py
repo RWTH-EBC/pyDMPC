@@ -16,7 +16,7 @@ measurements_IDs = ['outdoorTemperatureOutput', 'outdoorHumidityOutput', 'outgoi
 """ General algorithm settings """
 algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
 parallelization = True  #run calculations in parallel if possible
-realtime = True         #Choose True for a real-life experiment
+realtime = False         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
