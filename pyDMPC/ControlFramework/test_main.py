@@ -15,6 +15,7 @@ import os
 import sys
 import configparser
 import matplotlib.pyplot as plt
+import shutil
 
 def main():
     """Create a system and multiple subsystems"""
@@ -144,7 +145,7 @@ def main():
                 start = time.time()
         else:
             for l,val in enumerate(command_all):
-                model.set(Init.names_DVs[3-l], max(0, min(val, 100)))
+                model.set(Init.names_DVs[4-l], val)
                 print(val)
 
             '''Plot the current temperature trajectory
