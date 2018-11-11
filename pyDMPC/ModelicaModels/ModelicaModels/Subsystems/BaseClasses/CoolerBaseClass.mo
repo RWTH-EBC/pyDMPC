@@ -5,9 +5,9 @@ model CoolerBaseClass "Base class of the cooler"
     hex(UA_nominal=1250),
     Pressure1(k=80000),
     warmWaterSource(p=waterSink.p + Pressure1.k, nPorts=1),
-    ValveCharacteristicCurve(tableOnFile=false,
-    table=[0,0; 0.25,0.0625; 0.5,0.55; 0.7,1; 0.9,1; 1,1]),
-    waterSink(nPorts=1));
+    ValveCharacteristicCurve(tableOnFile=false, table=[0,0; 1.0,1.0]),
+    waterSink(nPorts=1),
+    Temperature(k=273.15 + 12));
   AixLib.Fluid.Actuators.Valves.TwoWayLinear    CoolerValve(
     redeclare package Medium = MediumWater,
     m_flow_nominal=0.5,
@@ -22,8 +22,8 @@ equation
                                                   color={0,0,127}));
   connect(hex.port_b1, waterSink.ports[1]) annotation (Line(points={{-12,58},{
           -20,58},{-20,-72},{8,-72},{8,-102}}, color={0,127,255}));
-  connect(CoolerValve.port_a, warmWaterSource.ports[1]) annotation (Line(points
-        ={{12,-10},{12,-24},{-12,-24},{-12,-102}}, color={0,127,255}));
+  connect(CoolerValve.port_a, warmWaterSource.ports[1]) annotation (Line(points=
+         {{12,-10},{12,-24},{-12,-24},{-12,-102}}, color={0,127,255}));
   connect(CoolerValve.port_b, hex.port_a1)
     annotation (Line(points={{12,10},{12,58},{8,58}}, color={0,127,255}));
   connect(hex.port_b1, senTemp1.port) annotation (Line(points={{-12,58},{-20,58},
