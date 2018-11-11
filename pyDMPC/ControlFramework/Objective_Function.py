@@ -180,8 +180,10 @@ def Obj(values_DVs, BC, s):
         costs_neighbor = interpolate.interp2d(storage_cost[0,1:],storage_cost[1:,0],storage_cost[1:,1:], kind = 'linear', fill_value = 10000)
 
         for tout in output_traj[0]:
-            #cost_total += cost_par[k]*Init.cost_factor + costs_neighbor(0.007,tout-273)
-            cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.007,tout-273)
+            if s._name != 'Heat_recovery_system':
+                cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.007,tout-273)
+            else:
+                cost_total += costs_neighbor(0.007,tout-273)
             k += 1
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
