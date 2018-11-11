@@ -135,7 +135,7 @@ names_DVs.append('valveHRS')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T"])
 IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexele2masT","inOutletsOutgoingHexele3masT","inOutletsOutgoingHexele4masT","inOutletsIntakeHexele1masT","inOutletsIntakeHexele2masT","inOutletsIntakeHexele3masT","inOutletsIntakeHexele4masT"])
-IDs_inputs.append(['outdoorTemperatureOutput','outdoorHumidityOutput','roomTemperatureOutput', 'roomHumidityOutput'])
+IDs_inputs.append(['outdoorHumidityOutput','outdoorTemperatureOutput','roomHumidityOutput','roomTemperatureOutput'])
 cost_par.append('RecirculationPressure.ports[1].m_flow')
 
 # Pre-heater
@@ -150,7 +150,7 @@ names_DVs.append('valvePreHeater')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["preHeaterhexele1masT","preHeaterhexele2masT","preHeaterhexele3masT","preHeaterhexele4masT"])
-IDs_inputs.append(["hRCTemperatureCOutput","hRCHumidityOutput"])
+IDs_inputs.append(["hRCHumidityOutput","hRCTemperatureCOutput")
 cost_par.append('val.port_1.m_flow')
 
 # Cooler
@@ -165,7 +165,7 @@ names_DVs.append('valveCooler')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["coolerhexele1masT","coolerhexele2masT","coolerhexele3masT","coolerhexele4masT"])
-IDs_inputs.append(["preHeaterTemperatureCOutput","preHeaterHumidityOutput"])
+IDs_inputs.append(["preHeaterHumidityOutput","preHeaterTemperatureCOutput"])
 cost_par.append('CoolerValve.port_b.m_flow')
 
 # Heater
@@ -180,7 +180,7 @@ names_DVs.append('valveHeater')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele3masT","heaterhexele4masT"])
-IDs_inputs.append(["coolerTemperatureCOutput","coolerHumidityOutput"])
+IDs_inputs.append(["coolerHumidityOutput","coolerTemperatureCOutput"])
 cost_par.append('val.port_1.m_flow')
 
 # Steam_humidifier
@@ -195,5 +195,5 @@ names_DVs.append('humidifierWSP1')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC Humdidifier
 initial_names.append(None)
 IDs_initial_values.append(None)
-IDs_inputs.append(["heaterTemperatureCOutput","heaterHumidityOutput"])
+IDs_inputs.append(["heaterHumidityOutput","heaterTemperatureCOutput")
 cost_par.append('product3.y')
