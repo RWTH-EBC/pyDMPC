@@ -62,6 +62,13 @@ def main():
 
     model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
+    """Variables storing (time) steps"""
+    time_step = 0
+    time_storage = 0
+    start = time.time()
+    counter = 0
+    supplyTemmps = []
+
     model.set('humidifierWSP1',0)
     model.set('valveHRS',0)
     model.set('valvePreHeater',0)
