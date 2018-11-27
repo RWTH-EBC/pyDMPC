@@ -61,7 +61,7 @@ class Subsystem():
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
 
         self.measurements = [self.measurements[0], self.measurements[1]]
-
+            
 
         if self._IDs_initial_values is not None:
             self._initial_values = self.GetMeasurements(self._IDs_initial_values, model,False)
@@ -146,14 +146,16 @@ class Subsystem():
             values_BCs = []
 
             if iter == 0 or self.neighbour_name is None:
-                BC_1 = self.measurements[::-1]
-                BC_2 = [BC_1[0]*1.5, BC_1[1]+0.000005]
+                BC_1 = [Init.set_point[0]+3,self.measurements[0]+0.005]
+                BC_2 = [Init.set_point[0]-3, self.measurements[0]-0.005]
+                print('BC_1: ', BC_1)
+                print('BC_2: ', BC_2)
             else:
                 BC_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
 
                 """ Sort Input Conditions because "exDestArr" must be strictly increaing  """
-                if len(arrayBC[1]) ==4:
+                if len(arrayBC[1]) == 4:
                     absHum_measurements1 = self.CalcXfromRH(arrayBC[1][3]*100, arrayBC[1][2])
                     absHum_measurements2 = self.CalcXfromRH(arrayBC[2][3]*100, arrayBC[2][2])
                     BC_1 = [arrayBC[1][2], absHum_measurements1]
@@ -166,7 +168,7 @@ class Subsystem():
                     elif arrayBC[0][1] > arrayBC[1][1]:
                         values_BCs.append([arrayBC[1][1], arrayBC[0][1]])
                     else:
-                        values_BCs.append([arrayBC[1][1], arrayBC[0][1]*1.5])
+                        values_BCs.append([arrayBC[1][1], arrayBC[0][1]*1.1])
 
             for i in range(len(BC_1)):
                 if BC_1[i]<BC_2[i]:
@@ -210,11 +212,6 @@ class Subsystem():
             print(str(self._name) + " command: " + str(commands))
             print(str(self._name) + " costs: " + str(storage_cost[0][1]))
             print(str(self._name) + " output: " + str(storage_out[0][2]))
-
-
-            """ Send commands """
-            if self._name != 'Steam_humidifier' and  time_step-time_storage == Init.optimization_interval-Init.sync_rate:
-                self.SendCommands(commands)
 
             return commands
 

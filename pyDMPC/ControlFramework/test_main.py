@@ -60,14 +60,8 @@ def main():
     else:
         shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
-    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
-    """Variables storing (time) steps"""
-    time_step = 0
-    time_storage = 0
-    start = time.time()
-    counter = 0
-    supplyTemmps = []
+    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
 
     model.set('humidifierWSP1',0)
     model.set('valveHRS',0)
@@ -76,17 +70,16 @@ def main():
     model.set('valveCooler',0)
     model.initialize()
     model.do_step(0, Init.sync_rate)
-    time_step += Init.sync_rate
 
     """Variables storing (time) steps"""
-    time_step = 0
+    time_step = Init.sync_rate
     time_storage = 0
     start = time.time()
     counter = 0
-    supplyTemmps = []
 
     """Variables storing commands"""
     storage_commands = np.zeros([5,1])
+    supplyTemps = []
 
     """There are currently three different options:
     1. NC-OPT algorithm
@@ -97,12 +90,13 @@ def main():
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
 
-        command_all = []
+        
 
         if Init.algorithm == 'NC_DMPC':
 
             """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
-            for k in range(2):
+            for k in range(4):
+                command_all = []
                 if Init.parallelization:
                     def f(s):
                         commands = s.CalcDVvalues(time_step, time_storage,k,model)
@@ -110,12 +104,13 @@ def main():
 
                     p = Pool(4)
                     commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
+                    command_all = commands
 
                 else:
                     for s in subsystems:
                         commands = s.CalcDVvalues(time_step, time_storage,k,model)
-
-                    command_all.append(commands)
+                        print(k, s._name, commands)
+                        command_all.append(commands)
 
         elif Init.algorithm == 'BExMoC':
 
@@ -154,22 +149,15 @@ def main():
                 start = time.time()
         else:
             for l,val in enumerate(command_all):
-                model.set(Init.names_DVs[4-l], val)
+                if Init.algorithm == 'BExMoC':
+                    model.set(Init.names_DVs[4-l], val)
+                elif Init.algorithm== 'NC_DMPC':
+                    model.set(Init.names_DVs[4-l], val)
+                    
                 print(val)
 
-            '''Plot the current temperature trajectory
-            plt.close('all')
-            contr_var.append(values[9])
-            input.append(values[10])
-            plt.plot(contr_var)
-            plt.show(block=False)
-            plt.savefig('supplyTemp'+str(counter),format='pdf')
-            '''
             model.do_step(time_step, Init.sync_rate)
-            supplyTemp = model.get("heaterTemperatureCOutput") #FMU
-            supplyTemps.append(np.asscalar(supplyTemp))
-
-            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + 'SupplyTemp.mat'), {'SupplyTemp' :np.array(supplyTemps)})
+            print('Proceding')
 
         if time_step-time_storage >= Init.optimization_interval:
             time_storage = time_step

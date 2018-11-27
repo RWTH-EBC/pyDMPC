@@ -181,13 +181,14 @@ def Obj(values_DVs, BC, s):
 
         for tout in output_traj[0]:
             if s._name != 'Heat_recovery_system':
-                cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.007,tout-273)
+                cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.0244,tout-273)
             else:
-                cost_total += costs_neighbor(0.007,tout-273)
+                cost_total += costs_neighbor(0.0244,tout-273)
             k += 1
+
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
-        print("cost_neighbor: " + str(costs_neighbor(0.007,tout-273)))
+        print("cost_neighbor: " + str(costs_neighbor(0.0244,tout-273)))
         print("cost_total: " + str(cost_total))
         print("output: " + str(tout))
     else:
