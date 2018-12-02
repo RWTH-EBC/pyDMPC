@@ -145,9 +145,14 @@ class Subsystem():
             NC_DMPC = algorithm.NC_DMPC
             values_BCs = []
 
-            if iter == 0 or self.neighbour_name is None:
+            if iter == 0 or self._name == 'Steam_humidifier':
                 BC_1 = [Init.set_point[0]+3,self.measurements[0]+0.005]
                 BC_2 = [Init.set_point[0]-3, self.measurements[0]-0.005]
+                print('BC_1: ', BC_1)
+                print('BC_2: ', BC_2)
+            elif self.neighbour_name is None:
+                BC_1 = [self.measurements[1]+3,self.measurements[0]+0.005]
+                BC_2 = [self.measurements[1]-3, self.measurements[0]-0.005]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
             else:

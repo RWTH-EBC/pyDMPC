@@ -144,13 +144,13 @@ def Iteration(s, time_step):
                 else:
                     objVal = obj_fun_val.get('fun')
             if index1[0].tolist() == [2]:
-                exDestArr[1, index2[1].tolist()] = (objVal+1)*30
+                exDestArr[1, index2[1].tolist()] = (objVal+1)*50
             elif index1[0].tolist() == [3]:
-                exDestArr[4, index2[1].tolist()] = (objVal+1)*30
+                exDestArr[4, index2[1].tolist()] = (objVal+1)*50
             if index2[1].tolist() == [2]:
-                exDestArr[index1[0].tolist(), 1] = (objVal+1)*30
+                exDestArr[index1[0].tolist(), 1] = (objVal+1)*50
             elif index2[1].tolist() == [3]:
-                exDestArr[index1[0].tolist(), 4] = (objVal+1)*30
+                exDestArr[index1[0].tolist(), 4] = (objVal+1)*50
         elif len(BC)==1:
             ix1 = np.isin(exDestArr, BC[0])
             index1 = np.where(ix1)
@@ -161,9 +161,9 @@ def Iteration(s, time_step):
                 storage_cost[counter,len(s.values_BCs)] = obj_fun_val.get('fun')
                 exDestArr[index1[0].tolist(), 1] = obj_fun_val.get('fun')
                 if index1[0].tolist() == [2]:
-                    exDestArr[1, 1] = (obj_fun_val.get('fun')+1)*30
+                    exDestArr[1, 1] = (obj_fun_val.get('fun')+1)*50
                 elif index1[0].tolist() == [3]:
-                    exDestArr[4, 1] = (obj_fun_val.get('fun')+1)*30
+                    exDestArr[4, 1] = (obj_fun_val.get('fun')+1)*50
 
         """ Get Output Variables """
         output_vals = Objective_Function.GetOutputVars()
