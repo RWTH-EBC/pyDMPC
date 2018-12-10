@@ -193,11 +193,9 @@ def Obj(values_DVs, BC, s):
         print("output: " + str(tout))
     else:
         for tout in output_traj[0]:
-            if abs(tout-273-Init.set_point[0]) > 0.5:
-                cost_total += cost_par[k]*Init.cost_factor + 50*(abs(tout-273-Init.set_point[0])-0.5)**2
-                k += 1
-            else:
-                cost_total = 0
+            cost_total += max(0.01,cost_par[k])*Init.cost_factor + 100*(max(abs(tout-273-Init.set_point[0])-1,0))**2
+            k += 1
+
         cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
         print("cost_total: " + str(cost_total))
