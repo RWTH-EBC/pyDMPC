@@ -50,7 +50,7 @@ def Iteration(s, time_step):
             exDestArr[0,i+2]=val
         exDestArr[0,0] = None
         exDestArr[1,0] = 0
-        exDestArr[4,0] = 60
+        exDestArr[4,0] = 50
         exDestArr[0,1] = 0
         exDestArr[0,4] = 1
 
@@ -74,7 +74,7 @@ def Iteration(s, time_step):
 
 
         if boundaries[0] != boundaries[1]:
-            ranges = [slice(boundaries[0],boundaries[1]+5, 5)]
+            ranges = [slice(boundaries[0],boundaries[1]+5, 10)]
 
             """ First conduct a brute force search """
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
@@ -83,7 +83,7 @@ def Iteration(s, time_step):
                     {'type':'ineq','fun': lambda x: boundaries[1]-x})
 
             """ Perform an addtional optimization to refine the previous findings """
-            #obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
+            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
         else:
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
@@ -144,13 +144,13 @@ def Iteration(s, time_step):
                 else:
                     objVal = obj_fun_val.get('fun')
             if index1[0].tolist() == [2]:
-                exDestArr[1, index2[1].tolist()] = (objVal+1)*50
+                exDestArr[1, index2[1].tolist()] = (objVal+1)*5
             elif index1[0].tolist() == [3]:
-                exDestArr[4, index2[1].tolist()] = (objVal+1)*50
+                exDestArr[4, index2[1].tolist()] = (objVal+1)*5
             if index2[1].tolist() == [2]:
-                exDestArr[index1[0].tolist(), 1] = (objVal+1)*50
+                exDestArr[index1[0].tolist(), 1] = (objVal+1)*5
             elif index2[1].tolist() == [3]:
-                exDestArr[index1[0].tolist(), 4] = (objVal+1)*50
+                exDestArr[index1[0].tolist(), 4] = (objVal+1)*5
         elif len(BC)==1:
             ix1 = np.isin(exDestArr, BC[0])
             index1 = np.where(ix1)
@@ -161,9 +161,9 @@ def Iteration(s, time_step):
                 storage_cost[counter,len(s.values_BCs)] = obj_fun_val.get('fun')
                 exDestArr[index1[0].tolist(), 1] = obj_fun_val.get('fun')
                 if index1[0].tolist() == [2]:
-                    exDestArr[1, 1] = (obj_fun_val.get('fun')+1)*50
+                    exDestArr[1, 1] = (obj_fun_val.get('fun')+1)*5
                 elif index1[0].tolist() == [3]:
-                    exDestArr[4, 1] = (obj_fun_val.get('fun')+1)*50
+                    exDestArr[4, 1] = (obj_fun_val.get('fun')+1)*5
 
         """ Get Output Variables """
         output_vals = Objective_Function.GetOutputVars()

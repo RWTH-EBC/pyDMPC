@@ -80,7 +80,7 @@ def main():
     """Variables storing commands"""
     storage_commands = np.zeros([5,1])
     supplyTemps = []
-
+  
     """There are currently three different options:
     1. NC-OPT algorithm
     2. NC-OPT algorithm using parallel computing
@@ -93,24 +93,28 @@ def main():
         
 
         if Init.algorithm == 'NC_DMPC':
+            
+            if time_step-time_storage >= Init.optimization_interval or time_step == Init.sync_rate:
 
-            """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
-            for k in range(4):
-                command_all = []
-                if Init.parallelization:
-                    def f(s):
-                        commands = s.CalcDVvalues(time_step, time_storage,k,model)
-                        return commands
-
-                    p = Pool(4)
-                    commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
-                    command_all = commands
-
-                else:
-                    for s in subsystems:
-                        commands = s.CalcDVvalues(time_step, time_storage,k,model)
-                        print(k, s._name, commands)
-                        command_all.append(commands)
+                """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
+                for k in range(4):
+                    command_all = []
+                    if Init.parallelization:
+                        def f(s):
+                            commands = s.CalcDVvalues(time_step, time_storage,k,model)
+                            return commands
+    
+                        p = Pool(4)
+                        commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
+                        command_all = commands
+    
+                    else:
+                        for s in subsystems:
+                            commands = s.CalcDVvalues(time_step, time_storage,k,model)
+                            print(k, s._name, commands)
+                            command_all.append(commands) 
+                            
+                
 
         elif Init.algorithm == 'BExMoC':
 

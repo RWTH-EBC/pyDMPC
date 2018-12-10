@@ -61,7 +61,7 @@ class Subsystem():
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
 
         self.measurements = [self.measurements[0], self.measurements[1]]
-            
+        outdoor_meas = self.GetMeasurements([r'outdoorTemperatureOutput'], model,True)
 
         if self._IDs_initial_values is not None:
             self._initial_values = self.GetMeasurements(self._IDs_initial_values, model,False)
@@ -144,36 +144,55 @@ class Subsystem():
             import algorithm.NC_DMPC
             NC_DMPC = algorithm.NC_DMPC
             values_BCs = []
-
-            if iter == 0 or self._name == 'Steam_humidifier':
-                BC_1 = [Init.set_point[0]+3,self.measurements[0]+0.005]
-                BC_2 = [Init.set_point[0]-3, self.measurements[0]-0.005]
+            incr = 0
+        
+        
+        
+            '''
+            if self._name == 'Steam_humidifier':
+                BC_1 = [Init.set_point[0]+incr,self.measurements[0]+0.0005]
+                BC_2 = [Init.set_point[0]-incr, self.measurements[0]-0.0005]
+                #BC_1 = [self.measurements[1]+1,self.measurements[0]+0.005]
+                #BC_2 = [self.measurements[1]-1, self.measurements[0]-0.005]
+                print('BC_1: ', BC_1)
+                print('BC_2: ', BC_2)'''
+            if iter == 0: #or self._name == 'Steam_humidifier':
+                if outdoor_meas[0] < Init.set_point[0]:
+                    BC_1 = [min(outdoor_meas[0], Init.set_point[0]-2),self.measurements[0]+0.0005]
+                else:
+                    BC_1 = [max(outdoor_meas[0], Init.set_point[0]+1),self.measurements[0]+0.0005]
+                BC_2 = [Init.set_point[0], self.measurements[0]-0.0005]
+                #BC_1 = [self.measurements[1]+1,self.measurements[0]+0.005]
+                #BC_2 = [self.measurements[1]-1, self.measurements[0]-0.005]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
-            elif self.neighbour_name is None:
-                BC_1 = [self.measurements[1]+3,self.measurements[0]+0.005]
-                BC_2 = [self.measurements[1]-3, self.measurements[0]-0.005]
+            elif self._name == 'Heat_recovery_system':
+                BC_1 = [self.measurements[1],self.measurements[0]]
+                BC_2 = [self.measurements[1], self.measurements[0]]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
             else:
                 BC_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
 
-                """ Sort Input Conditions because "exDestArr" must be strictly increaing  """
+                """ Sort Input Conditions because "exDestArr" must be strictly increasing  """
                 if len(arrayBC[1]) == 4:
                     absHum_measurements1 = self.CalcXfromRH(arrayBC[1][3]*100, arrayBC[1][2])
                     absHum_measurements2 = self.CalcXfromRH(arrayBC[2][3]*100, arrayBC[2][2])
-                    BC_1 = [arrayBC[1][2], absHum_measurements1]
-                    BC_2 = [arrayBC[2][2], absHum_measurements2]
-                    if arrayBC[1][2] == arrayBC[2][2] or arrayBC[1][3] == arrayBC[2][3]:
-                        BC_2 = [val*1.1 for val in BC_1]
+                    #BC_1 = [arrayBC[1][2], absHum_measurements1]
+                    BC_2 = [Init.set_point[0], absHum_measurements2]
+                    if outdoor_meas[0] < Init.set_point[0]:
+                        BC_1 = [min(arrayBC[1][2], Init.set_point[0]-2), absHum_measurements1]
+                    else:
+                        BC_1 = [max(arrayBC[3][2], Init.set_point[0]+1), absHum_measurements1]
+                        
                 else:
                     if arrayBC[0][1] < arrayBC[1][1]:
-                        values_BCs.append([arrayBC[0][1], arrayBC[1][1]])
+                        values_BCs.append([arrayBC[0][1]-incr, arrayBC[1][1]+incr])
                     elif arrayBC[0][1] > arrayBC[1][1]:
-                        values_BCs.append([arrayBC[1][1], arrayBC[0][1]])
+                        values_BCs.append([arrayBC[1][1]-incr, arrayBC[0][1]+incr])
                     else:
-                        values_BCs.append([arrayBC[1][1], arrayBC[0][1]*1.1])
+                        values_BCs.append([arrayBC[1][1]-incr, arrayBC[0][1]+incr])
 
             for i in range(len(BC_1)):
                 if BC_1[i]<BC_2[i]:
@@ -206,7 +225,12 @@ class Subsystem():
 
             """ Store costs in own directory for evaluation only"""
             sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'Costs.mat'), {Init.tableName_Output: storage_cost})
-            commands = float(new_last_DV)
+            if outdoor_meas[0] > Init.set_point[0]:
+                commands = float(storage_DV[3][2])
+            else:
+                commands = float(storage_DV[1][2])
+            print(storage_DV)
+            
             tz = pytz.timezone('Europe/Berlin')
             ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
             gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]),np.array([[commands]]), np.array([[storage_cost[0][1]]]),  np.array([[storage_out[0][2]]]),np.array([[storage_out[0][3]]]), self._name, ts])
