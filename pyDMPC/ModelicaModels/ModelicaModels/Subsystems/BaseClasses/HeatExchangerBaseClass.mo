@@ -28,11 +28,11 @@ model HeatExchangerBaseClass
   Buildings.Fluid.HeatExchangers.WetCoilCounterFlow hex(
     redeclare package Medium2 = MediumAir,
     redeclare package Medium1 = MediumWater,
-    m1_flow_nominal=0.5,
     m2_flow_nominal=0.5,
     dp2_nominal=200,
     UA_nominal=1000,
-    dp1_nominal=8000)
+    dp1_nominal=8000,
+    m1_flow_nominal=0.1)
     annotation (Placement(transformation(extent={{8,74},{-12,54}})));
   AixLib.Fluid.Sources.Boundary_pT    warmWaterSource(
     use_X_in=false,

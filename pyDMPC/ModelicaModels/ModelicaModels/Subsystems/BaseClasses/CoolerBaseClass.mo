@@ -2,17 +2,14 @@ within ModelicaModels.Subsystems.BaseClasses;
 model CoolerBaseClass "Base class of the cooler"
   extends
     ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
-    hex(UA_nominal=1250),
-    Pressure1(k=80000),
     warmWaterSource(p=waterSink.p + Pressure1.k, nPorts=1),
     ValveCharacteristicCurve(tableOnFile=false, table=[0,0; 1.0,1.0]),
     waterSink(nPorts=1),
     Temperature(k=273.15 + 12));
   AixLib.Fluid.Actuators.Valves.TwoWayLinear    CoolerValve(
     redeclare package Medium = MediumWater,
-    m_flow_nominal=0.5,
-    dpValve_nominal=2000)
-                        annotation (Placement(transformation(
+    dpValve_nominal=2000,
+    m_flow_nominal=0.1) annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={12,0})));

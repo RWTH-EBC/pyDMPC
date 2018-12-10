@@ -23,22 +23,23 @@ parameter Modelica.SIunits.Pressure defaultPressure = 101300 "Default pressure";
     redeclare package Medium1 = MediumWater,
     m2_flow_nominal=0.5,
     show_T=true,
-    m1_flow_nominal=0.5,
-    dp1_nominal=50,
-    dp2_nominal=20,
-    UA_nominal=27062.0)
+    dp1_nominal=8000,
+    dp2_nominal=200,
+    UA_nominal=1000,
+    m1_flow_nominal=0.1)
     annotation (Placement(transformation(extent={{8,-94},{-12,-74}})));
   AixLib.Fluid.Movers.FlowControlled_dp CurculationPump(redeclare package
-      Medium = MediumWater, m_flow_nominal=0.5) annotation (Placement(
+      Medium = MediumWater,
+    m_flow_nominal=0.1,
+    dp_nominal=18000)                           annotation (Placement(
         transformation(
         extent={{-10,-10},{10,10}},
         rotation=270,
         origin={8,-24})));
   AixLib.Fluid.Actuators.Valves.ThreeWayLinear val(
     redeclare package Medium = MediumWater,
-    m_flow_nominal=0.5,
-    l={0.01,0.01},
-    dpValve_nominal=10)
+    m_flow_nominal=0.1,
+    dpValve_nominal=2000)
                    annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=90,
@@ -75,7 +76,8 @@ equation
   connect(ValveCharacteristicCurve.y[1], val.y) annotation (Line(points={{-59,
           -50},{-34,-50},{-34,6},{-24,6}}, color={0,0,127}));
   connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
-          {32,-10},{32,-24},{20,-24}}, color={0,0,127}));
+          {32,-10},{32,-23.8},{20,-23.8}},
+                                       color={0,0,127}));
   connect(senTemp1.port, CurculationPump.port_b)
     annotation (Line(points={{10,-64},{8,-64},{8,-34}}, color={0,127,255}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-660,-500},

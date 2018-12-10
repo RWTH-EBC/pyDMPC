@@ -2,8 +2,6 @@ within ModelicaModels.Subsystems.BaseClasses;
 model HeaterBaseClass "Base class of the heater"
   extends
     ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
-    hex(UA_nominal=1521),
-    Pressure1(k=300),
     ValveCharacteristicCurve(
     tableOnFile=false,
     table=[0,0; 0.1,0.1; 0.9,0.9; 1,1]),
@@ -13,15 +11,17 @@ model HeaterBaseClass "Base class of the heater"
 
   AixLib.Fluid.Actuators.Valves.ThreeWayLinear    val(
     redeclare package Medium = MediumWater,
-    m_flow_nominal=0.5,
     l={0.01,0.01},
-    dpValve_nominal=2000)
+    dpValve_nominal=2000,
+    m_flow_nominal=0.1)
                    annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={14,-30})));
   AixLib.Fluid.Movers.FlowControlled_dp    CurculationPump(redeclare package
-      Medium = MediumWater, m_flow_nominal=0.5) annotation (Placement(
+      Medium = MediumWater,
+    dp_nominal=10000,
+    m_flow_nominal=0.1)                         annotation (Placement(
         transformation(
         extent={{10,10},{-10,-10}},
         rotation=270,
@@ -43,5 +43,6 @@ equation
   connect(hex.port_b1, senTemp1.port) annotation (Line(points={{-12,58},{-20,58},
           {-20,20},{40,20},{40,-68},{10,-68},{10,-64}}, color={0,127,255}));
   connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
-          {-44,-10},{-44,2},{2,2}}, color={0,0,127}));
+          {-44,-10},{-44,1.8},{2,1.8}},
+                                    color={0,0,127}));
 end HeaterBaseClass;

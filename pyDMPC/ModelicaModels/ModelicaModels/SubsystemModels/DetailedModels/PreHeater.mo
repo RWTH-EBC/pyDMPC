@@ -8,8 +8,7 @@ model PreHeater "Detailed model of the pre heater"
     IntakeAirSink(nPorts=1),
     volumeFlow(tableOnFile=false, table=[0,0.31,0.29]));
 
-  extends
-    ModelicaModels.Subsystems.BaseClasses.PreHeaterBaseClass;
+  extends ModelicaModels.Subsystems.BaseClasses.PreHeaterBaseClass;
 
   Modelica.Blocks.Sources.Constant Temperature(k=273 + 50) annotation (
       Placement(transformation(
@@ -23,8 +22,6 @@ equation
   connect(hex.port_b2, IntakeAirSink.ports[1])
     annotation (Line(points={{8,70},{90,70},{90,12},{170,12}},
                                                 color={0,127,255}));
-  connect(senTemp1.port, hex.port_a1) annotation (Line(points={{10,-64},{10,
-          -128},{130,-128},{130,58},{8,58}},color={0,127,255}));
   connect(supplyAirHumidity.port, hex.port_b2) annotation (Line(points={{66,38},
           {66,28},{8,28},{8,70}},   color={0,127,255}));
   connect(supplyAirTemperature.port, hex.port_b2) annotation (Line(points={{104,38},
