@@ -1,5 +1,6 @@
-'''Object function module that can be used by each of the agents in order to determine costs
-'''
+##################################################################
+# Object function module that can be used by each of the agents in   # order to determine costs
+##################################################################
 
 import Init
 import numpy as np
@@ -153,7 +154,11 @@ def Obj(values_DVs, BC, s):
     elif new_values_DVs[-1] < bounds[0]:
         penalty_val = 10
 
-    cost_par = sim[s._cost_par].values()
+    if s._cost_par != None:
+        cost_par = sim[s._cost_par].values()
+    else:
+        cost_par = [0]
+
     cost_total = 0
 
     #store output
@@ -193,7 +198,7 @@ def Obj(values_DVs, BC, s):
         print("output: " + str(tout))
     else:
         for tout in output_traj[0]:
-            cost_total += max(0.01,cost_par[k])*Init.cost_factor + 100*(max(abs(tout-273-Init.set_point[0])-1,0))**2
+            cost_total += max(0.01,cost_par[k])*Init.cost_factor + 100*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
             k += 1
 
         cost_total = cost_total/len(output_traj[0])

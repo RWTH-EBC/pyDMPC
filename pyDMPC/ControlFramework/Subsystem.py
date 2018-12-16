@@ -54,12 +54,15 @@ class Subsystem():
     def CalcDVvalues(self, time_step, time_storage, iter, model):
         """ Get Measurements """
         self.measurements = self.GetMeasurements(self._IDs_inputs, model,True)
-        self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, self.measurements[1])
-        values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
+        
+        if self._name != "Heat_recovery_system":
+            values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
+        else: 
+            values = [0.0, self.measurements[1], self.measurements[0], self.measurements[3], self.measurements[2]]
         print(values)
         #Save new 'CompleteInput.mat' File
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
-
+        self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, self.measurements[1])
         self.measurements = [self.measurements[0], self.measurements[1]]
         outdoor_meas = self.GetMeasurements([r'outdoorTemperatureOutput'], model,True)
 
@@ -156,7 +159,7 @@ class Subsystem():
                 #BC_2 = [self.measurements[1]-1, self.measurements[0]-0.005]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)'''
-            if iter == 0: #or self._name == 'Steam_humidifier':
+            if iter == 0 and self._name != 'Heat_recovery_system':
                 if outdoor_meas[0] < Init.set_point[0]:
                     BC_1 = [min(outdoor_meas[0], Init.set_point[0]-2),self.measurements[0]+0.0005]
                 else:
@@ -167,8 +170,8 @@ class Subsystem():
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
             elif self._name == 'Heat_recovery_system':
-                BC_1 = [self.measurements[1],self.measurements[0]]
-                BC_2 = [self.measurements[1], self.measurements[0]]
+                BC_1 = [self.measurements[1],self.measurements[0]+0.0005]
+                BC_2 = [self.measurements[1], self.measurements[0]-0.0005]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
             else:
