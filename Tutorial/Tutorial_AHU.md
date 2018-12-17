@@ -12,7 +12,7 @@ We use two external libraries, namely
 All required inputs are inserted into the Init file. The required selection is described in detail in the following. IN order to just run the demo without any changes, you can skip this part.
 
 ### Basic system layout
-Start by giving your system a name and the right number of subsystems you intend to control. The difference between the generator and the consumers is decribed later. For now, you can simply consider it the very first subsystem in a supply chain.
+Start by giving your system a name and the right number of subsystems you intend to control. There are three different types of subsystems, namely generator, consumers and distributor. This distinction refers to a typical suppy chain. The generator uses some kind of external input such as gas, electricity or simply outdoor air in case of an air handling unit. The consumer can be a room subsystem but also the last the subsystem in an air handling unti. The important function of the consumer subsystem is that it penalized deviations from the set points. The distributors are subsystems that can be parts of the distributions system of a supply chain or simply the subsystems of an air handling unit that are neither consumers nor generator. 
 
 ```bash
 """System configuration"""

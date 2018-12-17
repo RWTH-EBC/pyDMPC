@@ -80,7 +80,7 @@ def main():
     """Variables storing commands"""
     storage_commands = np.zeros([5,1])
     supplyTemps = []
-  
+
     """There are currently three different options:
     1. NC-OPT algorithm
     2. NC-OPT algorithm using parallel computing
@@ -90,10 +90,8 @@ def main():
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
 
-        
-
         if Init.algorithm == 'NC_DMPC':
-            
+
             if time_step-time_storage >= Init.optimization_interval or time_step == Init.sync_rate:
 
                 """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
@@ -103,18 +101,16 @@ def main():
                         def f(s):
                             commands = s.CalcDVvalues(time_step, time_storage,k,model)
                             return commands
-    
+
                         p = Pool(4)
                         commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
                         command_all = commands
-    
+
                     else:
                         for s in subsystems:
                             commands = s.CalcDVvalues(time_step, time_storage,k,model)
                             print(k, s._name, commands)
-                            command_all.append(commands) 
-                            
-                
+                            command_all.append(commands)
 
         elif Init.algorithm == 'BExMoC':
 
@@ -144,8 +140,6 @@ def main():
                 'command' + str(counter) + '.mat' ),
                 {'Output_Table': commands}))
 
-
-
         #For real time experiments, the excecution needs to be paused
         if Init.realtime:
             if time_step > 0:
@@ -157,7 +151,7 @@ def main():
                     model.set(Init.names_DVs[4-l], val)
                 elif Init.algorithm== 'NC_DMPC':
                     model.set(Init.names_DVs[4-l], val)
-                    
+
                 print(val)
 
             model.do_step(time_step, Init.sync_rate)

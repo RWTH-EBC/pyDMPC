@@ -38,10 +38,18 @@ class Subsystem():
 
 
     def GetNeighbour(self, neighbour_name):
+        """Provides a subsystem's neighbor"""
         self.neighbour_name = neighbour_name
 
-    def GetMeasurements(self, ids_list, model, export):
-
+    def GetMeasurements(self, ids_list, model):
+        """
+        Gets measurements from FMU model
+        inputs:
+            ids_list: names of the variables in the model
+            model: FMU object
+        returns:
+            values: list of measurement values
+        """
         values = []
 
         for val in ids_list:
@@ -50,24 +58,34 @@ class Subsystem():
 
         return values
 
-    """ Continue util Init.stop_time (experiment time) is reached """
     def CalcDVvalues(self, time_step, time_storage, iter, model):
+        """
+        Caclulate the values of the decision variables
+        inputs:
+            ids_list: names of the variables in the model
+            model: FMU object
+        returns:
+            values: list of measurement values
+        """
         """ Get Measurements """
-        self.measurements = self.GetMeasurements(self._IDs_inputs, model,True)
-        
-        if self._name != "Heat_recovery_system":
+        self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+
+        if self._type_subSyst != "generator":
             values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
-        else: 
+        else:
             values = [0.0, self.measurements[1], self.measurements[0], self.measurements[3], self.measurements[2]]
         print(values)
-        #Save new 'CompleteInput.mat' File
+
+        # Save new 'CompleteInput.mat' File
         sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
         self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, self.measurements[1])
         self.measurements = [self.measurements[0], self.measurements[1]]
-        outdoor_meas = self.GetMeasurements([r'outdoorTemperatureOutput'], model,True)
+
+        # Get a dedicated outdoor measurement
+        outdoor_meas = self.GetMeasurements([r'outdoorTemperatureOutput'], model)
 
         if self._IDs_initial_values is not None:
-            self._initial_values = self.GetMeasurements(self._IDs_initial_values, model,False)
+            self._initial_values = self.GetMeasurements(self._IDs_initial_values, model)
         else:
             self._initial_values = []
 
@@ -75,20 +93,16 @@ class Subsystem():
         if Init.algorithm == "BExMoC":
             import algorithm.BExMoC
             BExMoC = algorithm.BExMoC
-            """ Execute only once """
-            if time_step == 0:
+
+            if time_step == Init.sync_rate:
                 if self.values_BCs is None:
-                    self.values_BCs = BExMoC.CalcBCvalues(Init.amount_vals_BCs, Init.exp_BCs,
-                                                 Init.center_vals_BCs, Init.factors_BCs, Init.amount_lower_vals, Init.amount_upper_vals)
+                    self.values_BCs = BExMoC.CalcBCvalues(Init.amount_vals_BCs, Init.exp_BCs, Init.center_vals_BCs, Init.factors_BCs, Init.amount_lower_vals, Init.amount_upper_vals)
 
-            """ Get initial_values for simulation """
             # Check if optimization phase is due
-            if time_step-time_storage < Init.optimization_interval and time_step != 0:
-                """ Interpolation """
+            if time_step-time_storage < Init.optimization_interval and time_step != Init.sync_rate:
+                # Interpolation
                 try:
-                    [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1],
-                                                self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
-
+                    [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1], self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
 
                 except:
                     commands = []
@@ -112,8 +126,7 @@ class Subsystem():
                 sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrackCounter11': res_grid})
 
                 try:
-                    [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1],
-                                                self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
+                    [commands, costs, outputs] = BExMoC.Interpolation(self.measurements, self.lookUpTables[1], self._bounds_DVs, self.lookUpTables[0], self.lookUpTables[2])
 
                     print('measurements: ' + str(self.measurements))
                     print('commands: ' +str(commands))
@@ -139,41 +152,31 @@ class Subsystem():
                 gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]), commands, costs, np.array([[outputs[0][0]]]), np.array([[outputs[0][1]]]), self._name, ts])
 
                 sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'CommandsCosts.mat' ), {'CommandsCosts': gl_commands_costs})
-                if self._name != 'Steam_humidifier':
-                    self.SendCommands(commands)
 
             return commands
+
         elif Init.algorithm == "NC_DMPC":
             import algorithm.NC_DMPC
             NC_DMPC = algorithm.NC_DMPC
             values_BCs = []
             incr = 0
-        
-        
-        
-            '''
-            if self._name == 'Steam_humidifier':
-                BC_1 = [Init.set_point[0]+incr,self.measurements[0]+0.0005]
-                BC_2 = [Init.set_point[0]-incr, self.measurements[0]-0.0005]
-                #BC_1 = [self.measurements[1]+1,self.measurements[0]+0.005]
-                #BC_2 = [self.measurements[1]-1, self.measurements[0]-0.005]
-                print('BC_1: ', BC_1)
-                print('BC_2: ', BC_2)'''
-            if iter == 0 and self._name != 'Heat_recovery_system':
+
+            if iter == 0 and self._type_subSyst != 'generator':
                 if outdoor_meas[0] < Init.set_point[0]:
                     BC_1 = [min(outdoor_meas[0], Init.set_point[0]-2),self.measurements[0]+0.0005]
                 else:
                     BC_1 = [max(outdoor_meas[0], Init.set_point[0]+1),self.measurements[0]+0.0005]
                 BC_2 = [Init.set_point[0], self.measurements[0]-0.0005]
-                #BC_1 = [self.measurements[1]+1,self.measurements[0]+0.005]
-                #BC_2 = [self.measurements[1]-1, self.measurements[0]-0.005]
+
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
-            elif self._name == 'Heat_recovery_system':
+
+            elif self._type_subSyst == 'generator':
                 BC_1 = [self.measurements[1],self.measurements[0]+0.0005]
                 BC_2 = [self.measurements[1], self.measurements[0]-0.0005]
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
+
             else:
                 BC_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
@@ -182,13 +185,13 @@ class Subsystem():
                 if len(arrayBC[1]) == 4:
                     absHum_measurements1 = self.CalcXfromRH(arrayBC[1][3]*100, arrayBC[1][2])
                     absHum_measurements2 = self.CalcXfromRH(arrayBC[2][3]*100, arrayBC[2][2])
-                    #BC_1 = [arrayBC[1][2], absHum_measurements1]
+
                     BC_2 = [Init.set_point[0], absHum_measurements2]
                     if outdoor_meas[0] < Init.set_point[0]:
                         BC_1 = [min(arrayBC[1][2], Init.set_point[0]-2), absHum_measurements1]
                     else:
                         BC_1 = [max(arrayBC[3][2], Init.set_point[0]+1), absHum_measurements1]
-                        
+
                 else:
                     if arrayBC[0][1] < arrayBC[1][1]:
                         values_BCs.append([arrayBC[0][1]-incr, arrayBC[1][1]+incr])
@@ -202,7 +205,6 @@ class Subsystem():
                     values_BCs.append([BC_1[i], BC_2[i]])
                 else:
                     values_BCs.append([BC_2[i], BC_1[i]])
-            self.values_BCs = values_BCs
 
             last_DV = Init.init_DVs[0]
             """ Store last_DV in own directory """
@@ -212,9 +214,12 @@ class Subsystem():
             """ Load "last_DV" """
             last_DV_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat')
             last_DV = last_DV_dict['last_DV']
+
             [storage_cost, storage_DV, storage_out, exDestArr, storage_grid]  = NC_DMPC.Iteration(self, time_step)
+
             """Store optimizer results"""
-            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrack': storage_grid})
+            sio.savemat((Init.path_res +'\\'+ Init.name_wkdir + '\\' + self._name + '\\' + 'OptimizerTrack.mat' ), {'OptimizerTrack': storage_grid})
+
             """ Load, determine and store new "last_DV" """
             new_last_DV = last_DV*Init.convex_factor+(1-Init.convex_factor)*storage_DV[0][2]
             sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': new_last_DV})
@@ -233,7 +238,7 @@ class Subsystem():
             else:
                 commands = float(storage_DV[1][2])
             print(storage_DV)
-            
+
             tz = pytz.timezone('Europe/Berlin')
             ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
             gl_commands_costs.append([np.array([[self.measurements[0]]]), np.array([[self.measurements[1]]]),np.array([[commands]]), np.array([[storage_cost[0][1]]]),  np.array([[storage_out[0][2]]]),np.array([[storage_out[0][3]]]), self._name, ts])
@@ -246,9 +251,6 @@ class Subsystem():
             print(str(self._name) + " output: " + str(storage_out[0][2]))
 
             return commands
-
-    def SendCommands(self, commands):
-        """ Send commands   """
 
     def CalcXfromRH(self, relHum, T_hum, pressure=None):
         if pressure is None:
