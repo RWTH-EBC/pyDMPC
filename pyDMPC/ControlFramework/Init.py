@@ -14,61 +14,59 @@ measurements_IDs = ['outdoorTemperatureOutput', 'outdoorHumidityOutput', 'outgoi
                     'heaterReturnTemperatureOutput', 'outgoingAirOutletTemperatureCOutput','outgoingAirOutletHumidityOutput','outgoingAirOutletHumidityOutput']
 
 """ General algorithm settings """
-algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
-parallelization = True  #run calculations in parallel if possible
+algorithm = 'NC_DMPC'   #choices: 'NC_DMPC', 'BExMoC'
+parallelization = False  #run calculations in parallel if possible
 realtime = False         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
-factors_BCs = [3, 0.016]              # order: BC1, BC2, ...
+factors_BCs = [1.5, 0.03]              # order: BC1, BC2, ...
 center_vals_BCs = [30, 0.001]
-amount_lower_vals = [2, 0]
-amount_upper_vals = [2, 1]
-exp_BCs = [1.4, 1]
+amount_lower_vals = [9, 0]
+amount_upper_vals = [9, 1]
+exp_BCs = [1, 1]
 amount_vals_BCs = [1, 1]
 
 """ Settings for NC-DMPC algorithm """
 init_DVs = [0]
-convex_factor = 0.5
+convex_factor = 0
 max_num_iteration = 1000
 max_relErr = 0.1
 cost_gradient = 0
 
 """ Set objective function """
 obj_function = 'Monetary'   #choices: 'Exergy', 'Monetary'
-set_point = [30, 0.005]     #set points of the controlled variables
-tolerance = 1
-cost_factor = 1
+set_point = [30.0, 0.005]     #set points of the controlled variables
+tolerance = 0.4
+cost_factor = 0.5
 
 """ Time and Interval Settings """
 sim_time_global = 10000          # -> not used yet
-sync_rate = 2*60                 # Synchronisation rate in seconds
-optimization_interval = 20*60    # After one interval the optimization is repeated
+sync_rate = 5*60                 # Synchronisation rate in seconds
+optimization_interval = 10*60    # After one interval the optimization is repeated
 prediction_horizon = 3600        #Common prediction horizon in seconds
 
 """ Directories and Modelica libraries """
 # Path where the main working directory shall be created
-path_res = r'C:\TEMP'
+path_res = r'C:\Dymola'
 
 # Name of the main working directory
-name_wkdir = r'pyDMPC_wkdir21'
-
+name_wkdir = r'pyDMPC_wkdir389'
 # Path to the Modelica libraries to be loaded
-path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
-path_lib2 = r'C:\Git\modelica-buildings\Buildings'
-path_lib3 = r'C:\Git\AixLib\AixLib'
+path_lib1 = r'C:\Dymola\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
+path_lib2 = r'C:\nro\modelica-buildings\Buildings'
+path_lib3 = r'C:\nro\AixLib\AixLib'
 path_lib = [path_lib1, path_lib2, path_lib3]
 
-# Define if the FMU should be created or you want to use an exisitng FMU
 create_FMU = False
-# Modelica model to be exported to FMU
+# Modelica model to be used as controlled system in a FMU
 path_fmu = r'ModelicaModels.ControlledSystems.ControlledSystemBoundaries'
 
 # Name of the FMU file to be created
 name_fmu = 'pyDMPCFMU'
 
 # Path to the *.egg file containing the Python-Dymola-Interface
-path_dymola = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
+path_dymola = r'C:\Program Files (x86)\Dymola 2018\Modelica\Library\python_interface\dymola.egg'
 
 """ Simulation settings """
 # Start time of simulation in seconds
@@ -100,9 +98,10 @@ tableName_Output = 'output'
 init_DecVars_global = 0
 num_BCs_global = 2
 num_VarsOut_global = 2
-bounds_DVs_global = None # min,
+bounds_DVs_global = None
 names_BCs_global = names_SPs = ['temperature', 'humidity']
-output_vars_global = None #if no, set None, else set names as string-list
+output_vars_global = None
+amount_subsystems = 5
 
 name = []
 position = []
@@ -129,25 +128,25 @@ position.append(5)
 type_subSyst.append('generator')
 num_DecVars.append(1)
 num_VarsOut.append(2)
-bounds_DVs.append([0,100])
+bounds_DVs.append([10,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.HeatRecovery')
 names_DVs.append('valveHRS')
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
-initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T","IntakeHex.ele[1].mas.T"])
-IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexele2masT","inOutletsOutgoingHexele3masT","inOutletsOutgoingHexele4masT","inOutletsIntakeHexele1masT","inOutletsIntakeHexele2masT","inOutletsIntakeHexele3masT","inOutletsIntakeHexele4masT"])
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
+initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
+IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexele2masT","inOutletsOutgoingHexele3masT","inOutletsOutgoingHexele4masT"])
 IDs_inputs.append(['outdoorHumidityOutput','outdoorTemperatureOutput','roomHumidityOutput','roomTemperatureOutput'])
-cost_par.append('RecirculationPressure.ports[1].m_flow')
+cost_par.append(None)
 
 # Pre-heater
 name.append('Pre_heater')
-position.append(4)                  #last Subsystem, downstream for every other, has biggest number
-type_subSyst.append('consumer')
+position.append(4)
+type_subSyst.append('distributor')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.PreHeater')
 names_DVs.append('valvePreHeater')
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["preHeaterhexele1masT","preHeaterhexele2masT","preHeaterhexele3masT","preHeaterhexele4masT"])
 IDs_inputs.append(["hRCHumidityOutput","hRCTemperatureCOutput"])
@@ -156,13 +155,13 @@ cost_par.append('val.port_1.m_flow')
 # Cooler
 name.append('Cooler')
 position.append(3)
-type_subSyst.append('consumer')
+type_subSyst.append('distributor')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Cooler')
 names_DVs.append('valveCooler')
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["coolerhexele1masT","coolerhexele2masT","coolerhexele3masT","coolerhexele4masT"])
 IDs_inputs.append(["preHeaterHumidityOutput","preHeaterTemperatureCOutput"])
@@ -171,13 +170,13 @@ cost_par.append('CoolerValve.port_b.m_flow')
 # Heater
 name.append('Heater')
 position.append(2)
-type_subSyst.append('consumer')
+type_subSyst.append('distributor')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Heater')
 names_DVs.append('valveHeater')
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
 IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele3masT","heaterhexele4masT"])
 IDs_inputs.append(["coolerHumidityOutput","coolerTemperatureCOutput"])
@@ -192,7 +191,7 @@ num_VarsOut.append(2)
 bounds_DVs.append([0,0])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Humidifier')
 names_DVs.append('humidifierWSP1')
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"]) #NC_DMPC Humdidifier
+output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 initial_names.append(None)
 IDs_initial_values.append(None)
 IDs_inputs.append(["heaterHumidityOutput","heaterTemperatureCOutput"])

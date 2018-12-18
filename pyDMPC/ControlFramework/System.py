@@ -1,7 +1,6 @@
-#< -*- coding: utf-8 -*-
-"""
-
-"""
+##################################################################
+# System class that can generate subsystem agents
+##################################################################
 
 import Subsystem as SubSys
 import Init
@@ -56,8 +55,7 @@ class System:
                 )
         subsystems.sort(key = lambda x: x.position)
         for i,subsys in enumerate(subsystems):
-            '''CHECK'''
-            if i != 4:
+            if i != Init.amount_subsystems-1:
                 neighbour_name = subsystems[i+1]._name
             else:
                 neighbour_name = None

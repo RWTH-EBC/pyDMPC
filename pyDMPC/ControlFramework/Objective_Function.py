@@ -1,5 +1,5 @@
 ##################################################################
-# Object function module that can be used by each of the agents in
+# Objective function module that can be used by each of the agents in
 # order to determine costs
 ##################################################################
 

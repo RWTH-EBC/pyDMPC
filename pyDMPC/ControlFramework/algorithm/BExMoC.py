@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-
-"""
+##################################################################
+# Algorithm module using look-up tables
+##################################################################
 
 import math
 import numpy as np
@@ -14,7 +13,22 @@ from scipy.optimize import brute
 
 """ Execute only once """
 def CalcBCvalues(amount_vals_BCs, exp_BCs, center_vals_BCs, factors_BCs, amount_lower_vals_BCs=None, amount_upper_vals_BCs=None):
-#Calculating the BC values below and above the center value
+    """
+    Calculate the boundary conditions around a center value. Typically, this
+    is a equidistant grid but it can also be an exponentially increasing
+    increment
+
+    inputs:
+        amount_vals_BCs: amount of discrete values of boundary conditions
+        exp_BCs: exponent for increasing increments
+        center_vals_BCs: center value that the other values are arranged around
+        factors_BCs: for an exponent of 1, this is the uniform increment
+        amount_lower_vals_BCs: amount of values below the center value
+        amount_upper_vals_BCs: amount of values above the center value
+    returns:
+        values: list of boundary conditions
+    """
+
     if amount_lower_vals_BCs is None or amount_upper_vals_BCs is None:
         amount_lower_vals_BCs =[x/2 for x in amount_vals_BCs]
         amount_lower_vals_BCs = [math.floor(x) for x in amount_lower_vals_BCs]
@@ -28,8 +42,8 @@ def CalcBCvalues(amount_vals_BCs, exp_BCs, center_vals_BCs, factors_BCs, amount_
             temp_list.append(center_vals_BCs[i] + j**exp_BCs[i]*factors_BCs[i])
         values_BCs.append(temp_list)
     values_BCs[0].insert(0,0)
-    return values_BCs
 
+    return values_BCs
 
 """ Optimization """
 
@@ -75,8 +89,6 @@ def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
             j += 1
 
         """" Perform a minimization using the defined objective function  """
-        # Could be set in Init and passed as an attribute
-
         Objective_Function.ChangeDir(s._name)
 
         boundaries = s._bounds_DVs #[low, high]
@@ -96,6 +108,10 @@ def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
 
+        """
+        Post processing of the different returned results of the
+        optimization algorithms
+        """
         if isinstance(obj_fun_val, tuple):
             """ fill storage_grid """
             if counter ==0:

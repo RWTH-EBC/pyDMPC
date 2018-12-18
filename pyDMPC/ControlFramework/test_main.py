@@ -90,13 +90,15 @@ def main():
     """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
     while time_step <= Init.sync_rate*Init.stop_time:
 
+        # Variable for the final commands of all subsystems
+        command_all = []
+
         if Init.algorithm == 'NC_DMPC':
 
             if time_step-time_storage >= Init.optimization_interval or time_step == Init.sync_rate:
 
                 """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
                 for k in range(4):
-                    command_all = []
                     if Init.parallelization:
                         def f(s):
                             commands = s.CalcDVvalues(time_step, time_storage,k,model)

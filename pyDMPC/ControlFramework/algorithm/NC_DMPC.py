@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
+##################################################################
+# Algorithm module using iterative data exchange
+##################################################################
 
-"""
 import numpy as np
 import modelicares
 from scipy.optimize import minimize

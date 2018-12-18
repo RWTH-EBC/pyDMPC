@@ -1,3 +1,7 @@
+##################################################################
+# Subsystem class that includes all the control agents' abilities
+##################################################################
+
 import numpy as np
 import Init
 import scipy.io as sio
@@ -38,7 +42,7 @@ class Subsystem():
 
 
     def GetNeighbour(self, neighbour_name):
-        """Provides a subsystem's neighbor"""
+        """Gets the name of a subsystem's neighbor"""
         self.neighbour_name = neighbour_name
 
     def GetMeasurements(self, ids_list, model):
@@ -91,6 +95,11 @@ class Subsystem():
 
         """ Import selected algorithm (and choose objective function) """
         if Init.algorithm == "BExMoC":
+            """
+            If optimization is due, create a new look-up table based on
+            one optimization per boundary condition. In the steps in between,
+            interpolate the look-up table
+            """
             import algorithm.BExMoC
             BExMoC = algorithm.BExMoC
 
@@ -115,6 +124,7 @@ class Subsystem():
                         outputs.append([0,0])
 
             else:
+                # Optimization
                 time_storage = time_step # store the time
                 [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, Init.obj_function, time_storage, Init.path_lib, Init.init_conds)
                 self.lookUpTables = [storage_cost, storage_DV, storage_out]
@@ -156,11 +166,17 @@ class Subsystem():
             return commands
 
         elif Init.algorithm == "NC_DMPC":
+            """
+            The algorithm initializes each subsystem's boundary conditions with
+            a value between the current measurement and the set point,
+            depending on the current outdoor conditions.
+            """
             import algorithm.NC_DMPC
             NC_DMPC = algorithm.NC_DMPC
             values_BCs = []
             incr = 0
 
+            # Initialize in the first iteration
             if iter == 0 and self._type_subSyst != 'generator':
                 if outdoor_meas[0] < Init.set_point[0]:
                     BC_1 = [min(outdoor_meas[0], Init.set_point[0]-2),self.measurements[0]+0.0005]
@@ -171,6 +187,7 @@ class Subsystem():
                 print('BC_1: ', BC_1)
                 print('BC_2: ', BC_2)
 
+            # Generator always has measurements as boundary conditions
             elif self._type_subSyst == 'generator':
                 BC_1 = [self.measurements[1],self.measurements[0]+0.0005]
                 BC_2 = [self.measurements[1], self.measurements[0]-0.0005]
@@ -178,10 +195,11 @@ class Subsystem():
                 print('BC_2: ', BC_2)
 
             else:
+                # Use the neighbor's outputs as boundary conditions
                 BC_dict = sio.loadmat(Init.path_res +'\\'+Init.name_wkdir +'\\' + self.neighbour_name +'\\' +  Init.fileName_Output + '.mat')
                 arrayBC = BC_dict['output']
 
-                """ Sort Input Conditions because "exDestArr" must be strictly increasing  """
+                # Sort boundary conditions
                 if len(arrayBC[1]) == 4:
                     absHum_measurements1 = self.CalcXfromRH(arrayBC[1][3]*100, arrayBC[1][2])
                     absHum_measurements2 = self.CalcXfromRH(arrayBC[2][3]*100, arrayBC[2][2])
@@ -207,6 +225,7 @@ class Subsystem():
                     values_BCs.append([BC_2[i], BC_1[i]])
 
             last_DV = Init.init_DVs[0]
+
             """ Store last_DV in own directory """
             sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + '\\' + 'last_DV.mat'), {'last_DV': last_DV})
 
@@ -253,6 +272,15 @@ class Subsystem():
             return commands
 
     def CalcXfromRH(self, relHum, T_hum, pressure=None):
+        """
+        Caclulate the absolute humidity
+        inputs:
+            relHum: relative humidity in %
+            T_hum: temperature of moist air in °C
+            pressure: pressure in Pa
+        returns:
+            absHum_measurements: absolute humidity in g/kg
+        """
         if pressure is None:
             pressure = 101325
         """Enhancement factors Water / Ice"""
@@ -278,10 +306,20 @@ class Subsystem():
              f1iT = EFi * ai * math.exp((bi - T_hum/di) * T_hum/(T_hum + ci));                       # saturation pressure from temperature
              f1iDP = (relHum/100) * f1iT;                            # vaporPressure
              absHum_measurements = ((18.015/28.963) * f1iDP /(pressure - f1iDP));
+
         return absHum_measurements
 
 
     def CalcRHfromX(self, absHum, T_hum, pressure=None):
+        """
+        Caclulate the relative humidity
+        inputs:
+            absHum: absolute humidity in g/kg
+            T_hum: temperature of moist air in °C
+            pressure: pressure in Pa
+        returns:
+            relHum: relative humidity in %
+        """
         if pressure is None:
             pressure = 101325
         """Enhancement factors Water / Ice"""
@@ -305,4 +343,5 @@ class Subsystem():
              EFi = 1 + 10**-4 *(2.2 + pressure * (0.0383 + 6.4*10**-6 * T_hum**2));
              f1iT = EFi * ai * math.exp((bi - T_hum/di) * T_hum/(T_hum + ci));                       # saturation pressure from temperature
              relHum = (pressure*absHum*100/(absHum+(18.015/28.963)))/f1iT;
+
         return relHum
