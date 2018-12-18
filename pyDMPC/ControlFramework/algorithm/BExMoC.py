@@ -45,9 +45,22 @@ def CalcBCvalues(amount_vals_BCs, exp_BCs, center_vals_BCs, factors_BCs, amount_
 
     return values_BCs
 
-""" Optimization """
+def CalcLookUpTables(s, time_storage, init_conds):
+    """
+    Calculate decision variables and costs and put them into look-up tables
 
-def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
+    inputs:
+        s: subsystem object
+        time_storage: the current time step
+        init_conds: initialization of optimization algorithm
+    returns:
+        storage_cost: list of costs depending on boundary conditions
+        storage_DV: decision variables depending on boundary conditions
+        storage_out: outputs depending on boundary conditions
+        exDestArr: two-dimensional list of costs
+        storage_grid: result grid as output of optimization algorithm
+    """
+
     import Objective_Function
 
     # Use the fullfactorial design of experiment: Use predefined BCs
@@ -158,8 +171,9 @@ def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
             storage_cost[counter,len(s.values_BCs)] = obj_fun_val.get('fun')
             exDestArr[index1[0].tolist(), index2[1].tolist()] = obj_fun_val.get('fun')
 
-        """ Get Output Variables """
+        # Get Output Variables
         output_vals = Objective_Function.GetOutputVars()
+
         """ Fill look-up table Out """
         k = len(s.values_BCs)
         while k < (s.num_VarsOut+len(s.values_BCs)):
@@ -173,32 +187,40 @@ def CalcLookUpTables(s, obj_function, time_storage, path_lib, init_conds):
     else:
         storage_grid = np.append(storage_grid_alt2,res_grid,axis=1)
 
-
     storage_grid = res_grid
     return [storage_cost, storage_DV, storage_out, exDestArr, storage_grid]
 
 
 def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, storage_out):
+    """
+    Interpolate the values of the decision variables, costs and outputs
 
-    """ Interpolate the values of the decision variables"""
+    inputs:
+        measurements_SubSys: the inflow measurements of a subsystem
+        storage_DV: the decision variables depending on boundary conditions
+        bounds_DVs: upper and lower bounds of the decision variables
+        storage_cost: the costs depending on boundary conditions
+        storage_out: the outputs depending on boundary conditions
+    returns:
+        commands: interpolated command for current measurement
+        costs: interpolated costs for current measurement
+        out: interpolated outputs for current measurement
+    """
 
-    # Create separate arrays for boundary values and decision variables
+    """
+    Reformat the boundary conditions, decision variables, outputs and
+    costs
+    """
     cond_BC = [True if L<len(measurements_SubSys) else False for L in range(len(storage_DV[0]))]
     cond_DV = [False if L<len(measurements_SubSys) else True for L in range(len(storage_DV[0]))]
     cond_Out = [False if L<len(measurements_SubSys) else True for L in range(len(storage_out[0]))]
     cond_Costs = cond_DV
 
-    set_of_datapoints = np.compress(cond_BC,storage_DV, axis = 1)
-    set_of_DVvalues = np.compress(cond_DV,storage_DV, axis = 1)
-
-    set_of_Costvalues = np.compress(cond_Costs,storage_cost, axis = 1)
-    set_of_Outputvalues = np.compress(cond_Out,storage_out, axis = 1)
-
-    grid_points = set_of_datapoints
-    grid_point_values = set_of_DVvalues
+    grid_points = np.compress(cond_BC,storage_DV, axis = 1)
+    grid_point_values = np.compress(cond_DV,storage_DV, axis = 1)
     grid_measurements = measurements_SubSys[::-1]
-    grid_point_values_costs = set_of_Costvalues
-    grid_point_values_out = set_of_Outputvalues
+    grid_point_values_costs = np.compress(cond_Costs,storage_cost, axis = 1)
+    grid_point_values_out = np.compress(cond_Out,storage_out, axis = 1)
 
     print("Grid points:")
     print(grid_points)
@@ -207,7 +229,7 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
     print("measurements:")
     print(grid_measurements)
 
-    #Try to interpolate. If there is an error, use the bounds
+    """ Interpolation of reformatted data """
     try:
         commands = interpolate.griddata(grid_points, grid_point_values,grid_measurements ,method='linear')
         costs = interpolate.griddata(grid_points, grid_point_values_costs,grid_measurements ,method='linear')
@@ -217,8 +239,7 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
         print("costs: " + str(costs))
         print("outputs: " + str(out))
 
-
-            # Check if commands are in range, else set to boundary values
+        # Check if commands are in range, else set to boundary values
         for i, val in enumerate(commands):
             if val < bounds_DVs[i]:
                 commands[i] = bounds_DVs[i]

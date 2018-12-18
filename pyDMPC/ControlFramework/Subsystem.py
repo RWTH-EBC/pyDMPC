@@ -126,7 +126,7 @@ class Subsystem():
             else:
                 # Optimization
                 time_storage = time_step # store the time
-                [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, Init.obj_function, time_storage, Init.path_lib, Init.init_conds)
+                [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, time_storage, Init.init_conds)
                 self.lookUpTables = [storage_cost, storage_DV, storage_out]
 
                 """ Store look-up table for upstream subsystem in directory of upstream subsystem """

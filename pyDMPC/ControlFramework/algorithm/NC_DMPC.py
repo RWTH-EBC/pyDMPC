@@ -10,7 +10,19 @@ import Init
 import scipy.io as sio
 
 def Iteration(s, time_step):
+    """
+    Perform one iteration step
 
+    inputs:
+        s: subsystem object
+        time_step: ecurrent time step
+    returns:
+        storage_cost: list of costs depending on boundary conditions
+        storage_DV: decision variables depending on boundary conditions
+        storage_out: outputs depending on boundary conditions
+        exDestArr: two-dimensional list of costs
+        storage_grid: result grid as output of optimization algorithm
+    """
     import Objective_Function
 
     # Use the fullfactorial design of experiment: Use predefined BCs
@@ -34,6 +46,7 @@ def Iteration(s, time_step):
     storage_grid = np.zeros([counter+1,2])
     storage_grid[0,0] = storage_grid[0,1] = None
     storage_grid_alt2 = np.zeros([2*counter,2])
+
     # 2D exDestArr to communicate:
     if len(s.values_BCs) == 1:
         exDestArr = np.zeros([len(s.values_BCs[0])+3,2])
@@ -47,18 +60,20 @@ def Iteration(s, time_step):
         for i,val in enumerate(s.values_BCs[0]):
             exDestArr[i+2,0]=val
         for i,val in enumerate(s.values_BCs[1]):
+            # use the pre-defined boundary conditions
             exDestArr[0,i+2]=val
+
+        # Define absolute bounds for the boundary conditions
         exDestArr[0,0] = None
         exDestArr[1,0] = 0
         exDestArr[4,0] = 50
         exDestArr[0,1] = 0
         exDestArr[0,4] = 1
 
-    if time_step == 0 and s._name != 'Steam_humidifier':
+    if time_step == 0 and s._type_subSyst != 'consumer':
         sio.savemat((Init.path_res +'\\' + Init.name_wkdir + '\\' + s._name +'\\' +  Init.fileName_Cost + '.mat'), {Init.tableName_Cost :exDestArr})
 
     counter = 0
-
 
     for BC in BCsettings:
         j = 0
@@ -71,7 +86,6 @@ def Iteration(s, time_step):
         # Could be set in Init and passed as an attribute
         Objective_Function.ChangeDir(s._name)
         boundaries = s._bounds_DVs #[low, high]
-
 
         if boundaries[0] != boundaries[1]:
             ranges = [slice(boundaries[0],boundaries[1]+5, 10)]
@@ -90,7 +104,7 @@ def Iteration(s, time_step):
 
         if isinstance(obj_fun_val, tuple):
             """ fill storage_grid """
-            if counter ==0:
+            if counter == 0:
                 res_grid = np.concatenate((obj_fun_val[2][np.newaxis], obj_fun_val[3][np.newaxis]),axis = 0)
             else:
                 res_grid = np.append(res_grid,obj_fun_val[3][np.newaxis],axis = 0)
@@ -124,12 +138,17 @@ def Iteration(s, time_step):
             storage_DV[counter,j] = DV_values.item(j-len(s.values_BCs))
             j += 1
 
-        if len(BC)==2:
+        if len(BC) == 2:
+            """
+            Insert the obejctive function values into the right positions
+            in the  exergy destruction array
+            """
             ix1 = np.isin(exDestArr, BC[0])
             ix2 = np.isin(exDestArr, BC[1])
             index1 = np.where(ix1)
             index2 = np.where(ix2)
             if isinstance(obj_fun_val, tuple):
+                # Some optimization algorithms return tuples
                  storage_cost[counter,len(s.values_BCs)] = obj_fun_val[1]
                  exDestArr[index1[0].tolist(), index2[1].tolist()] = obj_fun_val[1]
                  if obj_fun_val[1]+1 < 0:
@@ -143,6 +162,9 @@ def Iteration(s, time_step):
                     objVal = -obj_fun_val.get('fun')
                 else:
                     objVal = obj_fun_val.get('fun')
+                    
+            """
+            Outside the considered boundary conditions, insert a high cost value to ensure that the algorithm does not exceed the bounds_DVs """
             if index1[0].tolist() == [2]:
                 exDestArr[1, index2[1].tolist()] = (objVal+1)*5
             elif index1[0].tolist() == [3]:
@@ -151,6 +173,7 @@ def Iteration(s, time_step):
                 exDestArr[index1[0].tolist(), 1] = (objVal+1)*5
             elif index2[1].tolist() == [3]:
                 exDestArr[index1[0].tolist(), 4] = (objVal+1)*5
+
         elif len(BC)==1:
             ix1 = np.isin(exDestArr, BC[0])
             index1 = np.where(ix1)
