@@ -107,16 +107,16 @@ def CalcLookUpTables(s, time_storage, init_conds):
         boundaries = s._bounds_DVs #[low, high]
 
         if boundaries[0] != boundaries[1]:
-            ranges = [slice(boundaries[0],boundaries[1]+5, 5)]
+            ranges = [slice(boundaries[0],boundaries[1]+5, 10)]
 
             """ First conduct a brute force search """
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
-            init_conds = obj_fun_val[0]-5
+            init_conds = obj_fun_val[0]
             cons = ({'type':'ineq','fun': lambda x: x-boundaries[0]},
                     {'type':'ineq','fun': lambda x: boundaries[1]-x})
 
             """ Perform an addtional optimization to refine the previous findings """
-            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
+            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='SLSQP',constraints=cons, options={'maxiter':100, 'ftol':0.01})
         else:
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
@@ -171,9 +171,8 @@ def CalcLookUpTables(s, time_storage, init_conds):
             storage_cost[counter,len(s.values_BCs)] = obj_fun_val.get('fun')
             exDestArr[index1[0].tolist(), index2[1].tolist()] = obj_fun_val.get('fun')
 
-        # Get Output Variables
+        """ Get Output Variables """
         output_vals = Objective_Function.GetOutputVars()
-
         """ Fill look-up table Out """
         k = len(s.values_BCs)
         while k < (s.num_VarsOut+len(s.values_BCs)):
@@ -186,6 +185,7 @@ def CalcLookUpTables(s, time_storage, init_conds):
         storage_grid = np.append(storage_grid,res_grid,axis=1)
     else:
         storage_grid = np.append(storage_grid_alt2,res_grid,axis=1)
+
 
     storage_grid = res_grid
     return [storage_cost, storage_DV, storage_out, exDestArr, storage_grid]

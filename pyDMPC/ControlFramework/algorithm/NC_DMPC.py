@@ -46,7 +46,6 @@ def Iteration(s, time_step):
     storage_grid = np.zeros([counter+1,2])
     storage_grid[0,0] = storage_grid[0,1] = None
     storage_grid_alt2 = np.zeros([2*counter,2])
-
     # 2D exDestArr to communicate:
     if len(s.values_BCs) == 1:
         exDestArr = np.zeros([len(s.values_BCs[0])+3,2])
@@ -75,6 +74,7 @@ def Iteration(s, time_step):
 
     counter = 0
 
+
     for BC in BCsettings:
         j = 0
 
@@ -87,6 +87,7 @@ def Iteration(s, time_step):
         Objective_Function.ChangeDir(s._name)
         boundaries = s._bounds_DVs #[low, high]
 
+
         if boundaries[0] != boundaries[1]:
             ranges = [slice(boundaries[0],boundaries[1]+5, 10)]
 
@@ -97,7 +98,7 @@ def Iteration(s, time_step):
                     {'type':'ineq','fun': lambda x: boundaries[1]-x})
 
             """ Perform an addtional optimization to refine the previous findings """
-            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':5})
+            obj_fun_val = minimize(Objective_Function.Obj,init_conds,args = (BC, s),method='COBYLA',constraints=cons, options={'maxiter':100, 'catol':0.0002, 'rhobeg':10})
         else:
             ranges = [slice(boundaries[0],boundaries[1]+1, 1)]
             obj_fun_val = brute(Objective_Function.Obj,ranges,args = (BC, s), disp=True, full_output=True, finish = None)
@@ -173,7 +174,6 @@ def Iteration(s, time_step):
                 exDestArr[index1[0].tolist(), 1] = (objVal+1)*5
             elif index2[1].tolist() == [3]:
                 exDestArr[index1[0].tolist(), 4] = (objVal+1)*5
-
         elif len(BC)==1:
             ix1 = np.isin(exDestArr, BC[0])
             index1 = np.where(ix1)
