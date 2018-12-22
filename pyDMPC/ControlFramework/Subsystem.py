@@ -19,7 +19,7 @@ class Subsystem():
                  bounds_DVs,model_path, names_BCs,
                    num_VarsOut, names_DVs,
                    output_vars, initial_names, IDs_initial_values,IDs_inputs,cost_par,
-                   type_subSyst=None):
+                   cost_factor,type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
         self._num_DVs = num_DVs
@@ -34,6 +34,7 @@ class Subsystem():
         self._model_path = model_path
         self._names_BCs = names_BCs
         self._cost_par = cost_par
+        self._cost_factor = cost_factor
         self._names_DVs = names_DVs
         self._output_vars = output_vars
         self._initial_names = initial_names
@@ -126,7 +127,7 @@ class Subsystem():
             else:
                 # Optimization
                 time_storage = time_step # store the time
-                [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, time_storage, Init.init_conds)
+                [storage_cost, storage_DV, storage_out, exDestArr, res_grid] = BExMoC.CalcLookUpTables(self, Init.obj_function, time_storage, Init.path_lib, Init.init_conds)
                 self.lookUpTables = [storage_cost, storage_DV, storage_out]
 
                 """ Store look-up table for upstream subsystem in directory of upstream subsystem """
