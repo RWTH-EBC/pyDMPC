@@ -2,7 +2,7 @@ within ModelicaModels.ControlledSystems;
 model ControlledSystemBoundaries
   "Version of controlled system with boundary conditions"
   extends ModelicaModels.BaseClasses.ControlledSystemBaseClass(volumeFlow(
-        tableOnFile=false, table=[0,0.31,0.29]));
+        tableOnFile=false, table=[0,0.31,0.29]), freshAirSource(nPorts=2));
   Modelica.Blocks.Sources.Sine     outdoorTemperature(
     amplitude=10,
     freqHz=1/7200,
@@ -11,7 +11,8 @@ model ControlledSystemBoundaries
         extent={{14,-14},{-14,14}},
         rotation=180,
         origin={-378,120})));
-  Modelica.Blocks.Sources.Constant outdoorHumidity(k=0.7) annotation (Placement(
+  Modelica.Blocks.Sources.Constant outdoorHumidity(k=0.007)
+                                                          annotation (Placement(
         transformation(
         extent={{14,-14},{-14,14}},
         rotation=180,
@@ -90,7 +91,7 @@ model ControlledSystemBoundaries
     "Connector of Real output signal" annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
-        origin={-350,198})));
+        origin={-346,198})));
   Modelica.Blocks.Interfaces.RealOutput outgoingAirOutletTemperatureCOutput
     annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
@@ -201,21 +202,6 @@ model ControlledSystemBoundaries
   Modelica.Blocks.Interfaces.RealOutput inOutletsOutgoingHexele4masT
     "Value of Real output"
     annotation (Placement(transformation(extent={{-160,-156},{-140,-136}})));
-  Modelica.Blocks.Sources.RealExpression realExpression1[4](y=inOutlets.IntakeHex.ele[
-        :].mas.T)
-    annotation (Placement(transformation(extent={{-198,-190},{-178,-170}})));
-  Modelica.Blocks.Interfaces.RealOutput inOutletsIntakeHexele1masT
-    "Value of Real output"
-    annotation (Placement(transformation(extent={{-158,-174},{-138,-154}})));
-  Modelica.Blocks.Interfaces.RealOutput inOutletsIntakeHexele2masT
-    "Value of Real output"
-    annotation (Placement(transformation(extent={{-158,-184},{-138,-164}})));
-  Modelica.Blocks.Interfaces.RealOutput inOutletsIntakeHexele3masT
-    "Value of Real output"
-    annotation (Placement(transformation(extent={{-158,-194},{-138,-174}})));
-  Modelica.Blocks.Interfaces.RealOutput inOutletsIntakeHexele4masT
-    "Value of Real output"
-    annotation (Placement(transformation(extent={{-158,-204},{-138,-184}})));
   Modelica.Blocks.Sources.RealExpression realExpression2[4](y=preHeater.hex.ele[
         :].mas.T)
     annotation (Placement(transformation(extent={{-78,-186},{-58,-166}})));
@@ -259,17 +245,14 @@ model ControlledSystemBoundaries
   Modelica.Blocks.Interfaces.RealOutput heaterhexele4masT
     "Value of Real output"
     annotation (Placement(transformation(extent={{136,-200},{156,-180}})));
+  AixLib.Fluid.Sensors.RelativeHumidity outdoorHumidityMeas(redeclare package
+      Medium = MediumAir) "Relative humidity outside"
+    annotation (Placement(transformation(extent={{-254,-16},{-274,4}})));
 equation
   connect(roomHumidity.y, x_indoor.phi) annotation (Line(points={{140.7,183},{
           66,183},{66,182},{40,182}}, color={0,0,127}));
   connect(outdoorTemperature.y, toKelvin1.Celsius) annotation (Line(points={{
           -362.6,120},{-362.6,120},{-342,120}}, color={0,0,127}));
-  connect(toKelvin1.Kelvin, x_outdoor.T) annotation (Line(points={{-319,120},{
-          -310,120},{-310,-24},{-380,-24},{-380,-50},{-362,-50}}, color={0,0,
-          127}));
-  connect(outdoorHumidity.y, x_outdoor.phi) annotation (Line(points={{-362.6,76},
-          {-340,76},{-340,-16},{-376,-16},{-376,-44},{-362,-44}}, color={0,0,
-          127}));
   connect(toKelvin1.Kelvin, freshAirSource.T_in) annotation (Line(points={{-319,
           120},{-310,120},{-310,120},{-310,-36},{-304,-36}}, color={0,0,127}));
   connect(roomTemperature.y, toKelvin.Celsius) annotation (Line(points={{140.7,
@@ -293,9 +276,6 @@ equation
   connect(humidifier.humidifierWSP, humidifierWSP1)
     annotation (Line(points={{212.491,3.28},{224,3.28},{224,54}},
                                                           color={0,0,127}));
-  connect(inOutlets.portExhaustAirIn, outgoingAirOutletTemperature.port)
-    annotation (Line(points={{-144.371,29.5765},{-144.371,31.2813},{-214,
-          31.2813},{-214,40}}, color={0,127,255}));
   connect(outgoingAirOutletTemperature.T, outgoingAirOutletTemperatureC.Kelvin)
     annotation (Line(points={{-207,50},{-198,50}}, color={0,0,127}));
   connect(hRCTemperature.T, hRCTemperatureC.Kelvin)
@@ -308,13 +288,8 @@ equation
     annotation (Line(points={{295,30},{310,30}}, color={0,0,127}));
   connect(heaterTemperature.T, heaterTemperatureC.Kelvin)
     annotation (Line(points={{161,32},{170,32}}, color={0,0,127}));
-  connect(outgoingAirOutletHumidity.port, inOutlets.portExhaustAirIn)
-    annotation (Line(points={{-246,48},{-246,38},{-220,38},{-220,29.5765},{
-          -144.371,29.5765}}, color={0,127,255}));
   connect(outgoingAirOutletHumidity.phi, outgoingAirOutletHumidityOutput)
     annotation (Line(points={{-235,58},{-230,58},{-230,202}}, color={0,0,127}));
-  connect(outdoorHumidity.y, outdoorHumidityOutput) annotation (Line(points={{
-          -362.6,76},{-350,76},{-350,198}}, color={0,0,127}));
   connect(outgoingAirOutletTemperatureC.Celsius,
     outgoingAirOutletTemperatureCOutput) annotation (Line(points={{-175,50},{
           -152,50},{-152,122},{-210,122},{-210,202}}, color={0,0,127}));
@@ -368,18 +343,6 @@ equation
   connect(realExpression[4].y, inOutletsOutgoingHexele4masT) annotation (Line(
         points={{-179,-132},{-168,-132},{-168,-146},{-150,-146}}, color={0,0,
           127}));
-  connect(realExpression1[1].y, inOutletsIntakeHexele1masT) annotation (Line(
-        points={{-177,-180},{-166,-180},{-166,-164},{-148,-164}}, color={0,0,
-          127}));
-  connect(realExpression1[2].y, inOutletsIntakeHexele2masT) annotation (Line(
-        points={{-177,-180},{-166,-180},{-166,-174},{-148,-174}}, color={0,0,
-          127}));
-  connect(realExpression1[3].y, inOutletsIntakeHexele3masT) annotation (Line(
-        points={{-177,-180},{-168,-180},{-168,-184},{-148,-184}}, color={0,0,
-          127}));
-  connect(realExpression1[4].y, inOutletsIntakeHexele4masT) annotation (Line(
-        points={{-177,-180},{-166,-180},{-166,-194},{-148,-194}}, color={0,0,
-          127}));
   connect(realExpression2[1].y, preHeaterhexele1masT) annotation (Line(points={
           {-57,-176},{-46,-176},{-46,-160},{-28,-160}}, color={0,0,127}));
   connect(realExpression2[2].y, preHeaterhexele2masT) annotation (Line(points={
@@ -410,4 +373,25 @@ equation
   connect(cooler.waterInflowTemperature, coolingCircuitOutput) annotation (Line(
         points={{35.7143,-10.9231},{56,-10.9231},{56,68},{32,68},{32,142}},
         color={0,0,127}));
+  connect(outdoorHumidity.y, toTotAir.XiDry) annotation (Line(points={{-362.6,
+          76},{-350,76},{-350,-6},{-374,-6},{-374,-44},{-363,-44}}, color={0,0,
+          127}));
+  connect(outdoorHumidityMeas.port, freshAirSource.ports[2]) annotation (Line(
+        points={{-264,-16},{-264,-40},{-282,-40}}, color={0,127,255}));
+  connect(outdoorHumidityMeas.phi, outdoorHumidityOutput) annotation (Line(
+        points={{-275,-6},{-346,-6},{-346,198}}, color={0,0,127}));
+  connect(outgoingAirOutletTemperature.port, inOutlets.portExhaustAirOut)
+    annotation (Line(points={{-214,40},{-214,36},{-180.812,36},{-180.812,
+          29.5765}}, color={0,127,255}));
+  connect(outgoingAirOutletHumidity.port, inOutlets.portExhaustAirOut)
+    annotation (Line(points={{-246,48},{-246,36},{-218,36},{-218,34},{-180.812,
+          34},{-180.812,29.5765}}, color={0,127,255}));
+  annotation (
+    experiment(StopTime=86400, Interval=10),
+    __Dymola_experimentSetupOutput,
+    __Dymola_experimentFlags(
+      Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+      Evaluate=false,
+      OutputCPUtime=false,
+      OutputFlatModelica=false));
 end ControlledSystemBoundaries;

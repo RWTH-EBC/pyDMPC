@@ -97,12 +97,6 @@ model ControlledSystemBaseClass "Base class of the controlled system"
     annotation (Placement(transformation(extent={{-72,-100},{-92,-80}})));
   Modelica.Blocks.Math.Product VolumeToMassFlowIntake1
     annotation (Placement(transformation(extent={{-132,-52},{-152,-32}})));
-  AixLib.Utilities.Psychrometrics.X_pTphi x_outdoor(use_p_in=false, p=
-        defaultPressure) "Mass fractions of outdoor air" annotation (Placement(
-        transformation(
-        extent={{-10,10},{10,-10}},
-        rotation=0,
-        origin={-350,-50})));
   AixLib.Utilities.Psychrometrics.X_pTphi x_indoor(use_p_in=false, p=
         defaultPressure) "Mass fractions of extract air" annotation (Placement(
         transformation(
@@ -156,6 +150,8 @@ model ControlledSystemBaseClass "Base class of the controlled system"
   AixLib.Fluid.Sensors.RelativeHumidity hRCHumidity(redeclare package Medium =
         MediumAir) "Relative humidity after HRC"
     annotation (Placement(transformation(extent={{-126,24},{-106,44}})));
+  AixLib.Utilities.Psychrometrics.ToTotalAir toTotAir
+    annotation (Placement(transformation(extent={{-362,-54},{-342,-34}})));
 equation
   connect(inOutlets.portSupplyAirOut, preHeater.portSupplyAirIn) annotation (
       Line(points={{-156.6,13.0588},{-105.179,13.0588},{-105.179,-2.61538},{
@@ -169,9 +165,6 @@ equation
                                                         color={0,127,255}));
   connect(heater.portSupplyAirOut, humidifier.portSupplyAirIn) annotation (Line(
         points={{115.4,-7.17647},{115.4,-15.2},{158,-15.2}},color={0,127,255}));
-  connect(inOutlets.portExhaustAirIn, exhaustPressureDrop.port_a) annotation (
-      Line(points={{-144.371,29.5765},{-214.851,29.5765},{-214.851,30},{-228,30}},
-        color={0,127,255}));
   connect(exhaustPressureDrop.port_b, exhaustAirSink.ports[1]) annotation (Line(
         points={{-248,30},{-264,30},{-264,40},{-280,40}}, color={0,127,255}));
   connect(humidifier.portSupplyAirOut, supplyPressureDrop.port_a) annotation (
@@ -201,8 +194,6 @@ equation
   connect(VolumeToMassFlowIntake1.y, extractAirSource.m_flow_in) annotation (
       Line(points={{-153,-42},{-182,-42},{-182,-24},{-22,-24},{-22,186},{-80,
           186}}, color={0,0,127}));
-  connect(x_outdoor.X, freshAirSource.X_in) annotation (Line(points={{-339,-50},
-          {-312,-50},{-312,-44},{-304,-44}}, color={0,0,127}));
   connect(x_indoor.X, extractAirSource.X_in) annotation (Line(points={{17,176},
           {-30,176},{-30,174},{-78,174}}, color={0,0,127}));
   connect(phiset1.y, x_set.phi) annotation (Line(points={{-308.7,-127},{-290,
@@ -237,6 +228,13 @@ equation
   connect(extractAirSource.ports[1], inOutlets.portExhaustAirIn) annotation (
       Line(points={{-100,178},{-136,178},{-136,29.5765},{-144.371,29.5765}},
         color={0,127,255}));
+  connect(toTotAir.XiTotalAir, freshAirSource.X_in[1])
+    annotation (Line(points={{-341,-44},{-304,-44}}, color={0,0,127}));
+  connect(toTotAir.XNonVapor, freshAirSource.X_in[2]) annotation (Line(points={
+          {-341,-48},{-314,-48},{-314,-44},{-304,-44}}, color={0,0,127}));
+  connect(exhaustPressureDrop.port_a, inOutlets.portExhaustAirOut) annotation (
+      Line(points={{-228,30},{-180.812,30},{-180.812,29.5765}}, color={0,127,
+          255}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-400,
             -140},{380,220}})),
                           Diagram(coordinateSystem(preserveAspectRatio=false,
