@@ -199,9 +199,9 @@ def Obj(values_DVs, BC, s):
         for tout in output_traj[0]:
             # Avoid nan by suppressing operations with small numbers
             if values_DVs > 0.0001:
-                cost_total += values_DVs*Init.cost_factor + costs_neighbor(0.0244,tout-273)
+                cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,tout-273)
             else:
-                cost_total += costs_neighbor(0.0244,tout-273)
+                cost_total += costs_neighbor(0.008,tout-273)
             k += 1
 
         cost_total = cost_total/len(output_traj[0])
@@ -210,7 +210,7 @@ def Obj(values_DVs, BC, s):
         print("output: " + str(tout))
     else:
         for tout in output_traj[0]:
-            cost_total += max(0.01,cost_par[k])*Init.cost_factor + 100*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
+            cost_total += max(0.01,cost_par[k])*s._cost_factor + 10*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
             k += 1
 
         cost_total = cost_total/len(output_traj[0])
