@@ -120,6 +120,7 @@ initial_names= [] #for simulation
 IDs_initial_values= [] #for simulation
 cost_par = [] #for MassFlowRate
 IDs_inputs = []
+cost_factor = []
 
 """ Subsystems """
 # Heat recovery system
@@ -136,6 +137,7 @@ initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","
 IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexele2masT","inOutletsOutgoingHexele3masT","inOutletsOutgoingHexele4masT"])
 IDs_inputs.append(['outdoorHumidityOutput','outdoorTemperatureOutput','roomHumidityOutput','roomTemperatureOutput'])
 cost_par.append(None)
+cost_factor.append(0)
 
 # Pre-heater
 name.append('Pre_heater')
@@ -151,6 +153,7 @@ initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","
 IDs_initial_values.append(["preHeaterhexele1masT","preHeaterhexele2masT","preHeaterhexele3masT","preHeaterhexele4masT"])
 IDs_inputs.append(["hRCHumidityOutput","hRCTemperatureCOutput"])
 cost_par.append('val.port_1.m_flow')
+cost_factor.append(0.5)
 
 # Cooler
 name.append('Cooler')
@@ -166,6 +169,7 @@ initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","
 IDs_initial_values.append(["coolerhexele1masT","coolerhexele2masT","coolerhexele3masT","coolerhexele4masT"])
 IDs_inputs.append(["preHeaterHumidityOutput","preHeaterTemperatureCOutput"])
 cost_par.append('CoolerValve.port_b.m_flow')
+cost_factor.append(0.5)
 
 # Heater
 name.append('Heater')
@@ -181,6 +185,7 @@ initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","
 IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele3masT","heaterhexele4masT"])
 IDs_inputs.append(["coolerHumidityOutput","coolerTemperatureCOutput"])
 cost_par.append('val.port_1.m_flow')
+cost_factor.append(0.5)
 
 # Steam_humidifier
 name.append('Steam_humidifier')
@@ -196,3 +201,4 @@ initial_names.append(None)
 IDs_initial_values.append(None)
 IDs_inputs.append(["heaterHumidityOutput","heaterTemperatureCOutput"])
 cost_par.append('product3.y')
+cost_factor.append(0.5)
