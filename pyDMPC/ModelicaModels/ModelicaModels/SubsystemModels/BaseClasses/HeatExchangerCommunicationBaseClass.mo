@@ -96,7 +96,7 @@ model HeatExchangerCommunicationBaseClass
         origin={186,48})));
 
 
-  Modelica.Blocks.Math.Gain convertPercent(k=1/100) "Convert from percent"
+  Modelica.Blocks.Math.Gain convertPercent(k=1)     "Convert from percent"
     annotation (Placement(transformation(
         extent={{-6,-6},{6,6}},
         rotation=270,

@@ -6,7 +6,7 @@ model ControlledSystemBoundaries
   Modelica.Blocks.Sources.Sine     outdoorTemperature(
     amplitude=10,
     freqHz=1/7200,
-    offset=20)                                              annotation (
+    offset=30)                                              annotation (
       Placement(transformation(
         extent={{14,-14},{-14,14}},
         rotation=180,
