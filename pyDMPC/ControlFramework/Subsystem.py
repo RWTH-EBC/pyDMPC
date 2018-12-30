@@ -19,7 +19,7 @@ class Subsystem():
                  bounds_DVs,model_path, names_BCs,
                    num_VarsOut, names_DVs,
                    output_vars, initial_names, IDs_initial_values,IDs_inputs,cost_par,
-                   cost_factor,type_subSyst=None):
+                   cost_factor,model_type,type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
         self._num_DVs = num_DVs
@@ -40,6 +40,7 @@ class Subsystem():
         self._initial_names = initial_names
         self._IDs_initial_values = IDs_initial_values
         self._IDs_inputs = IDs_inputs
+        self._model_type = model_type
 
 
     def GetNeighbour(self, neighbour_name):

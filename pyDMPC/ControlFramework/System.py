@@ -52,6 +52,7 @@ class System:
                 Init.IDs_inputs[i],
                 Init.cost_par[i],
                 Init.cost_factor[i],
+                Init.model_type[i],
                 Init.type_subSyst[i])
                 )
         subsystems.sort(key = lambda x: x.position)

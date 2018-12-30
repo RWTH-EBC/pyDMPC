@@ -5,6 +5,10 @@
 
 import Init
 import numpy as np
+from joblib import dump, load
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.preprocessing import StandardScaler
+import time
 
 '''Global variables used for simulation handling'''
 # Variable indicating if the subsystem model is compiled
@@ -114,21 +118,11 @@ def Obj(values_DVs, BC, s):
     """Run the actual simulations"""
     # Max. 3 attempts to simulate
     # Different function call if no initialization is intended
-    for k in range(3):
-        try:
-            if s._initial_names is None:
-                simStat = dymola.simulateExtendedModel(
-                problem=s._model_path,
-                startTime=Init.start_time,
-                stopTime=Init.stop_time,
-                outputInterval=Init.incr,
-                method="Dassl",
-                tolerance=Init.tol,
-                resultFile= subsys_path  +'\dsres',
-                finalNames = final_names,
-                )
-            else:
-                simStat = dymola.simulateExtendedModel(
+    if s._model_type == "Modelica":
+        for k in range(3):
+            try:
+                if s._initial_names is None:
+                    simStat = dymola.simulateExtendedModel(
                     problem=s._model_path,
                     startTime=Init.start_time,
                     stopTime=Init.stop_time,
@@ -137,50 +131,87 @@ def Obj(values_DVs, BC, s):
                     tolerance=Init.tol,
                     resultFile= subsys_path  +'\dsres',
                     finalNames = final_names,
-                    initialNames = s._initial_names,
-                    initialValues = s._initial_values,
-                )
+                    )
+                else:
+                    simStat = dymola.simulateExtendedModel(
+                        problem=s._model_path,
+                        startTime=Init.start_time,
+                        stopTime=Init.stop_time,
+                        outputInterval=Init.incr,
+                        method="Dassl",
+                        tolerance=Init.tol,
+                        resultFile= subsys_path  +'\dsres',
+                        finalNames = final_names,
+                        initialNames = s._initial_names,
+                        initialValues = s._initial_values,
+                    )
 
-            k = 4
+                k = 4
 
-        except:
-            if k < 3:
-                print('Repeating simulation attempt')
-            else:
-                print('Final simulation error')
+            except:
+                if k < 3:
+                    print('Repeating simulation attempt')
+                else:
+                    print('Final simulation error')
 
-            k += 1
+                k += 1
 
-    # Get the simulation result
-    sim = SimRes(os.path.join(subsys_path, 'dsres.mat'))
+        # Get the simulation result
+        sim = SimRes(os.path.join(subsys_path, 'dsres.mat'))
 
-    # Penalty in case optimization algorithm does not support boundaries
-    new_values_DVs = sim['decisionVariables.y[1]'].values()
-    bounds = [0, 100]
-    penalty_val = 0
-    if new_values_DVs[-1] > bounds[1]:
-        penalty_val = 10
-    elif new_values_DVs[-1] < bounds[0]:
-        penalty_val = 10
+        #store output
+        output_traj = []
+        output_list = []
+        if s._output_vars is not None:
+            for val in s._output_vars:
+                output_vals = sim[val].values()
+                output_list.append(output_vals[-1])
+                output_traj.append(sim[val].values())
 
-    if s._cost_par != None:
-        cost_par = sim[s._cost_par].values()
     else:
-        cost_par = [0]
+        command = []
+        T_cur = []
+        T_prev = []
+        T_met_prev_1 = []
+        T_met_prev_2 = []
+        T_met_prev_3 = []
+        T_met_prev_4 = []
+        output_traj = []
+        output_list = []
+        MLPModel = load("C:\\TEMP\Dymola\\" + s._name + ".joblib")
+        scaler = load("C:\\TEMP\\Dymola\\" + s._name + "_scaler.joblib")
+       
+        for t in range(60):
+            T_met_prev_1.append(s._initial_values[0])
+            T_met_prev_2.append(s._initial_values[1])
+            T_met_prev_3.append(s._initial_values[2])
+            T_met_prev_4.append(s._initial_values[3])
+            command.append(values_DVs[0])
+            T_cur.append(BC[0])
+            T_prev.append(BC[0])
+        
 
-    cost_total = 0
+        x_test = np.stack((command,T_cur,T_prev,T_met_prev_1,T_met_prev_2,T_met_prev_3,T_met_prev_4),axis=1)
 
-    #store output
-    output_list = []
-    output_traj = []
+        scaled_instances = scaler.transform(x_test)
+        traj = MLPModel.predict(scaled_instances)
+        traj += 273*np.ones(len(traj))
+        if s._output_vars is not None:
+            output_traj = [traj, 0.3*np.ones(60)]
+            
+            output_list.append(traj[-1])
+            output_list.append(0.3)
+        
+        print(values_DVs[0])
+        print(BC[0])
+        print(traj)
+
+
     if s._output_vars is not None:
-        for val in s._output_vars:
-            output_vals = sim[val].values()
-            output_list.append(output_vals[-1])
-            output_traj.append(sim[val].values())
         global gl_output
         gl_output = output_list
 
+    cost_total = 0
 
     """all other subsystems + costs of downstream system"""
     if s._type_subSyst != "consumer":
@@ -195,7 +226,7 @@ def Obj(values_DVs, BC, s):
         storage_cost[1:,0], storage_cost[1:,1:], kind = 'linear',
         fill_value = 10000)
 
-   """all other subsystems + costs of downstream system"""
+    """all other subsystems + costs of downstream system"""
     if s._type_subSyst != "consumer":
         x = sio.loadmat(Init.path_res + '\\'+Init.name_wkdir+'\\' + s._name
         + '\\' + Init.fileName_Cost + '.mat')
@@ -209,20 +240,24 @@ def Obj(values_DVs, BC, s):
         fill_value = 10000)
 
         for l,tout in enumerate(output_traj[0]):
-            if l > 100:
+            if l > 100 or s._model_type == "MLP":
                 # Avoid nan by suppressing operations with small numbers
                 if values_DVs > 0.0001:
                     cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,tout-273)
                 else:
                     cost_total += costs_neighbor(0.008,tout-273)
-
-        cost_total = cost_total/len(output_traj[0])
+        if s._model_type == "Modelica":
+            cost_total = cost_total/len(output_traj[0])
+        else:
+            cost_total = cost_total/len(output_traj[0])
         print(s._name + " actuators : " + str(values_DVs))
         print("cost_total: " + str(cost_total))
         print("output: " + str(tout))
+        #time.sleep(2)
+        
     else:
         for l,tout in enumerate(output_traj[0]):
-            if l > 100:
+            if l > 100 or s._model_type == "MLP":
                 cost_total += 10*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
 
         cost_total = cost_total/len(output_traj[0])

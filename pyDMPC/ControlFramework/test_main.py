@@ -99,6 +99,7 @@ def main():
 
                 """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
                 for k in range(4):
+                    command_all = []
                     if Init.parallelization:
                         def f(s):
                             commands = s.CalcDVvalues(time_step, time_storage,k,model)
@@ -151,10 +152,11 @@ def main():
             for l,val in enumerate(command_all):
                 if Init.algorithm == 'BExMoC':
                     model.set(Init.names_DVs[4-l], val)
-                elif Init.algorithm== 'NC_DMPC':
+                elif Init.algorithm == 'NC_DMPC':
                     model.set(Init.names_DVs[4-l], val)
 
                 print(val)
+                print(Init.names_DVs)
 
             model.do_step(time_step, Init.sync_rate)
             print('Proceding')
