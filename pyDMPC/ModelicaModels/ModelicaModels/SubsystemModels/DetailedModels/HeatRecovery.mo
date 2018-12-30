@@ -4,12 +4,13 @@ model HeatRecovery "Detailed model of heat recovery system"
   extends
     ModelicaModels.SubsystemModels.BaseClasses.HeatExchangerCommunicationBaseClass(
      Pressure(k=system.p_ambient),
-    IntakeAirSink(nPorts=1),
     volumeFlow(tableOnFile=false, table=[0,0.31,0.29]),
     MeasuredData(columns=2:5),
-    IntakeAirSource(nPorts=1));
+    IntakeAirSource(nPorts=1),
+    IntakeAirSink(nPorts=1));
 
-  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass;
+  extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass(
+      exhaustPressureDrop(m_flow_nominal=0.5, dp_nominal=10));
   Modelica.Fluid.Sources.MassFlowSource_T extractAirSource(
     m_flow=0.5,
     redeclare package Medium = MediumAir,
@@ -36,7 +37,7 @@ model HeatRecovery "Detailed model of heat recovery system"
         extent={{10,-10},{-10,10}},
         rotation=180,
         origin={10,170})));
-  Modelica.Blocks.Math.Gain convertPercent1(k=1/100) "Convert from percent"
+  Modelica.Blocks.Math.Gain convertPercent1(k=1)     "Convert from percent"
     annotation (Placement(transformation(
         extent={{-6,-6},{6,6}},
         rotation=270,
@@ -51,6 +52,15 @@ model HeatRecovery "Detailed model of heat recovery system"
     annotation (Placement(transformation(extent={{10,-10},{-10,10}},
         rotation=180,
         origin={-164,140})));
+  AixLib.Fluid.FixedResistances.PressureDrop exhaustPressureDrop1(
+                           redeclare package Medium =
+               MediumAir,
+    dp_nominal=10,
+    m_flow_nominal=0.5)   "Pressure drop in exhaust duct" annotation (
+      Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=0,
+        origin={104,12})));
 equation
   connect(VolumeToMassFlowOutgoing.y,extractAirSource. m_flow_in) annotation (
       Line(points={{61,180},{94,180},{94,144},{80,144}}, color={0,0,127}));
@@ -62,12 +72,6 @@ equation
   connect(toKelvin_extractTemperature.Kelvin,x_pTphi_Etr. T)
     annotation (Line(points={{194,157},{194,110},{182,110}},
                                                           color={0,0,127}));
-  connect(IntakeHex.port_b2, IntakeAirSink.ports[1]) annotation (Line(points={{8,-90},
-          {150,-90},{150,12},{170,12}},         color={0,127,255}));
-  connect(IntakeHex.port_b2, supplyAirTemperature.port) annotation (Line(points={{8,-90},
-          {106,-90},{106,38},{104,38}},          color={0,127,255}));
-  connect(supplyAirHumidity.port, IntakeHex.port_b2)
-    annotation (Line(points={{66,38},{66,-90},{8,-90}},  color={0,127,255}));
   connect(volumeFlow.y[2], VolumeToMassFlowOutgoing.u1) annotation (Line(points=
          {{-1.7,96},{-20,96},{-20,186},{38,186}}, color={0,0,127}));
   connect(density.y, VolumeToMassFlowOutgoing.u2) annotation (Line(points={{21,
@@ -80,17 +84,28 @@ equation
           -204.3,203},{160,203},{160,175.2}}, color={0,0,127}));
   connect(convertPercent1.y, x_pTphi_Etr.phi) annotation (Line(points={{160,
           161.4},{160,130},{190,130},{190,116},{182,116}}, color={0,0,127}));
-  connect(decisionVariables.y[1], convertCommand.u) annotation (Line(points={{
-          -65,-110},{-50,-110},{-50,-82},{-116,-82},{-116,-50},{-103.2,-50}},
+  connect(decisionVariables.y[1], convertCommand.u) annotation (Line(points={{-65,
+          -110},{-50,-110},{-50,-82},{-116,-82},{-116,-56},{-65.2,-56}},
         color={0,0,127}));
-  connect(IntakeAirSource.ports[1], IntakeHex.port_a2) annotation (Line(points=
-          {{-100,12},{-40,12},{-40,-90},{-12,-90}}, color={0,127,255}));
-  connect(extractAirSource.ports[1], hex.port_b2) annotation (Line(points={{60,
-          136},{40,136},{40,70},{8,70}}, color={0,127,255}));
   connect(ExhaustAirSink.ports[1], OutgoingAirOutletTemp.port_b) annotation (
       Line(points={{-154,140},{-74,140},{-74,76},{-44,76}}, color={0,127,255}));
-  connect(OutgoingAirOutletTemp.port_a, hex.port_a2)
-    annotation (Line(points={{-24,76},{-12,76},{-12,70}}, color={0,127,255}));
+  connect(OutgoingAirOutletTemp.port_a, hex.port_b2) annotation (Line(points={{
+          -24,76},{-14,76},{-14,64},{26,64}}, color={0,127,255}));
+  connect(hex.port_a2, extractAirSource.ports[1]) annotation (Line(points={{46,
+          64},{52,64},{52,136},{60,136}}, color={0,127,255}));
+  connect(IntakeAirSource.ports[1], exhaustPressureDrop.port_a) annotation (
+      Line(points={{-100,12},{-84,12},{-84,4},{-70,4}}, color={0,127,255}));
+  connect(exhaustPressureDrop1.port_b, IntakeAirSink.ports[1])
+    annotation (Line(points={{114,12},{170,12}}, color={0,127,255}));
+  connect(hex.port_b1, exhaustPressureDrop1.port_a) annotation (Line(points={{
+          46,52},{58,52},{58,12},{94,12}}, color={0,127,255}));
+  connect(dam1.port_b, exhaustPressureDrop1.port_a) annotation (Line(points={{
+          54,-10},{62,-10},{62,12},{94,12}}, color={0,127,255}));
+  connect(supplyAirTemperature.port, exhaustPressureDrop1.port_b) annotation (
+      Line(points={{104,38},{120,38},{120,12},{114,12}}, color={0,127,255}));
+  connect(supplyAirHumidity.port, exhaustPressureDrop1.port_b) annotation (Line(
+        points={{66,38},{66,24},{120,24},{120,12},{114,12}}, color={0,127,255}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-        coordinateSystem(preserveAspectRatio=false)));
+        coordinateSystem(preserveAspectRatio=false)),
+    experiment(StopTime=3600));
 end HeatRecovery;

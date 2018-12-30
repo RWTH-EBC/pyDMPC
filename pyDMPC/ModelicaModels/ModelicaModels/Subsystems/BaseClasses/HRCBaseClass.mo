@@ -2,9 +2,7 @@ within ModelicaModels.Subsystems.BaseClasses;
 model HRCBaseClass
   "Subsystem model including dampers and heat recovery system"
 
-extends ModelicaModels.Subsystems.BaseClasses.HeatExchangerBaseClass(
-      ValveCharacteristicCurve(table=[0.0,0.0; 1,1]));
-
+replaceable package MediumAir = AixLib.Media.Air;
 parameter Modelica.SIunits.MassFlowRate mFlowNomOut=1
     "Nominal mass flow rate OutgoingAir";
 parameter Modelica.SIunits.MassFlowRate mFlowNomIn=1
@@ -18,68 +16,81 @@ parameter String header = "Objective function value" "Header for result file";
 parameter Modelica.SIunits.Pressure defaultPressure = 101300 "Default pressure";
 
 
-  Buildings.Fluid.HeatExchangers.WetCoilCounterFlow IntakeHex(
-    redeclare package Medium2 = MediumAir,
-    redeclare package Medium1 = MediumWater,
-    m2_flow_nominal=0.5,
-    show_T=true,
-    dp1_nominal=8000,
-    dp2_nominal=200,
-    UA_nominal=1000,
-    m1_flow_nominal=0.1)
-    annotation (Placement(transformation(extent={{8,-94},{-12,-74}})));
-  AixLib.Fluid.Movers.FlowControlled_dp CurculationPump(redeclare package
-      Medium = MediumWater,
-    m_flow_nominal=0.1,
-    dp_nominal=18000)                           annotation (Placement(
-        transformation(
-        extent={{-10,-10},{10,10}},
-        rotation=270,
-        origin={8,-24})));
-  AixLib.Fluid.Actuators.Valves.ThreeWayLinear val(
-    redeclare package Medium = MediumWater,
-    m_flow_nominal=0.1,
-    dpValve_nominal=2000)
-                   annotation (Placement(transformation(
-        extent={{10,-10},{-10,10}},
-        rotation=90,
-        origin={-12,6})));
   AixLib.Fluid.Sensors.TemperatureTwoPort OutgoingAirOutletTemp(redeclare
       package Medium = MediumAir, m_flow_nominal=mFlowNomOut)
     annotation (Placement(transformation(extent={{-24,86},{-44,66}})));
   AixLib.Fluid.Sensors.RelativeHumidity OutgoingAirRelHumid(redeclare package
       Medium =         MediumAir)
     annotation (Placement(transformation(extent={{-70,94},{-50,114}})));
-  Modelica.Fluid.Sources.Boundary_pT RecirculationPressure(
-    redeclare package Medium = MediumWater,
-    use_X_in=false,
-    use_p_in=false,
-    p(displayUnit="Pa") = 101300,
-    nPorts=1,
-    use_T_in=false)
-    annotation (Placement(transformation(extent={{66,-18},{46,2}})));
+  Buildings.Fluid.HeatExchangers.DryCoilCounterFlow hex(
+    redeclare package Medium2 = MediumAir,
+    redeclare package Medium1 = MediumAir,
+    m2_flow_nominal=0.5,
+    dp2_nominal=200,
+    UA_nominal=1000,
+    m1_flow_nominal=0.5,
+    dp1_nominal=200)
+    annotation (Placement(transformation(extent={{26,68},{46,48}})));
+  Modelica.Blocks.Sources.Constant Pressure1(k=10000)
+    annotation (Placement(transformation(extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-32,-16})));
+  Modelica.Blocks.Tables.CombiTable1D ValveCharacteristicCurve(tableOnFile=
+        false, table=[0.0,0.0; 1,1])
+    annotation (Placement(transformation(extent={{-42,-66},{-22,-46}})));
+  Modelica.Blocks.Math.Gain convertCommand(k=1/100) "Convert from percent"
+    annotation (Placement(transformation(
+        extent={{-6,-6},{6,6}},
+        rotation=0,
+        origin={-58,-56})));
+  AixLib.Fluid.Actuators.Dampers.Exponential dam(m_flow_nominal=0.5, redeclare
+      package Medium =                                                                          MediumAir,
+
+    linearized=true)
+    annotation (Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=90,
+        origin={22,34})));
+  Modelica.Blocks.Math.Add add(k2=-1)
+    annotation (Placement(transformation(extent={{-16,4},{-4,16}})));
+  Modelica.Blocks.Sources.Constant const(k=1)
+    annotation (Placement(transformation(extent={{-40,8},{-28,20}})));
+  AixLib.Fluid.Actuators.Dampers.Exponential dam1(m_flow_nominal=0.5, redeclare
+      package Medium =                                                                           MediumAir,
+
+    linearized=true)
+    annotation (Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=0,
+        origin={44,-10})));
+  inner Modelica.Fluid.System system
+    annotation (Placement(transformation(extent={{-72,140},{-52,160}})));
+  AixLib.Fluid.FixedResistances.PressureDrop exhaustPressureDrop(m_flow_nominal=
+       0.3, dp_nominal=350,redeclare package Medium =
+               MediumAir) "Pressure drop in exhaust duct" annotation (
+      Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=0,
+        origin={-60,4})));
 equation
-  connect(val.port_3,CurculationPump. port_a)
-    annotation (Line(points={{-2,6},{8,6},{8,-14}},  color={0,127,255}));
-  connect(CurculationPump.port_b,IntakeHex. port_a1) annotation (Line(points={{8,-34},
-          {8,-78}},                     color={0,127,255}));
   connect(OutgoingAirRelHumid.port,OutgoingAirOutletTemp. port_b) annotation (
      Line(points={{-60,94},{-60,76},{-44,76}},              color={0,127,255}));
-  connect(RecirculationPressure.ports[1],CurculationPump. port_a) annotation (
-     Line(points={{46,-8},{8,-8},{8,-14}},            color={0,127,255}));
-  connect(val.port_2,IntakeHex. port_b1) annotation (Line(points={{-12,-4},{-12,
-          -78}},               color={0,127,255}));
-  connect(val.port_1, hex.port_b1)
-    annotation (Line(points={{-12,16},{-12,58}}, color={0,127,255}));
-  connect(hex.port_a1, CurculationPump.port_a)
-    annotation (Line(points={{8,58},{8,-14}}, color={0,127,255}));
-  connect(ValveCharacteristicCurve.y[1], val.y) annotation (Line(points={{-59,
-          -50},{-34,-50},{-34,6},{-24,6}}, color={0,0,127}));
-  connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
-          {32,-10},{32,-23.8},{20,-23.8}},
-                                       color={0,0,127}));
-  connect(senTemp1.port, CurculationPump.port_b)
-    annotation (Line(points={{10,-64},{8,-64},{8,-34}}, color={0,127,255}));
+  connect(ValveCharacteristicCurve.u[1],convertCommand. y)
+    annotation (Line(points={{-44,-56},{-51.4,-56}}, color={0,0,127}));
+  connect(ValveCharacteristicCurve.y[1], dam.y) annotation (Line(points={{-21,-56},
+          {0,-56},{0,34},{10,34}}, color={0,0,127}));
+  connect(const.y, add.u1) annotation (Line(points={{-27.4,14},{-22,14},{-22,13.6},
+          {-17.2,13.6}}, color={0,0,127}));
+  connect(add.y, dam1.y)
+    annotation (Line(points={{-3.4,10},{44,10},{44,2}}, color={0,0,127}));
+  connect(ValveCharacteristicCurve.y[1], add.u2) annotation (Line(points={{-21,
+          -56},{-17.2,-56},{-17.2,6.4}}, color={0,0,127}));
+  connect(dam.port_b, hex.port_a1)
+    annotation (Line(points={{22,44},{22,52},{26,52}}, color={0,127,255}));
+  connect(exhaustPressureDrop.port_b, dam.port_a)
+    annotation (Line(points={{-50,4},{22,4},{22,24}}, color={0,127,255}));
+  connect(exhaustPressureDrop.port_b, dam1.port_a) annotation (Line(points={{
+          -50,4},{22,4},{22,-10},{34,-10}}, color={0,127,255}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-660,-500},
             {680,300}})),  Diagram(coordinateSystem(preserveAspectRatio=false,
           extent={{-660,-500},{680,300}}),   graphics={       Text(
