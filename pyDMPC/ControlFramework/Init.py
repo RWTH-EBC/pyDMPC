@@ -121,6 +121,7 @@ IDs_initial_values= [] #for simulation
 cost_par = [] #for MassFlowRate
 IDs_inputs = []
 cost_factor = []
+model_type = []
 
 """ Subsystems """
 # Heat recovery system
@@ -138,6 +139,7 @@ IDs_initial_values.append(["inOutletsOutgoingHexele1masT","inOutletsOutgoingHexe
 IDs_inputs.append(['outdoorHumidityOutput','outdoorTemperatureOutput','roomHumidityOutput','roomTemperatureOutput'])
 cost_par.append(None)
 cost_factor.append(0)
+model_type.append("MLP")
 
 # Pre-heater
 name.append('Pre_heater')
@@ -154,6 +156,7 @@ IDs_initial_values.append(["preHeaterhexele1masT","preHeaterhexele2masT","preHea
 IDs_inputs.append(["hRCHumidityOutput","hRCTemperatureCOutput"])
 cost_par.append('val.port_1.m_flow')
 cost_factor.append(0.5)
+model_type.append("MLP")
 
 # Cooler
 name.append('Cooler')
@@ -170,6 +173,7 @@ IDs_initial_values.append(["coolerhexele1masT","coolerhexele2masT","coolerhexele
 IDs_inputs.append(["preHeaterHumidityOutput","preHeaterTemperatureCOutput"])
 cost_par.append('CoolerValve.port_b.m_flow')
 cost_factor.append(0.5)
+model_type.append("MLP")
 
 # Heater
 name.append('Heater')
@@ -186,6 +190,7 @@ IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele
 IDs_inputs.append(["coolerHumidityOutput","coolerTemperatureCOutput"])
 cost_par.append('val.port_1.m_flow')
 cost_factor.append(0.5)
+model_type.append("MLP")
 
 # Steam_humidifier
 name.append('Steam_humidifier')
@@ -197,8 +202,9 @@ bounds_DVs.append([0,0])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Humidifier')
 names_DVs.append('humidifierWSP1')
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
-initial_names.append(None)
-IDs_initial_values.append(None)
+initial_names.append(["hex.ele[1].mas.T","hex.ele[2].mas.T","hex.ele[3].mas.T","hex.ele[4].mas.T"])
+IDs_initial_values.append(["heaterhexele1masT","heaterhexele2masT","heaterhexele3masT","heaterhexele4masT"])
 IDs_inputs.append(["heaterHumidityOutput","heaterTemperatureCOutput"])
 cost_par.append('product3.y')
 cost_factor.append(0.5)
+model_type.append("MLP")
