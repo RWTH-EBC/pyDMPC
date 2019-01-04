@@ -9,6 +9,7 @@ from joblib import dump, load
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.preprocessing import StandardScaler
 import time
+import random
 
 '''Global variables used for simulation handling'''
 # Variable indicating if the subsystem model is compiled
@@ -180,7 +181,7 @@ def Obj(values_DVs, BC, s):
         output_list = []
         MLPModel = load("C:\\TEMP\Dymola\\" + s._name + ".joblib")
         scaler = load("C:\\TEMP\\Dymola\\" + s._name + "_scaler.joblib")
-       
+
         for t in range(60):
             T_met_prev_1.append(s._initial_values[0])
             T_met_prev_2.append(s._initial_values[1])
@@ -189,7 +190,7 @@ def Obj(values_DVs, BC, s):
             command.append(values_DVs[0])
             T_cur.append(BC[0])
             T_prev.append(BC[0])
-        
+
 
         x_test = np.stack((command,T_cur,T_prev,T_met_prev_1,T_met_prev_2,T_met_prev_3,T_met_prev_4),axis=1)
 
@@ -197,11 +198,11 @@ def Obj(values_DVs, BC, s):
         traj = MLPModel.predict(scaled_instances)
         traj += 273*np.ones(len(traj))
         if s._output_vars is not None:
-            output_traj = [traj, 0.3*np.ones(60)]
-            
+            output_traj = [traj, (0.3+random.uniform(0.0,0.01))*np.ones(60)]
+
             output_list.append(traj[-1])
-            output_list.append(0.3)
-        
+            output_list.append(0.3+random.uniform(0.0,0.01))
+
         print(values_DVs[0])
         print(BC[0])
         print(traj)
@@ -254,7 +255,7 @@ def Obj(values_DVs, BC, s):
         print("cost_total: " + str(cost_total))
         print("output: " + str(tout))
         #time.sleep(2)
-        
+
     else:
         for l,tout in enumerate(output_traj[0]):
             if l > 100 or s._model_type == "MLP":
