@@ -48,14 +48,16 @@ prediction_horizon = 3600        #Common prediction horizon in seconds
 
 """ Directories and Modelica libraries """
 # Path where the main working directory shall be created
-path_res = r'C:\Dymola'
+path_res = r'C:\Temp\Dymola'
 
 # Name of the main working directory
-name_wkdir = r'pyDMPC_wkdir389'
+import time
+timestr = time.strftime("%Y%m%d_%H%M%S")
+name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 # Path to the Modelica libraries to be loaded
-path_lib1 = r'C:\Dymola\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
-path_lib2 = r'C:\nro\modelica-buildings\Buildings'
-path_lib3 = r'C:\nro\AixLib\AixLib'
+path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
+path_lib2 = r'C:\Git\modelica-buildings\Buildings'
+path_lib3 = r'C:\Git\AixLib\AixLib'
 path_lib = [path_lib1, path_lib2, path_lib3]
 
 create_FMU = False
@@ -66,7 +68,7 @@ path_fmu = r'ModelicaModels.ControlledSystems.ControlledSystemBoundaries'
 name_fmu = 'pyDMPCFMU'
 
 # Path to the *.egg file containing the Python-Dymola-Interface
-path_dymola = r'C:\Program Files (x86)\Dymola 2018\Modelica\Library\python_interface\dymola.egg'
+path_dymola = r'C:\Program Files\Dymola 2019\Modelica\Library\python_interface\dymola.egg'
 
 """ Simulation settings """
 # Start time of simulation in seconds

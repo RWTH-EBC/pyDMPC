@@ -149,14 +149,12 @@ def main():
                 time.sleep(max(Init.sync_rate-time.time()+start,0))
                 start = time.time()
         else:
+            length = len(Init.name)
             for l,val in enumerate(command_all):
-                if Init.algorithm == 'BExMoC':
-                    model.set(Init.names_DVs[4-l], val)
-                elif Init.algorithm == 'NC_DMPC':
-                    model.set(Init.names_DVs[4-l], val)
+                if Init.names_DVs[length-l-1] != None:
+                    model.set(Init.names_DVs[length-l-1], val)
 
                 print(val)
-                print(Init.names_DVs)
 
             model.do_step(time_step, Init.sync_rate)
             print('Proceding')
