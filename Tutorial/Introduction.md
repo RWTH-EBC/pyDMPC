@@ -25,3 +25,10 @@ In order to prevent that the upstream subsystem creates a disturbance that devia
 The positive factors β_1 and  β_2 ensure that the cost increases significantly if the algorithm calculates a value for z(k) that deviates from the originally considered range. In the optimization process, this prevents the algorithm from considering solutions that include too large deviations.
 
 ![Iterative Scheme](../pyDMPC/Resources/Images/IterativeScheme.png)
+
+### Various model types
+Currently, pyDMPC features the following model types:
+- Modelica model (via Python-Dymola interface or as FMU)
+- Scikit model (exported using Joblib)
+- Fuzzy Logic model
+- Linear model
