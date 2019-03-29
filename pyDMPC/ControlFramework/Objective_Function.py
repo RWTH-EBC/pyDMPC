@@ -5,10 +5,7 @@
 
 import Init
 import numpy as np
-from joblib import dump, load
-from sklearn.neural_network import MLPClassifier, MLPRegressor
-from sklearn.preprocessing import StandardScaler
-import time
+from joblib import load
 import random
 
 '''Global variables used for simulation handling'''
@@ -181,13 +178,13 @@ def Obj(values_DVs, BC, s):
 
             output_list.append(traj)
             output_list.append(0.3+random.uniform(0.0,0.01))
-        """
+        
         print(values_DVs)
         print(BC[0])
         print(traj)
         print(output_traj[0])
         print(Tset)
-        """
+        
 
     elif s._model_type == "lin":
         import functions.fuzzy as fuz
@@ -235,11 +232,11 @@ def Obj(values_DVs, BC, s):
 
             output_list.append(traj[-1])
             output_list.append(0.3+random.uniform(0.0,0.01))
-        """
+        
         print(values_DVs[0])
         print(BC[0])
         print(traj)
-        """
+        
 
     else:
         traj = values_DVs
@@ -301,9 +298,8 @@ def Obj(values_DVs, BC, s):
             else:
                 cost_total += costs_neighbor(0.008,output_traj[0]-273)
 
-        #print(s._name + " actuators : " + str(values_DVs))
-        #print("cost_total: " + str(cost_total))
-        #time.sleep(2)
+        print(s._name + " actuators : " + str(values_DVs))
+        print("cost_total: " + str(cost_total))
 
     else:
         if s._model_type != "fuzzy" and s._model_type != "lin":
@@ -311,13 +307,13 @@ def Obj(values_DVs, BC, s):
                 if l > 100 or s._model_type == "MLP":
                     cost_total += 10*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
             cost_total = cost_total/len(output_traj[0])
-            #print("output: " + str(tout))
+            print("output: " + str(tout))
         else:
             cost_total = 10*(abs(output_traj[0]-Tset)**2)
 
 
-        #print(s._name + " actuators : " + str(values_DVs))
-        #print("cost_total: " + str(cost_total))
+        print(s._name + " actuators : " + str(values_DVs))
+        print("cost_total: " + str(cost_total))
 
     '''Temporary objective function value'''
     obj_fnc_vals = [1]
