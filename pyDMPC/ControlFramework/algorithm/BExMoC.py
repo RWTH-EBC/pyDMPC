@@ -33,15 +33,19 @@ def CalcBCvalues(amount_vals_BCs, exp_BCs, center_vals_BCs, factors_BCs, amount_
         amount_lower_vals_BCs =[x/2 for x in amount_vals_BCs]
         amount_lower_vals_BCs = [math.floor(x) for x in amount_lower_vals_BCs]
         amount_upper_vals_BCs = [amount_vals_BCs[x]-amount_lower_vals_BCs[x]-1 for x in range(len(amount_vals_BCs))]
-    values_BCs = []
-    for i in range(len(amount_vals_BCs)):
-        temp_list = []
-        for j in range(amount_lower_vals_BCs[i]):
-            temp_list.append(center_vals_BCs[i] - (amount_lower_vals_BCs[i]-j)**exp_BCs[i]*factors_BCs[i])
-        for j in range(amount_upper_vals_BCs[i]+1):
-            temp_list.append(center_vals_BCs[i] + j**exp_BCs[i]*factors_BCs[i])
-        values_BCs.append(temp_list)
-    values_BCs[0].insert(0,0)
+    if amount_lower_vals_BCs + amount_lower_vals_BCs != 0:
+        values_BCs = []
+        for i in range(len(amount_vals_BCs)):
+            temp_list = []
+            for j in range(amount_lower_vals_BCs[i]):
+                temp_list.append(center_vals_BCs[i] - (amount_lower_vals_BCs[i]-j)**exp_BCs[i]*factors_BCs[i])
+            for j in range(amount_upper_vals_BCs[i]+1):
+                temp_list.append(center_vals_BCs[i] + j**exp_BCs[i]*factors_BCs[i])
+            values_BCs.append(temp_list)
+        values_BCs[0].insert(0,0)
+        #print(values_BCs)
+    else:
+        values_BCs = [[25], [0.007]]
 
     return values_BCs
 
@@ -221,23 +225,20 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
     grid_measurements = measurements_SubSys[::-1]
     grid_point_values_costs = np.compress(cond_Costs,storage_cost, axis = 1)
     grid_point_values_out = np.compress(cond_Out,storage_out, axis = 1)
-
+    """
     print("Grid points:")
     print(grid_points)
     print("values:")
     print(grid_point_values)
     print("measurements:")
     print(grid_measurements)
+    """
 
     """ Interpolation of reformatted data """
     try:
         commands = interpolate.griddata(grid_points, grid_point_values,grid_measurements ,method='linear')
         costs = interpolate.griddata(grid_points, grid_point_values_costs,grid_measurements ,method='linear')
         out = interpolate.griddata(grid_points, grid_point_values_out, grid_measurements ,method='linear')
-
-        print("commands: " + str(commands))
-        print("costs: " + str(costs))
-        print("outputs: " + str(out))
 
         # Check if commands are in range, else set to boundary values
         for i, val in enumerate(commands):
@@ -253,7 +254,6 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
             else:
                 commands[i] = bounds_DVs[i]
                 print('interpolation failed!')
-        return [commands, costs, out]
 
     except:
         commands = []
@@ -261,7 +261,13 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
         out = []
 
         for i in range(0,len(storage_DV)):
-            commands.append(storage_DV[0,0])
-            costs.append(0)
-            out.append(0)
+            commands.append(storage_DV[0,2])
+            costs.append(storage_cost[0,2])
+            out.append(storage_out[0,2])
         print('interpolation failed!')
+    """
+    print("commands: " + str(storage_DV))
+    print("costs: " + str(storage_cost))
+    print("outputs: " + str(storage_out))
+    """
+    return [commands, costs, out]

@@ -37,6 +37,8 @@ class System:
             subsystems.append(SubSys.Subsystem(
                 Init.name[i],
                 Init.position[i],
+                Init.no_parallel[i],
+                Init.holon[i],
                 Init.num_DecVars[i],
                 Init.num_BCs[i],
                 Init.init_DecVars[i],
@@ -44,6 +46,7 @@ class System:
                 Init.bounds_DVs[i],
                 Init.model_path[i],
                 Init.names_BCs[i],
+                Init.variation[i],
                 Init.num_VarsOut[i],
                 Init.names_DVs[i],
                 Init.output_vars[i],
@@ -53,12 +56,12 @@ class System:
                 Init.cost_par[i],
                 Init.cost_factor[i],
                 Init.model_type[i],
-                Init.type_subSyst[i])
-                )
+                Init.type_subSyst[i]
+                ))
         subsystems.sort(key = lambda x: x.position)
         for i,subsys in enumerate(subsystems):
             if i != Init.amount_subsystems-1:
-                neighbour_name = subsystems[i+1]._name
+                neighbour_name = subsystems[subsys.position+subsys.holon]._name
             else:
                 neighbour_name = None
             subsystems[i].GetNeighbour(neighbour_name)

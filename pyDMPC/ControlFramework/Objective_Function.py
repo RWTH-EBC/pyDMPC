@@ -24,7 +24,7 @@ gl_output = None
 # Results of the subsystem
 gl_res_grid = np.zeros([2,1])
 
-def TranslateModel(model_path, name, position):
+def TranslateModel(model_path, name, position, no_parallel):
     """
     Function to handle the Compilation of Modelica models
     inputs
@@ -35,7 +35,7 @@ def TranslateModel(model_path, name, position):
         None
     """
     global gl_model_compiled
-    if  gl_model_compiled[position-1] == False:
+    if  gl_model_compiled[position+no_parallel-1] == False and model_path!="":
         import os
         import sys
         global dymola
@@ -58,14 +58,14 @@ def TranslateModel(model_path, name, position):
             print("Opening successful " + str(check1))
 
         # Force Dymola to use 64 bit compiler
-        dymola.ExecuteCommand("Advanced.CompileWith64=2")
+        #dymola.ExecuteCommand("Advanced.CompileWith64=2")
         dymola.cd(Init.path_res +'\\'+Init.name_wkdir+'\\' + name)
 
         # Translate the model
         check2 =dymola.translateModel(model_path)
         print("Translation successful " + str(check2))
         if check2 is True:
-            gl_model_compiled[position-1] = True
+            gl_model_compiled[position+no_parallel-1] = True
 
 
 def Obj(values_DVs, BC, s):
@@ -86,7 +86,7 @@ def Obj(values_DVs, BC, s):
     import scipy.io as sio
 
     # Open dymola library
-    TranslateModel(s._model_path, s._name, s.position)
+    TranslateModel(s._model_path, s._name, s.position, s.no_parallel)
 
     global dymola
     obj_fnc_val = 'objectiveFunction'
@@ -169,7 +169,40 @@ def Obj(values_DVs, BC, s):
                 output_list.append(output_vals[-1])
                 output_traj.append(sim[val].values())
 
-    else:
+    elif s._model_type == "fuzzy":
+        import functions.fuzzy as fuz
+
+        traj = BC[0] + 273.15
+        Tset = fuz.control(s._initial_values[0],s._initial_values[1])
+        output_list = []
+
+        if s._output_vars is not None:
+            output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
+
+            output_list.append(traj)
+            output_list.append(0.3+random.uniform(0.0,0.01))
+        """
+        print(values_DVs)
+        print(BC[0])
+        print(traj)
+        print(output_traj[0])
+        print(Tset)
+        """
+
+    elif s._model_type == "lin":
+        import functions.fuzzy as fuz
+
+        traj = values_DVs*30 + 273.15
+        Tset = 303
+        output_list = []
+
+        if s._output_vars is not None:
+            output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
+
+            output_list.append(traj)
+            output_list.append(0.3+random.uniform(0.0,0.01))
+
+    elif s._model_type == "MLP":
         command = []
         T_cur = []
         T_prev = []
@@ -202,10 +235,21 @@ def Obj(values_DVs, BC, s):
 
             output_list.append(traj[-1])
             output_list.append(0.3+random.uniform(0.0,0.01))
-
+        """
         print(values_DVs[0])
         print(BC[0])
         print(traj)
+        """
+
+    else:
+        traj = values_DVs
+        output_list = []
+
+        if s._output_vars is not None:
+            output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
+
+            output_list.append(traj)
+            output_list.append(0.3+random.uniform(0.0,0.01))
 
 
     if s._output_vars is not None:
@@ -221,18 +265,16 @@ def Obj(values_DVs, BC, s):
 
         storage_cost = x[Init.tableName_Cost]
 
-        """Interpolation"""
-        # Currently, the local cost depends on the relative decision variable
-        costs_neighbor = interpolate.interp2d(storage_cost[0,1:],
-        storage_cost[1:,0], storage_cost[1:,1:], kind = 'linear',
-        fill_value = 10000)
+        for m in range(1,1000):
+            try:
+                x = sio.loadmat(Init.path_res + '\\'+Init.name_wkdir+'\\' + s._name
+                + '\\' + Init.fileName_Cost + str(m) + '.mat')
 
-    """all other subsystems + costs of downstream system"""
-    if s._type_subSyst != "consumer":
-        x = sio.loadmat(Init.path_res + '\\'+Init.name_wkdir+'\\' + s._name
-        + '\\' + Init.fileName_Cost + '.mat')
+                storage_cost_temp = x[Init.tableName_Cost]
+                storage_cost += storage_cost_temp
+            except:
+                break
 
-        storage_cost = x[Init.tableName_Cost]
 
         """Interpolation"""
         # Currently, the local cost depends on the relative decision variable
@@ -240,31 +282,42 @@ def Obj(values_DVs, BC, s):
         storage_cost[1:,0], storage_cost[1:,1:], kind = 'linear',
         fill_value = 10000)
 
-        for l,tout in enumerate(output_traj[0]):
-            if l > 100 or s._model_type == "MLP":
-                # Avoid nan by suppressing operations with small numbers
-                if values_DVs > 0.0001:
-                    cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,tout-273)
-                else:
-                    cost_total += costs_neighbor(0.008,tout-273)
-        if s._model_type == "Modelica":
-            cost_total = cost_total/len(output_traj[0])
+        if s._model_type != "fuzzy" and s._model_type != "lin":
+            for l,tout in enumerate(output_traj[0]):
+                if l > 100 or s._model_type == "MLP" or s._model_type == "lin":
+                    # Avoid nan by suppressing operations with small numbers
+                    if values_DVs > 0.0001:
+                        cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,tout-273)
+                    else:
+                        cost_total += costs_neighbor(0.008,tout-273)
+            if s._model_type == "Modelica":
+                cost_total = cost_total/len(output_traj[0])
+            else:
+                cost_total = cost_total/len(output_traj[0])
+            print("output: " + str(tout))
         else:
-            cost_total = cost_total/len(output_traj[0])
-        print(s._name + " actuators : " + str(values_DVs))
-        print("cost_total: " + str(cost_total))
-        print("output: " + str(tout))
+            if values_DVs > 0.0001:
+                cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,output_traj[0]-273)
+            else:
+                cost_total += costs_neighbor(0.008,output_traj[0]-273)
+
+        #print(s._name + " actuators : " + str(values_DVs))
+        #print("cost_total: " + str(cost_total))
         #time.sleep(2)
 
     else:
-        for l,tout in enumerate(output_traj[0]):
-            if l > 100 or s._model_type == "MLP":
-                cost_total += 10*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
+        if s._model_type != "fuzzy" and s._model_type != "lin":
+            for l,tout in enumerate(output_traj[0]):
+                if l > 100 or s._model_type == "MLP":
+                    cost_total += 10*(max(abs(tout-273-Init.set_point[0])-Init.tolerance,0))**2
+            cost_total = cost_total/len(output_traj[0])
+            #print("output: " + str(tout))
+        else:
+            cost_total = 10*(abs(output_traj[0]-Tset)**2)
 
-        cost_total = cost_total/len(output_traj[0])
-        print(s._name + " actuators : " + str(values_DVs))
-        print("cost_total: " + str(cost_total))
-        print("output: " + str(tout))
+
+        #print(s._name + " actuators : " + str(values_DVs))
+        #print("cost_total: " + str(cost_total))
 
     '''Temporary objective function value'''
     obj_fnc_vals = [1]

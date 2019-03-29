@@ -3,7 +3,6 @@ This is a test module for new implementations.
 """
 
 import System
-import Subsystem
 import Init
 import time
 import numpy as np
@@ -13,8 +12,6 @@ import Objective_Function
 from pyfmi import load_fmu
 import os
 import sys
-import configparser
-import matplotlib.pyplot as plt
 import shutil
 
 def main():
@@ -56,18 +53,22 @@ def main():
 
     # Translate the model to FMU
     if Init.create_FMU:
-        dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+ Init.name_fmu+'", "1", "cs", false, 0)')
+        dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+
+                            Init.name_fmu+'", "1", "cs", false, 0)')
     else:
-        shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
+        shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + 
+                        ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+
+                        Init.name_fmu+'.fmu')
 
 
-    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+'.fmu')
+    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+
+                     '.fmu')
 
-    model.set('humidifierWSP1',0)
-    model.set('valveHRS',0)
-    model.set('valvePreHeater',0)
-    model.set('valveHeater',0)
-    model.set('valveCooler',0)
+    model.set('suppyAirTemperature',300)
+    model.set('Room1Set',0)
+    model.set('Room2Set',0)
+    model.set('CCAValve',0)
+
     model.initialize()
     model.do_step(0, Init.sync_rate)
 
@@ -87,7 +88,8 @@ def main():
     3. BExMoC algorithm
     """
 
-    """The algorithms work with a discrete *time_step*. In each step, the current measurements are taken using the :func:`GetMeasurements' method. """
+    """The algorithms work with a discrete *time_step*. In each step, the 
+    current measurements are taken using the :func:`GetMeasurements' method."""
     while time_step <= Init.sync_rate*Init.stop_time:
 
         # Variable for the final commands of all subsystems
@@ -95,23 +97,29 @@ def main():
 
         if Init.algorithm == 'NC_DMPC':
 
-            if time_step-time_storage >= Init.optimization_interval or time_step == Init.sync_rate:
+            if (time_step-time_storage >= Init.optimization_interval or 
+                time_step == Init.sync_rate):
 
-                """ Consider the subsystems in multiple iterations, either in parallel or in sequential order """
+                """ Consider the subsystems in multiple iterations, either in 
+                parallel or in sequential order """
                 for k in range(4):
                     command_all = []
                     if Init.parallelization:
                         def f(s):
-                            commands = s.CalcDVvalues(time_step, time_storage,k,model)
+                            commands = s.CalcDVvalues(time_step, time_storage,
+                                                      k,model)
                             return commands
 
                         p = Pool(4)
-                        commands = p.map(f, [subsystems[0], subsystems[1], subsystems[2], subsystems[3], subsystems[4]])
+                        commands = p.map(f, [subsystems[0], subsystems[1], 
+                                             subsystems[2], subsystems[3], 
+                                             subsystems[4]])
                         command_all = commands
 
                     else:
                         for s in subsystems:
-                            commands = s.CalcDVvalues(time_step, time_storage,k,model)
+                            commands = s.CalcDVvalues(time_step, time_storage,
+                                                      k,model)
                             print(k, s._name, commands)
                             command_all.append(commands)
 
@@ -121,25 +129,31 @@ def main():
             for s in subsystems:
                 print(s._name)
 
-                """The main calculations are carried out by invoking the :func:'CalcDVvalues' method. The BExMoC algorithm exchanges tables between the subsystems in a .mat format"""
+                """The main calculations are carried out by invoking the :func:
+                    'CalcDVvalues' method. The BExMoC algorithm exchanges 
+                    tables between the subsystems in a .mat format"""
                 commands = (s.CalcDVvalues(time_step, time_storage,0, model))
 
                 command_all.append(commands)
 
                 #Save the look-up tables in .mat files
-                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + 
+                              s._name + '\\' +
                 'DV_lookUpTable' + str(counter) + '.mat' ),
                 {'DV_lookUpTable': s.lookUpTables[1]}))
 
-                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + 
+                              s._name + '\\' +
                 'Costs_lookUpTable' + str(counter) + '.mat' ),
                 {'Cost_lookUpTable': s.lookUpTables[0]}))
 
-                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' +
+                              s._name + '\\' +
                 'Output_Table' + str(counter) + '.mat' ),
                 {'Output_Table': s.lookUpTables[2]}))
 
-                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + s._name + '\\' +
+                (sio.savemat((Init.path_res + '\\' + Init.name_wkdir + '\\' + 
+                              s._name + '\\' +
                 'command' + str(counter) + '.mat' ),
                 {'Output_Table': commands}))
 
@@ -151,10 +165,12 @@ def main():
         else:
             length = len(Init.name)
             for l,val in enumerate(command_all):
+                # The commands are transformed in a linear function
                 if Init.names_DVs[length-l-1] != None:
-                    model.set(Init.names_DVs[length-l-1], val)
-
-                print(val)
+                    model.set(Init.names_DVs[length-l-1], 
+                              Init.start_DVs[length-l-1] + 
+                              val[0]*Init.factor_DVs[length-l-1])
+                    print(val[0])
 
             model.do_step(time_step, Init.sync_rate)
             print('Proceding')
