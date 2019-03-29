@@ -6,3 +6,5 @@ CoolerBaseClass
 HRCBaseClass
 BaseClass
 HeatExchangerPorts
+GenericModelBaseClass
+HallBaseClass
