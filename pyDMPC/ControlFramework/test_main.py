@@ -19,7 +19,7 @@ def main():
     AHU = System.System()
     subsystems = AHU.GenerateSubSys()
 
-    """Prepare the working Directory"""
+    """Prepare the working directory"""
     os.chdir(Init.path_res)
     os.mkdir(str(Init.name_wkdir))
     os.chdir(str(Init.name_wkdir))
@@ -163,15 +163,6 @@ def main():
                 time.sleep(max(Init.sync_rate-time.time()+start,0))
                 start = time.time()
         else:
-            length = len(Init.name)
-            for l,val in enumerate(command_all):
-                # The commands are transformed in a linear function
-                if Init.names_DVs[length-l-1] != None:
-                    model.set(Init.names_DVs[length-l-1], 
-                              Init.start_DVs[length-l-1] + 
-                              val[0]*Init.factor_DVs[length-l-1])
-                    print(val[0])
-
             model.do_step(time_step, Init.sync_rate)
             print('Proceding')
 

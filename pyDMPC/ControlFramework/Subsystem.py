@@ -8,7 +8,7 @@ import scipy.io as sio
 import math
 from datetime import datetime
 import pytz
-
+import requests
 gl_commands_costs = []
 gl_measurements_all =[]
 
@@ -16,7 +16,8 @@ class Subsystem():
 
     def __init__(self, name, position,no_parallel,holon,
                  num_DVs,num_BCs, init_DecVars, sim_time,
-                 bounds_DVs,model_path, names_BCs, variation,
+                 bounds_DVs,start_DVs,factor_DVs,
+                 model_path, names_BCs, variation,
                  num_VarsOut, names_DVs,
                  output_vars, initial_names, IDs_initial_values,
                  IDs_inputs,cost_par,cost_factor,model_type,type_subSyst=None):
@@ -31,6 +32,8 @@ class Subsystem():
         self.holon = holon
         self.num_VarsOut = num_VarsOut
         self._bounds_DVs = bounds_DVs
+        self.start_DVs = start_DVs
+        self.factor_DVs = factor_DVs
         self.values_BCs = None
         self.variation = variation
         self.lookUpTables = None
@@ -66,6 +69,38 @@ class Subsystem():
             values.append(np.asscalar(value))
 
         return values
+    
+    def GetWeatherForcast(self):
+
+        key = np.loadtxt(Init.keypath, str)
+        url = (r"http://api.openweathermap.org/data/2.5/forecast?id=6553047&APPID=" +
+                  str(key))  
+    
+        r = requests.get(url).json()
+    
+        r = r['list']
+        
+        for k in range(0,1000):
+        
+            try:
+                dic = r[k]
+                tim = dic['dt']
+                    
+                mai = dic['main']
+                temp = float(mai['temp'])
+                
+                if k == 0:
+                    start_tim = tim
+                    values = [[0.0,temp]]
+                else:
+                    values += [[tim-start_tim,temp]]
+                    
+            except:
+                break
+                    
+        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + 
+                     '\\' + 'weather.mat'),{'InputTable' : np.array(values)})
+        
 
     def CalcDVvalues(self, time_step, time_storage, iter, model):
         """
@@ -78,6 +113,8 @@ class Subsystem():
         """
         """ Get Measurements """
         self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+        
+        self.GetWeatherForcast()
 
         if self._type_subSyst != "generator":
             values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
@@ -131,7 +168,7 @@ class Subsystem():
                     [commands, costs, outputs] = BExMoC.Interpolation(
                             self.measurements, self.lookUpTables[1], 
                             self._bounds_DVs, self.lookUpTables[0], 
-                            self.lookUpTables[2])
+                            self.lookUpTables[2],self.variation)
 
                 except:
                     commands = []
@@ -164,6 +201,7 @@ class Subsystem():
                                      self.neighbour_name +'\\' +  
                                      Init.fileName_Cost + str(self.no_parallel) + '.mat'), 
                                     {Init.tableName_Cost :exDestArr})
+                        print(exDestArr)
                 """Store optimizer results"""
                 sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' +
                              self._name + '\\' + 'OptimizerTrack.mat' ), 
@@ -173,7 +211,7 @@ class Subsystem():
                     [commands, costs, outputs] = BExMoC.Interpolation(
                             self.measurements, self.lookUpTables[1], 
                             self._bounds_DVs, self.lookUpTables[0], 
-                            self.lookUpTables[2])
+                            self.lookUpTables[2],self.variation)
 
                     print('measurements: ' + str(self.measurements))
                     print('commands: ' +str(commands))
@@ -195,6 +233,10 @@ class Subsystem():
                 global gl_commands_costs
                 tz = pytz.timezone('Europe/Berlin')
                 ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+                
+            for j,val in enumerate(commands):
+                model.set(self._names_DVs[j], self.start_DVs[j] + 
+                              val/100*self.factor_DVs[j])
 
             return commands
 

@@ -807,8 +807,6 @@ model HallBaseClass "Simplified model of hall 1"
     annotation (Placement(transformation(extent={{-28,-126},{-16,-114}})));
   Modelica.Thermal.HeatTransfer.Celsius.ToKelvin waterTemperature
     annotation (Placement(transformation(extent={{-28,-106},{-16,-94}})));
-  Modelica.Thermal.HeatTransfer.Celsius.ToKelvin outdoorAirTemperature
-    annotation (Placement(transformation(extent={{-28,-86},{-16,-74}})));
   Modelica.Thermal.HeatTransfer.Celsius.ToKelvin hallTemperature
     annotation (Placement(transformation(extent={{16,4},{28,16}})));
   inner Modelica.Fluid.System system
@@ -854,11 +852,6 @@ equation
         color={0,0,127}));
   connect(waterTemperature.Kelvin, SupplyWater.T) annotation (Line(points={{-15.4,
           -100},{-14,-100},{-14,-150},{-2,-150}}, color={0,0,127}));
-  connect(outdoorAir.T, outdoorAirTemperature.Kelvin)
-    annotation (Line(points={{-2,-80},{-15.4,-80}},color={0,0,127}));
-  connect(combiTimeTable.y[5], outdoorAirTemperature.Celsius) annotation (Line(
-        points={{-19,10},{-8,10},{-8,-40},{-40,-40},{-40,-80},{-29.2,-80}},
-        color={0,0,127}));
   connect(combiTimeTable.y[3], supplyAir.Celsius) annotation (Line(points={{-19,
           10},{-8,10},{-8,-40},{-40,-40},{-40,-120},{-29.2,-120}}, color={0,0,
           127}));

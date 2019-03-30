@@ -44,6 +44,8 @@ class System:
                 Init.init_DecVars[i],
                 Init.sim_time[i],
                 Init.bounds_DVs[i],
+                Init.start_DVs[i],
+                Init.factor_DVs[i],
                 Init.model_path[i],
                 Init.names_BCs[i],
                 Init.variation[i],

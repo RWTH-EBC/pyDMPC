@@ -192,10 +192,11 @@ def CalcLookUpTables(s, time_storage, init_conds):
 
 
     storage_grid = res_grid
+    #print(exDestArr)
     return [storage_cost, storage_DV, storage_out, exDestArr, storage_grid]
 
 
-def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, storage_out):
+def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, storage_out, variation):
     """
     Interpolate the values of the decision variables, costs and outputs
 
@@ -215,59 +216,70 @@ def Interpolation(measurements_SubSys, storage_DV, bounds_DVs, storage_cost, sto
     Reformat the boundary conditions, decision variables, outputs and
     costs
     """
-    cond_BC = [True if L<len(measurements_SubSys) else False for L in range(len(storage_DV[0]))]
-    cond_DV = [False if L<len(measurements_SubSys) else True for L in range(len(storage_DV[0]))]
-    cond_Out = [False if L<len(measurements_SubSys) else True for L in range(len(storage_out[0]))]
-    cond_Costs = cond_DV
-
-    grid_points = np.compress(cond_BC,storage_DV, axis = 1)
-    grid_point_values = np.compress(cond_DV,storage_DV, axis = 1)
-    grid_measurements = measurements_SubSys[::-1]
-    grid_point_values_costs = np.compress(cond_Costs,storage_cost, axis = 1)
-    grid_point_values_out = np.compress(cond_Out,storage_out, axis = 1)
-    """
-    print("Grid points:")
-    print(grid_points)
-    print("values:")
-    print(grid_point_values)
-    print("measurements:")
-    print(grid_measurements)
-    """
-
-    """ Interpolation of reformatted data """
-    try:
-        commands = interpolate.griddata(grid_points, grid_point_values,grid_measurements ,method='linear')
-        costs = interpolate.griddata(grid_points, grid_point_values_costs,grid_measurements ,method='linear')
-        out = interpolate.griddata(grid_points, grid_point_values_out, grid_measurements ,method='linear')
-
-        # Check if commands are in range, else set to boundary values
-        for i, val in enumerate(commands):
-            if val < bounds_DVs[i]:
-                commands[i] = bounds_DVs[i]
-                print('Val < lower Bound')
-            elif val > bounds_DVs[i+1]:
-                commands[i] = bounds_DVs[i+1]
-                print('Val > higher Bound')
-            elif val >= bounds_DVs[i] and val <= bounds_DVs[i+1]:
-                commands[i] = val
-                # last case: invalid interpolation
-            else:
-                commands[i] = bounds_DVs[i]
-                print('interpolation failed!')
-
-    except:
+    if variation:
+        cond_BC = [True if L<len(measurements_SubSys) else False for L in range(len(storage_DV[0]))]
+        cond_DV = [False if L<len(measurements_SubSys) else True for L in range(len(storage_DV[0]))]
+        cond_Out = [False if L<len(measurements_SubSys) else True for L in range(len(storage_out[0]))]
+        cond_Costs = cond_DV
+    
+        grid_points = np.compress(cond_BC,storage_DV, axis = 1)
+        grid_point_values = np.compress(cond_DV,storage_DV, axis = 1)
+        grid_measurements = measurements_SubSys[::-1]
+        grid_point_values_costs = np.compress(cond_Costs,storage_cost, axis = 1)
+        grid_point_values_out = np.compress(cond_Out,storage_out, axis = 1)
+        """
+        print("Grid points:")
+        print(grid_points)
+        print("values:")
+        print(grid_point_values)
+        print("measurements:")
+        print(grid_measurements)
+        """
+    
+        """ Interpolation of reformatted data """
+        try:
+            commands = interpolate.griddata(grid_points, grid_point_values,grid_measurements ,method='linear')
+            costs = interpolate.griddata(grid_points, grid_point_values_costs,grid_measurements ,method='linear')
+            out = interpolate.griddata(grid_points, grid_point_values_out, grid_measurements ,method='linear')
+    
+            # Check if commands are in range, else set to boundary values
+            for i, val in enumerate(commands):
+                if val < bounds_DVs[i]:
+                    commands[i] = bounds_DVs[i]
+                    print('Val < lower Bound')
+                elif val > bounds_DVs[i+1]:
+                    commands[i] = bounds_DVs[i+1]
+                    print('Val > higher Bound')
+                elif val >= bounds_DVs[i] and val <= bounds_DVs[i+1]:
+                    commands[i] = val
+                    # last case: invalid interpolation
+                else:
+                    commands[i] = bounds_DVs[i]
+                    print('interpolation failed!')
+    
+        except:
+            commands = []
+            costs = []
+            out = []
+    
+            for i in range(0,len(storage_DV)):
+                commands.append(storage_DV[0,2])
+                costs.append(storage_cost[0,2])
+                out.append(storage_out[0,2])
+            print('interpolation failed!')
+        """
+        print("commands: " + str(storage_DV))
+        print("costs: " + str(storage_cost))
+        print("outputs: " + str(storage_out))
+        """
+    else:
         commands = []
         costs = []
         out = []
-
+    
         for i in range(0,len(storage_DV)):
             commands.append(storage_DV[0,2])
             costs.append(storage_cost[0,2])
             out.append(storage_out[0,2])
-        print('interpolation failed!')
-    """
-    print("commands: " + str(storage_DV))
-    print("costs: " + str(storage_cost))
-    print("outputs: " + str(storage_out))
-    """
+        
     return [commands, costs, out]

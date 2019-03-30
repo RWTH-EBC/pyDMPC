@@ -176,8 +176,7 @@ def Obj(values_DVs, BC, s):
         if s._output_vars is not None:
             output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
 
-            output_list.append(traj)
-            output_list.append(0.3+random.uniform(0.0,0.01))
+            output_list = output_traj
         
         print(values_DVs)
         print(BC[0])
@@ -189,15 +188,15 @@ def Obj(values_DVs, BC, s):
     elif s._model_type == "lin":
         import functions.fuzzy as fuz
 
-        traj = values_DVs*30 + 273.15
+        traj = values_DVs/100*40 + 273.15
+        print(traj)
         Tset = 303
         output_list = []
 
         if s._output_vars is not None:
             output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
 
-            output_list.append(traj)
-            output_list.append(0.3+random.uniform(0.0,0.01))
+            output_list = output_traj
 
     elif s._model_type == "MLP":
         command = []
@@ -268,8 +267,12 @@ def Obj(values_DVs, BC, s):
                 + '\\' + Init.fileName_Cost + str(m) + '.mat')
 
                 storage_cost_temp = x[Init.tableName_Cost]
-                storage_cost += storage_cost_temp
+
+                for a in range(1,4):
+                    for b in range(1,2):
+                        storage_cost[a,b] += storage_cost_temp[a,b]
             except:
+                #print(storage_cost)
                 break
 
 
@@ -295,6 +298,7 @@ def Obj(values_DVs, BC, s):
         else:
             if values_DVs > 0.0001:
                 cost_total += values_DVs*s._cost_factor + costs_neighbor(0.008,output_traj[0]-273)
+                print("cost_neighbor: " + str(costs_neighbor(0.008,output_traj[0]-273)))
             else:
                 cost_total += costs_neighbor(0.008,output_traj[0]-273)
 
@@ -310,6 +314,7 @@ def Obj(values_DVs, BC, s):
             print("output: " + str(tout))
         else:
             cost_total = 10*(abs(output_traj[0]-Tset)**2)
+            
 
 
         print(s._name + " actuators : " + str(values_DVs))
