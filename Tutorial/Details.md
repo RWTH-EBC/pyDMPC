@@ -19,3 +19,14 @@ Currenty, FMUs are used only for simulating the controlled system. In the Init,
 the user can choose if an FMU should be generated automatically (which can
 sometimes lead to trouble with the Dymola license) or choose to provide an
 existing FMU.
+
+### test_main.py
+This module is used to test the functionality. It calls the GenerateSubSys()
+from the System module to create the subsystems. It creates all the necessary
+directories and generates and FMU or loads an existing FMU as controlled system.
+It further triggers each of the subsytem agents to take action.
+
+### System.py
+System is a class that generates the various subsystems.
+
+### Subsystem.py
