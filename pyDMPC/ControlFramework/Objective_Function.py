@@ -113,7 +113,7 @@ def Obj(values_DVs, BC, s):
 
     final_names = [obj_fnc_val]
 
-    """Run the actual simulations"""
+    ### Modelica model ###
     # Max. 3 attempts to simulate
     # Different function call if no initialization is intended
     if s._model_type == "Modelica":
@@ -166,6 +166,7 @@ def Obj(values_DVs, BC, s):
                 output_list.append(output_vals[-1])
                 output_traj.append(sim[val].values())
 
+    ### Fuzzy model ###
     elif s._model_type == "fuzzy":
         import functions.fuzzy as fuz
 
@@ -184,21 +185,18 @@ def Obj(values_DVs, BC, s):
         print(output_traj[0])
         print(Tset)
         
-
+    ### Linear model ###
     elif s._model_type == "lin":
-        import functions.fuzzy as fuz
-
         traj = values_DVs/100*40 + 273.15
-        print(traj)
         Tset = 303
-        output_list = []
 
         if s._output_vars is not None:
             output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
-
             output_list = output_traj
 
-    elif s._model_type == "MLP":
+
+    ### Scikit model ###
+    elif s._model_type == "Scikit":
         command = []
         T_cur = []
         T_prev = []

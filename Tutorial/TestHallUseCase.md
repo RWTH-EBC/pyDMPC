@@ -34,6 +34,3 @@ and stored in a .mat file readable by Modelica models.
 The "hall-short" model is a simple linear equation that controls the air
 temperature perfectly, so that the air flow into the hall is always equal to
 the temperature that was assumed for the long simulation.  
-
-## Tutorial
-In order to run this example, 

@@ -29,4 +29,24 @@ It further triggers each of the subsytem agents to take action.
 ### System.py
 System is a class that generates the various subsystems.
 
-### Subsystem.py
+### Objective_Funciton.py
+This module is a central interface for implementing new cost functions and,
+consequently, model calculations. Let's take a look at the currently
+simplest objective function - the linear model:
+
+``` Python
+### Linear model ###
+elif s._model_type == "lin":
+    traj = values_DVs/100*40 + 273.15
+    Tset = 303
+
+    if s._output_vars is not None:
+        output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
+        output_list = output_traj
+```
+
+First, we check the model type that was set in the Init. We then calculate a
+temperature rajectory based on the current value of the decision varaible.
+The second value is a relative humidity but, currently, only a dummy value.
+We also require a set temperature Tset that is later used to calculate the
+cost.
