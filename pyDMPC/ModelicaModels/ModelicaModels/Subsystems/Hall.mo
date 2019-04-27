@@ -20,9 +20,7 @@ equation
           -60},{60,-60},{60,-90},{100,-90}}, color={0,127,255}));
   connect(res.port_b, port_b) annotation (Line(points={{152,-110},{160,-110},{160,
           -56},{136,-56},{136,-20},{100,-20},{100,0}}, color={0,127,255}));
-  connect(valveEffect.u, u1) annotation (Line(points={{2.8,-126},{-80,-126},{-80,
-          -80},{-140,-80}}, color={0,0,127}));
-  connect(combiTimeTable.y[5], outdoorAir.T) annotation (Line(points={{-19,10},
-          {-8,10},{-8,-80},{-2,-80}}, color={0,0,127}));
+  connect(u1, waterTemperature.Celsius) annotation (Line(points={{-140,-80},{
+          -86,-80},{-86,-100},{-29.2,-100}}, color={0,0,127}));
   annotation (experiment(StartTime=1000));
 end Hall;

@@ -19,8 +19,8 @@ model HallBaseClass "Simplified model of hall 1"
   m_flow_nominal=m_flow_nominal,
       dp_nominal=200)
     annotation (Placement(transformation(extent={{132,-120},{152,-100}})));
-  Modelica.Thermal.HeatTransfer.Components.ThermalConductor outdoorAirConductor(
-      G=1600) "Conducts heat from/to outdoor air"
+  Modelica.Thermal.HeatTransfer.Components.ThermalConductor outdoorAirConductor(G=400)
+              "Conducts heat from/to outdoor air"
     annotation (Placement(transformation(extent={{30,-90},{50,-70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature outdoorAir
     annotation (Placement(transformation(extent={{0,-90},{20,-70}})));
@@ -29,8 +29,8 @@ model HallBaseClass "Simplified model of hall 1"
   Modelica.Blocks.Math.Gain SolarShare(k=100)
     "Share of the total radiation that is actually transported into the hall"
     annotation (Placement(transformation(extent={{34,-46},{46,-34}})));
-  ModelicaModels.BaseClasses.ThermalConductor
-                                  CCAConductor
+  Modelica.Thermal.HeatTransfer.Components.ThermalConductor
+                                  CCAConductor(G=8000)
     "Conducts heat from water to concrete"
     annotation (Placement(transformation(extent={{30,-160},{50,-140}})));
   Modelica.Thermal.HeatTransfer.Components.HeatCapacitor wallMasses(C=100000000,
@@ -42,7 +42,7 @@ model HallBaseClass "Simplified model of hall 1"
   Modelica.Thermal.HeatTransfer.Components.ThermalConductor wallConductor(G=8000)
     "Conducts heat from/to walls"
     annotation (Placement(transformation(extent={{108,-60},{128,-40}})));
-  Modelica.Thermal.HeatTransfer.Components.ThermalConductor FloorConductor(G=100000)
+  Modelica.Thermal.HeatTransfer.Components.ThermalConductor FloorConductor(G=10000)
     "Conducts heat from floor to air"
     annotation (Placement(transformation(extent={{88,-158},{108,-138}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature SupplyWater
@@ -797,14 +797,6 @@ model HallBaseClass "Simplified model of hall 1"
         20.613,0,8.213,240.863,0; 3837600,19.733,9835.461,20.613,0,8.213,240.863,
         0; 3841200,19.733,9835.461,20.613,0,8.213,240.863,0])
     annotation (Placement(transformation(extent={{-40,0},{-20,20}})));
-  Modelica.Blocks.Math.Gain valveEffect(k=25)
-    "Transforms the valve opening into thermal conductance"
-    annotation (Placement(transformation(extent={{4,-132},{16,-120}})));
-  Modelica.Blocks.Math.Gain volumFlowConversion(k=1.4/3600)
-    "Convert the volume flow into mass flow"
-    annotation (Placement(transformation(extent={{4,-108},{16,-96}})));
-  Modelica.Thermal.HeatTransfer.Celsius.ToKelvin supplyAir
-    annotation (Placement(transformation(extent={{-28,-126},{-16,-114}})));
   Modelica.Thermal.HeatTransfer.Celsius.ToKelvin waterTemperature
     annotation (Placement(transformation(extent={{-28,-106},{-16,-94}})));
   Modelica.Thermal.HeatTransfer.Celsius.ToKelvin hallTemperature
@@ -841,20 +833,10 @@ equation
           -148},{120,-148},{120,-132},{92,-132},{92,-96},{78,-96},{78,-80},{90,-80}},
                                                                           color=
          {191,0,0}));
-  connect(valveEffect.y, CCAConductor.G) annotation (Line(points={{16.6,-126},{26,
-          -126},{26,-141},{30,-141}},color={0,0,127}));
   connect(combiTimeTable.y[6], SolarShare.u) annotation (Line(points={{-19,10},{
           -8,10},{-8,-40},{32.8,-40}},     color={0,0,127}));
-  connect(combiTimeTable.y[2], volumFlowConversion.u) annotation (Line(points={{-19,10},
-          {-8,10},{-8,-102},{2.8,-102}},              color={0,0,127}));
-  connect(combiTimeTable.y[7], waterTemperature.Celsius) annotation (Line(
-        points={{-19,10},{-8,10},{-8,-40},{-40,-40},{-40,-100},{-29.2,-100}},
-        color={0,0,127}));
   connect(waterTemperature.Kelvin, SupplyWater.T) annotation (Line(points={{-15.4,
           -100},{-14,-100},{-14,-150},{-2,-150}}, color={0,0,127}));
-  connect(combiTimeTable.y[3], supplyAir.Celsius) annotation (Line(points={{-19,
-          10},{-8,10},{-8,-40},{-40,-40},{-40,-120},{-29.2,-120}}, color={0,0,
-          127}));
   connect(combiTimeTable.y[1], hallTemperature.Celsius)
     annotation (Line(points={{-19,10},{14.8,10}},   color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-140,-100},
