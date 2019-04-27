@@ -30,47 +30,57 @@ def main():
 
     os.mkdir("Inputs")
 
-    """Load the FMU model, set the experiment and initialize the inputs"""
-    global dymola
-    dymola = None
-    # Work-around for the environment variable
-    sys.path.insert(0, os.path.join(str(Init.path_dymola)))
-
-    # Import Dymola Package
-    from dymola.dymola_interface import DymolaInterface
-
-    # Start the interface
-    dymola = DymolaInterface()
-
-    """ Simulation """
-    # Open dymola library
-
-    for lib in Init.path_lib:
-        check1 = dymola.openModel(os.path.join(lib,'package.mo'))
-        print('Opening successful ' + str(check1))
-
-    dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
-
-    # Translate the model to FMU
-    if Init.create_FMU:
-        dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+
-                            Init.name_fmu+'", "1", "cs", false, 0)')
+    if Init.realtime == False:
+        # FMU is loaded if the controlled system is a simulation model
+        
+        """Load the FMU model, set the experiment and initialize the inputs"""
+        global dymola
+        dymola = None
+        # Work-around for the environment variable
+        sys.path.insert(0, os.path.join(str(Init.path_dymola)))
+    
+        # Import Dymola Package
+        from dymola.dymola_interface import DymolaInterface
+    
+        # Start the interface
+        dymola = DymolaInterface()
+    
+        """ Simulation """
+        # Open dymola library
+    
+        for lib in Init.path_lib:
+            check1 = dymola.openModel(os.path.join(lib,'package.mo'))
+            print('Opening successful ' + str(check1))
+    
+        dymola.cd(Init.path_res + '\\' + Init.name_wkdir)
+    
+        # Translate the model to FMU
+        if Init.create_FMU:
+            dymola.ExecuteCommand('translateModelFMU("'+Init.path_fmu+'", true, "'+
+                                Init.name_fmu+'", "1", "cs", false, 0)')
+        else:
+            shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + 
+                            ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+
+                            Init.name_fmu+'.fmu')
+    
+    
+        model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+
+                         '.fmu')
+    
+        model.set('suppyAirTemperature',300)
+        model.set('Room1Set',0)
+        model.set('Room2Set',0)
+        model.set('CCAValve',0)
+    
+        model.initialize()
+        model.do_step(0, Init.sync_rate)
+        
     else:
-        shutil.copyfile(Init.path_res + "\\" + Init.name_fmu + 
-                        ".fmu", Init.path_res+'\\'+Init.name_wkdir +'\\'+
-                        Init.name_fmu+'.fmu')
-
-
-    model = load_fmu(Init.path_res+'\\'+Init.name_wkdir +'\\'+Init.name_fmu+
-                     '.fmu')
-
-    model.set('suppyAirTemperature',300)
-    model.set('Room1Set',0)
-    model.set('Room2Set',0)
-    model.set('CCAValve',0)
-
-    model.initialize()
-    model.do_step(0, Init.sync_rate)
+        model = 1
+        #remote_ip = '134.130.56.144'
+        #model = pyads.Connection('5.53.34.234.1.1', 851)
+        #model.open()
+        
 
     """Variables storing (time) steps"""
     time_step = Init.sync_rate

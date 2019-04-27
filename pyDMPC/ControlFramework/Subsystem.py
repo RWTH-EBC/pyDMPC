@@ -9,6 +9,7 @@ import math
 from datetime import datetime
 import pytz
 import requests
+import pyads
 gl_commands_costs = []
 gl_measurements_all =[]
 
@@ -65,9 +66,14 @@ class Subsystem():
         values = []
 
         for val in ids_list:
-            value = model.get(val) #FMU
-            values.append(np.asscalar(value))
-
+            if Init.realtime:
+                value = 1
+                #value = model.read_by_name(val, pyads.PLCTYPE_REAL) 
+            else:
+                value = np.asscalar(model.get(val)) #FMU
+                
+            values.append(value)
+                
         return values
     
     def GetWeatherForcast(self):
@@ -102,7 +108,7 @@ class Subsystem():
                      '\\' + 'weather.mat'),{'InputTable' : np.array(values)})
         
 
-    def CalcDVvalues(self, time_step, time_storage, iter, model):
+    def CalcDVvalues(self, time_step, time_storage, iter, model=None):
         """
         Caclulate the values of the decision variables
         inputs:
@@ -112,25 +118,26 @@ class Subsystem():
             values: list of measurement values
         """
         """ Get Measurements """
-        self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+        if self._name == "Hall-long":
+            self.GetWeatherForcast()
+            print('Getting forecast')
         
-        self.GetWeatherForcast()
-
-        if self._type_subSyst != "generator":
+        if self._IDs_inputs is not None:
+            self.measurements = self.GetMeasurements(self._IDs_inputs, model)
+            
+            # Save new 'CompleteInput.mat' File
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + 
+                         '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
+            self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, 
+                             self.measurements[1])
+            self.measurements = [self.measurements[0], self.measurements[1]]
+    
             values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
+    
+            print(values)
+            
         else:
-            values = np.concatenate(([0.0], self.measurements[::-1]),axis=0)
-        print(values)
-
-        # Save new 'CompleteInput.mat' File
-        sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + 
-                     '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
-        self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, 
-                         self.measurements[1])
-        self.measurements = [self.measurements[0], self.measurements[1]]
-
-        # Get a dedicated outdoor measurement
-        #outdoor_meas = self.GetMeasurements([r'outdoorTemperatureOutput'], model)
+            self.measurements = []
 
         if self._IDs_initial_values is not None:
             self._initial_values = self.GetMeasurements(
@@ -229,14 +236,23 @@ class Subsystem():
                     print("Interpolation failed")
 
             if time_storage != time_step:
-                """ Store global commands""" # just for analysis
+                """ Store global commands""" 
                 global gl_commands_costs
                 tz = pytz.timezone('Europe/Berlin')
                 ts = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
                 
-            for j,val in enumerate(commands):
-                model.set(self._names_DVs[j], self.start_DVs[j] + 
-                              val/100*self.factor_DVs[j])
+            if self._names_DVs is not None:
+                                   
+                for j,val in enumerate(commands):
+                    command2send = (self.start_DVs[j] + 
+                                  val/100*self.factor_DVs[j])
+                    if Init.realtime:
+                        print('ok')
+                        #write_by_name(self._names_DVs[j], command2send, 
+                        #              pyads.PLCTYPE_REAL) 
+                    else:
+                        model.set(self._names_DVs[j], command2send)
+                    
 
             return commands
 

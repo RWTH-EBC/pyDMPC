@@ -171,7 +171,7 @@ def Obj(values_DVs, BC, s):
         import functions.fuzzy as fuz
 
         traj = BC[0] + 273.15
-        Tset = fuz.control(s._initial_values[0],s._initial_values[1])
+        Tset = fuz.control(s._initial_values[2],1)
         output_list = []
 
         if s._output_vars is not None:
