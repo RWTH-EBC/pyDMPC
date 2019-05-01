@@ -16,9 +16,9 @@ realtime = True         #Choose True for a real-life experiment
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
 factors_BCs = [6, 0.03]              # order: BC1, BC2, ...
-center_vals_BCs = [30, 0.001]
-amount_lower_vals = [1, 0]
-amount_upper_vals = [1, 1]
+center_vals_BCs = [16, 0.001]
+amount_lower_vals = [2, 0]
+amount_upper_vals = [2, 1]
 exp_BCs = [1, 1]
 amount_vals_BCs = [1, 1]
 
@@ -31,7 +31,7 @@ cost_gradient = 0
 
 """ Set objective function """
 obj_function = 'Monetary'   #choices: 'Exergy', 'Monetary'
-set_point = [30.0, 0.005]     #set points of the controlled variables
+set_point = [22.0, 0.005]     #set points of the controlled variables
 tolerance = 0.4
 cost_factor = 0.5
 
@@ -39,7 +39,7 @@ cost_factor = 0.5
 sim_time_global = 10000          # -> not used yet
 sync_rate = 5*60                 # Synchronisation rate in seconds
 optimization_interval = 10*60    # After one interval the optimization is repeated
-prediction_horizon = 3600        #Common prediction horizon in seconds
+prediction_horizon = 3600.0        #Common prediction horizon in seconds
 
 """ Directories and Modelica libraries """
 # Path where the main working directory shall be created
@@ -120,11 +120,13 @@ names_BCs = []
 output_vars = []
 initial_names= [] #for simulation
 IDs_initial_values= [] #for simulation
+IDs_initial_offsets = [] # offsets to add to the initial values
 cost_par = [] #for MassFlowRate
 variation = []
 IDs_inputs = []
 cost_factor = []
 model_type = []
+pred_hor = []
 
 """ Subsystems """
 
@@ -139,17 +141,19 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
 start_DVs.append([10])
-factor_DVs.append([30])
+factor_DVs.append([25])
 model_path.append('')
 names_DVs.append(['TempSensors.TempAHUReheaterTSetAir'])
 output_vars.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
 initial_names.append(None)
 IDs_initial_values.append(None)
+IDs_initial_offsets.append(None)
 IDs_inputs.append(["AHU_Bacnet.HumODA","AHU_Bacnet.TempODA"])
 cost_par.append(None)
-variation.append(False)
+variation.append(True)
 cost_factor.append(0.5)
 model_type.append("lin")
+pred_hor.append(3600)
 
 # Hall
 name.append('Hall-short')
@@ -161,18 +165,19 @@ num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,0])
 start_DVs.append([-10])
-factor_DVs.append([0.3])
+factor_DVs.append([30])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Hall_short')
 names_DVs.append(None)
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
-initial_names.append(["concreteFloor.T","AirVolumeFlow.k","volume.T_start","currentWaterTemperature.k"])
-IDs_initial_values.append(["GVL_Bacnet.CCA_SenT_Ret","AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA","GVL_Bacnet.CCA_SenT_Sup"])
-IDs_initial_values.append(None)
-IDs_inputs.append(None)
+initial_names.append(["AirVolumeFlow.k","volume.T_start"])
+IDs_initial_values.append(["AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA"])
+IDs_initial_offsets.append([0,273])
+IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
 cost_par.append(None)
 variation.append(True)
 cost_factor.append(0.5)
 model_type.append("Modelica")
+pred_hor.append(3600)
 
 # Steam_humidifier
 name.append('Room_1')
@@ -193,11 +198,13 @@ output_vars.append(None)
 initial_names.append(None)
 #IDs_initial_values.append(["Room2T","Room2del"])
 IDs_initial_values.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
+IDs_initial_offsets.append([0,0])
 IDs_inputs.append(None)
 cost_par.append('None')
 variation.append(True)
 cost_factor.append(0.5)
 model_type.append("fuzzy")
+pred_hor.append(3600)
 
 # Steam_humidifier
 name.append('Room_2')
@@ -218,11 +225,13 @@ output_vars.append(None)
 initial_names.append(None)
 #IDs_initial_values.append(["Room2T","Room2del"])
 IDs_initial_values.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
+IDs_initial_offsets.append([0,0])
 IDs_inputs.append(None)
 cost_par.append(None)
 variation.append(True)
 cost_factor.append(0.5)
 model_type.append("fuzzy")
+pred_hor.append(3600)
 
 # Hall
 name.append('Hall-long')
@@ -233,16 +242,17 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
-start_DVs.append([-10])
-factor_DVs.append([0.3])
+start_DVs.append([0])
+factor_DVs.append([30])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Hall_long')
 names_DVs.append(['TempSensors.TempCCAT_amb_mean'])
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
-initial_names.append(["concreteFloor.T","AirVolumeFlow.k","volume.T_start"])
-IDs_initial_values.append(["GVL_Bacnet.CCA_SenT_Ret","AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA"])
-IDs_initial_values.append(None)
-IDs_inputs.append(None)
+initial_names.append(["AirVolumeFlow.k","volume.T_start"])
+IDs_initial_values.append(["AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA"])
+IDs_initial_offsets.append([0,273])
+IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
 cost_par.append(None)
 variation.append(False)
 cost_factor.append(0.5)
 model_type.append("Modelica")
+pred_hor.append(2*86400)

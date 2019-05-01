@@ -99,12 +99,12 @@ def Obj(values_DVs, BC, s):
     if isinstance (values_DVs, np.ndarray):
         DV_array = np.empty([1,2])
         DV_array[0,0] = 0
-        DV_array[0,1] = float(values_DVs)
+        DV_array[0,1] = s.start_DVs + float(values_DVs)/100*s.factor_DVs
     else:
         DV_array = np.empty([1,len(values_DVs)+1])
         DV_array[0,0] = 0
         for i2,val2 in enumerate(values_DVs):
-            DV_array[0][i2+1] = val2
+            DV_array[0][i2+1] = s.start_DVs + val2/100*s.factor_DVs
 
     """Store the decision variables and boundary conditions as .mat files"""
     subsys_path = Init.path_res +'\\'+Init.name_wkdir+'\\' + s._name
@@ -123,7 +123,7 @@ def Obj(values_DVs, BC, s):
                     simStat = dymola.simulateExtendedModel(
                     problem=s._model_path,
                     startTime=Init.start_time,
-                    stopTime=Init.stop_time,
+                    stopTime=s._pred_hor,
                     outputInterval=Init.incr,
                     method="Dassl",
                     tolerance=Init.tol,
@@ -134,7 +134,7 @@ def Obj(values_DVs, BC, s):
                     simStat = dymola.simulateExtendedModel(
                         problem=s._model_path,
                         startTime=Init.start_time,
-                        stopTime=Init.stop_time,
+                        stopTime=s._pred_hor,
                         outputInterval=Init.incr,
                         method="Dassl",
                         tolerance=Init.tol,
@@ -171,13 +171,12 @@ def Obj(values_DVs, BC, s):
         import functions.fuzzy as fuz
 
         traj = BC[0] + 273.15
-        Tset = fuz.control(s._initial_values[2],1)
+        Tset = fuz.control(s._initial_values[1],0)
         output_list = []
 
-        if s._output_vars is not None:
-            output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
+        output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
 
-            output_list = output_traj
+        output_list = output_traj
         
         print(values_DVs)
         print(BC[0])
@@ -187,7 +186,7 @@ def Obj(values_DVs, BC, s):
         
     ### Linear model ###
     elif s._model_type == "lin":
-        traj = values_DVs/100*40 + 273.15
+        traj = float(s.factor_DVs[0]*values_DVs/100 + s.start_DVs[0]) + 273.15
         Tset = 303
 
         if s._output_vars is not None:
