@@ -6,8 +6,8 @@ def control(temp,delt):
     # Only the critical points are included here; making it higher resolution is
     # unnecessary.
     universe = np.linspace(-2, 2, 5)
-    universe_temp = np.linspace(280, 310, 5)
-    universe_out = np.linspace(280, 310, 5)
+    universe_temp = np.linspace(290, 310, 5)
+    universe_out = np.linspace(290, 310, 5)
 
     # Create the three fuzzy variables - two inputs, one output
     temperature = ctrl.Antecedent(universe_temp, 'temperature')
