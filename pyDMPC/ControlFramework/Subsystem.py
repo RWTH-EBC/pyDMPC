@@ -20,8 +20,9 @@ class Subsystem():
                  bounds_DVs,start_DVs,factor_DVs,
                  model_path, names_BCs, variation,
                  num_VarsOut, names_DVs,
-                 output_vars, initial_names, IDs_initial_values,
-                 IDs_inputs,cost_par,cost_factor,model_type,type_subSyst=None):
+                 output_vars, initial_names, IDs_initial_values, IDs_initial_offsets,
+                 IDs_inputs,cost_par,cost_factor,model_type,pred_hor,
+                 type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
         self._num_DVs = num_DVs
@@ -46,15 +47,17 @@ class Subsystem():
         self._output_vars = output_vars
         self._initial_names = initial_names
         self._IDs_initial_values = IDs_initial_values
+        self._IDs_initial_offsets = IDs_initial_offsets
         self._IDs_inputs = IDs_inputs
         self._model_type = model_type
+        self._pred_hor = pred_hor
 
 
     def GetNeighbour(self, neighbour_name):
         """Gets the name of a subsystem's neighbor"""
         self.neighbour_name = neighbour_name
 
-    def GetMeasurements(self, ids_list, model):
+    def GetMeasurements(self, ids_list, model, offsets=None):
         """
         Gets measurements from FMU model
         inputs:
@@ -65,12 +68,15 @@ class Subsystem():
         """
         values = []
 
-        for val in ids_list:
+        for j,val in enumerate(ids_list):
             if Init.realtime:
-                value = 1
-                #value = model.read_by_name(val, pyads.PLCTYPE_REAL) 
+                value = model.read_by_name(val, pyads.PLCTYPE_REAL) 
+                print(val + str(value))
             else:
-                value = np.asscalar(model.get(val)) #FMU
+                value = np.asscalar(model.get(val))
+                
+            if offsets is not None:
+                value = value + offsets[j]
                 
             values.append(value)
                 
@@ -118,17 +124,15 @@ class Subsystem():
             values: list of measurement values
         """
         """ Get Measurements """
-        if self._name == "Hall-long":
+        if self._name == "Hall-long" or self._name == "Hall-short":
             self.GetWeatherForcast()
             print('Getting forecast')
         
         if self._IDs_inputs is not None:
             self.measurements = self.GetMeasurements(self._IDs_inputs, model)
             
-            # Save new 'CompleteInput.mat' File
-            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + 
-                         '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
-            self.measurements[0] = self.CalcXfromRH(self.measurements[0]*100, 
+
+            self.measurements[0] = self.CalcXfromRH(self.measurements[0], 
                              self.measurements[1])
             self.measurements = [self.measurements[0], self.measurements[1]]
     
@@ -136,12 +140,16 @@ class Subsystem():
     
             print(values)
             
+            # Save new 'CompleteInput.mat' File
+            sio.savemat((Init.path_res +'\\'+Init.name_wkdir + '\\' + self._name + 
+                         '\\' + 'CompleteInput.mat'), {'InputTable' :np.array(values)})
+            
         else:
             self.measurements = []
 
         if self._IDs_initial_values is not None:
             self._initial_values = self.GetMeasurements(
-                    self._IDs_initial_values, model)
+                    self._IDs_initial_values, model, self._IDs_initial_offsets)
         else:
             self._initial_values = []
 
@@ -244,12 +252,12 @@ class Subsystem():
             if self._names_DVs is not None:
                                    
                 for j,val in enumerate(commands):
-                    command2send = (self.start_DVs[j] + 
-                                  val/100*self.factor_DVs[j])
+                    command2send = float((self.start_DVs[j] + 
+                                  val/100*self.factor_DVs[j]))
                     if Init.realtime:
-                        print('ok')
-                        #write_by_name(self._names_DVs[j], command2send, 
-                        #              pyads.PLCTYPE_REAL) 
+                        print(self._names_DVs[j] + ": " + str(command2send))
+                        model.write_by_name(self._names_DVs[j], command2send, 
+                                      pyads.PLCTYPE_REAL) 
                     else:
                         model.set(self._names_DVs[j], command2send)
                     
