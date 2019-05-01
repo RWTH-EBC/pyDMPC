@@ -74,6 +74,8 @@ equation
           {0,86},{-34,86}}, color={0,0,127}));
   connect(gain.y, IntakeAirSource.m_flow_in) annotation (Line(points={{-57,86},
           {-132,86},{-132,20},{-120,20}}, color={0,0,127}));
+  connect(combiTimeTable.y[6], SolarShare.u) annotation (Line(points={{-19,10},
+          {0,10},{0,-40},{32.8,-40}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false)),
     experiment(StopTime=86400, Interval=10));

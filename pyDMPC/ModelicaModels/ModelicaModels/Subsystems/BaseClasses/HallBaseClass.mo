@@ -833,8 +833,6 @@ equation
           -148},{120,-148},{120,-132},{92,-132},{92,-96},{78,-96},{78,-80},{90,-80}},
                                                                           color=
          {191,0,0}));
-  connect(combiTimeTable.y[6], SolarShare.u) annotation (Line(points={{-19,10},{
-          -8,10},{-8,-40},{32.8,-40}},     color={0,0,127}));
   connect(waterTemperature.Kelvin, SupplyWater.T) annotation (Line(points={{-15.4,
           -100},{-14,-100},{-14,-150},{-2,-150}}, color={0,0,127}));
   connect(combiTimeTable.y[1], hallTemperature.Celsius)
