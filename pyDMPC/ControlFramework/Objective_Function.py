@@ -187,7 +187,10 @@ def Obj(values_DVs, BC, s):
             T_met_prev_2.append(s._initial_values[1])
             T_met_prev_3.append(s._initial_values[2])
             T_met_prev_4.append(s._initial_values[3])
-            command.append(values_DVs[0])
+            try:
+                command.append(values_DVs[0])
+            except:
+                command.append(values_DVs)
             T_cur.append(BC[0])
             T_prev.append(BC[0])
 
@@ -203,7 +206,7 @@ def Obj(values_DVs, BC, s):
             output_list.append(traj[-1])
             output_list.append(0.3+random.uniform(0.0,0.01))
 
-        print(values_DVs[0])
+#        print(values_DVs[0])
         print(BC[0])
         print(traj)
 
