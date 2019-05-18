@@ -7,7 +7,8 @@ model Hall2
     wallConductor(G=30000),
     FloorConductor(G=4000),
     CCAConductor(G=5000),
-    SolarShare(k=50));
+    SolarShare(k=50),
+    outdoorAirConductor(G=800));
 
   Modelica.Blocks.Sources.CombiTimeTable weather(
     tableOnFile=true,

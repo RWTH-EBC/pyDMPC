@@ -33,15 +33,9 @@ model HallBaseClass "Simplified model of hall 1"
                                   CCAConductor(G=8000)
     "Conducts heat from water to concrete"
     annotation (Placement(transformation(extent={{30,-160},{50,-140}})));
-  Modelica.Thermal.HeatTransfer.Components.HeatCapacitor wallMasses(C=100000000,
-      T(start=299.15))
-    annotation (Placement(transformation(extent={{140,-38},{160,-18}})));
   Modelica.Thermal.HeatTransfer.Components.HeatCapacitor concreteFloor(C=100000000,
       T(start=299.15))
     annotation (Placement(transformation(extent={{60,-144},{80,-124}})));
-  Modelica.Thermal.HeatTransfer.Components.ThermalConductor wallConductor(G=8000)
-    "Conducts heat from/to walls"
-    annotation (Placement(transformation(extent={{108,-60},{128,-40}})));
   Modelica.Thermal.HeatTransfer.Components.ThermalConductor FloorConductor(G=10000)
     "Conducts heat from floor to air"
     annotation (Placement(transformation(extent={{88,-158},{108,-138}})));
@@ -817,12 +811,6 @@ equation
           {80,-40},{80,-80},{90,-80}},   color={191,0,0}));
   connect(prescribedHeatFlow.Q_flow, SolarShare.y)
     annotation (Line(points={{58,-40},{46.6,-40}}, color={0,0,127}));
-  connect(volume.heatPort, wallConductor.port_a) annotation (Line(points={{90,-80},
-          {84,-80},{84,-50},{108,-50}},
-                                    color={191,0,0}));
-  connect(wallConductor.port_b, wallMasses.port)
-    annotation (Line(points={{128,-50},{150,-50},{150,-38}},
-                                                       color={191,0,0}));
   connect(CCAConductor.port_b, concreteFloor.port)
     annotation (Line(points={{50,-150},{70,-150},{70,-144}}, color={191,0,0}));
   connect(SupplyWater.port, CCAConductor.port_a)
