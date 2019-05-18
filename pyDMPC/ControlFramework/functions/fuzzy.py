@@ -5,9 +5,9 @@ def control(temp,delt):
     # Sparse universe makes calculations faster, without sacrifice accuracy.
     # Only the critical points are included here; making it higher resolution is
     # unnecessary.
-    universe = np.linspace(-2, 2, 5)
-    universe_temp = np.linspace(290, 310, 5)
-    universe_out = np.linspace(290, 310, 5)
+    universe = np.linspace(-4, 4, 5)
+    universe_temp = np.linspace(290, 303, 5)
+    universe_out = np.linspace(290, 303, 5)
 
     # Create the three fuzzy variables - two inputs, one output
     temperature = ctrl.Antecedent(universe_temp, 'temperature')
@@ -29,37 +29,48 @@ def control(temp,delt):
     """
     rule0 = ctrl.Rule(antecedent=((temperature['nb'] & delta['nb']) |
                                   (temperature['ns'] & delta['nb']) |
+                                  (temperature['ze'] & delta['nb']) |
                                   (temperature['nb'] & delta['ns'])),
                       consequent=output['nb'], label='rule nb')
 
     rule1 = ctrl.Rule(antecedent=((temperature['nb'] & delta['ze']) |
-                                  (temperature['nb'] & delta['ps']) |
+                                  #(temperature['nb'] & delta['ps']) |
                                   (temperature['ns'] & delta['ns']) |
                                   (temperature['ns'] & delta['ze']) |
                                   (temperature['ze'] & delta['ns']) |
-                                  (temperature['ze'] & delta['nb']) |
-                                  (temperature['ps'] & delta['nb'])),
+                                  (temperature['ze'] & delta['nb']) #|
+                                  #(temperature['ps'] & delta['nb'])
+                                  ),
                       consequent=output['ns'], label='rule ns')
 
-    rule2 = ctrl.Rule(antecedent=((temperature['nb'] & delta['pb']) |
-                                  (temperature['ns'] & delta['ps']) |
+    rule2 = ctrl.Rule(antecedent=(
+                                #(temperature['nb'] & delta['pb']) |
+                                 # (temperature['ns'] & delta['ps']) |
                                   (temperature['ze'] & delta['ze']) |
-                                  (temperature['ps'] & delta['ns']) |
-                                  (temperature['pb'] & delta['nb'])),
+                                  (temperature['ns'] & delta['ze']) |
+                                  (temperature['ps'] & delta['ze']) #|
+                                 # (temperature['ps'] & delta['ns']) |
+                                 # (temperature['pb'] & delta['nb'])
+                                 ),
                       consequent=output['ze'], label='rule ze')
 
-    rule3 = ctrl.Rule(antecedent=((temperature['ns'] & delta['pb']) |
-                                  (temperature['ze'] & delta['pb']) |
+    rule3 = ctrl.Rule(antecedent=(#(temperature['ns'] & delta['pb']) |
+                                  #(temperature['ze'] & delta['pb']) |
                                   (temperature['ze'] & delta['ps']) |
                                   (temperature['ps'] & delta['ps']) |
-                                  (temperature['ps'] & delta['ze']) |
                                   (temperature['pb'] & delta['ze']) |
-                                  (temperature['pb'] & delta['ns'])),
+                                  (temperature['ns'] & delta['ps']) #|
+                                  #(temperature['ps'] & delta['ze']) |
+                                  #(temperature['pb'] & delta['ze']) |
+                                  #(temperature['pb'] & delta['ns'])
+                                  ),
                       consequent=output['ps'], label='rule ps')
 
     rule4 = ctrl.Rule(antecedent=((temperature['ps'] & delta['pb']) |
                                   (temperature['pb'] & delta['pb']) |
-                                  (temperature['pb'] & delta['ps'])),
+                                  (temperature['pb'] & delta['ps']) |
+                                  (temperature['ze'] & delta['pb']) #|
+                                  ),
                       consequent=output['pb'], label='rule pb')
 
     """

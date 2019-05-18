@@ -79,7 +79,7 @@ def main():
         
     else:
         model = 1
-        model = pyads.Connection('5.53.34.234.1.1', 851)
+        model = pyads.Connection('5.59.199.202.1.1', 851)
         model.open()
         
     try:
@@ -199,6 +199,14 @@ def main():
                                                      pyads.PLCTYPE_REAL)
                         TempCCA = model.read_by_name('TempSensors.TempCCAT_amb_mean',
                                                      pyads.PLCTYPE_REAL)
+                        #TempRoom_1 = model.read_by_name('ZoneModules.RoomTemp_1',
+                         #                            pyads.PLCTYPE_REAL)
+                        #TempRoom_2 = model.read_by_name('ZoneModules.RoomTemp_2',
+                          #                           pyads.PLCTYPE_REAL)
+                        #TempRoomSet_1 = model.read_by_name('ZoneModules.RoomTempSet_1',
+                           #                          pyads.PLCTYPE_REAL)
+                        #TempRoomSet_2 = model.read_by_name('ZoneModules.RoomTempSet_2',
+                            #                         pyads.PLCTYPE_REAL)
                         df_1 = pd.DataFrame(np.array([[TempODA,TempETA,TempAHU,
                                                        TempCCA]]),
                                           index=[time.time()],
