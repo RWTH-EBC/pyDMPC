@@ -99,12 +99,12 @@ def Obj(values_DVs, BC, s):
     if isinstance (values_DVs, np.ndarray):
         DV_array = np.empty([1,2])
         DV_array[0,0] = 0
-        DV_array[0,1] = s.start_DVs + float(values_DVs)/100*s.factor_DVs
+        DV_array[0,1] = s.start_DVs[0] + float(values_DVs)/100*s.factor_DVs[0]
     else:
         DV_array = np.empty([1,len(values_DVs)+1])
         DV_array[0,0] = 0
         for i2,val2 in enumerate(values_DVs):
-            DV_array[0][i2+1] = s.start_DVs + val2/100*s.factor_DVs
+            DV_array[0][i2+1] = s.start_DVs[0] + val2/100*s.factor_DVs[0]
 
     """Store the decision variables and boundary conditions as .mat files"""
     subsys_path = Init.path_res +'\\'+Init.name_wkdir+'\\' + s._name
@@ -171,7 +171,8 @@ def Obj(values_DVs, BC, s):
         import functions.fuzzy as fuz
 
         traj = BC[0] + 273.15
-        Tset = fuz.control(s._initial_values[1],0)
+        #Tset = fuz.control(s._initial_values[1],s._initial_values[0]-22.4)
+        Tset = fuz.control(s._initial_values[1],-2)
         output_list = []
 
         output_traj = [traj, (0.3+random.uniform(0.0,0.01))]
@@ -265,7 +266,7 @@ def Obj(values_DVs, BC, s):
 
                 storage_cost_temp = x[Init.tableName_Cost]
 
-                for a in range(1,4):
+                for a in range(1,10):
                     for b in range(1,2):
                         storage_cost[a,b] += storage_cost_temp[a,b]
             except:
@@ -310,7 +311,7 @@ def Obj(values_DVs, BC, s):
             cost_total = cost_total/len(output_traj[0])
             print("output: " + str(tout))
         else:
-            cost_total = 10*(abs(output_traj[0]-Tset)**2)
+            cost_total = 0.05*abs(output_traj[0]-Tset)**2
             
 
 

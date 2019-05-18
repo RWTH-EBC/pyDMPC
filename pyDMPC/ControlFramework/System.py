@@ -60,6 +60,7 @@ class System:
                 Init.cost_factor[i],
                 Init.model_type[i],
                 Init.pred_hor[i],
+                Init.ind_opt_inter[i],
                 Init.type_subSyst[i]
                 ))
         subsystems.sort(key = lambda x: x.position)

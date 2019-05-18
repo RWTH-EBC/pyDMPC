@@ -15,10 +15,10 @@ realtime = True         #Choose True for a real-life experiment
 
 """ Settings for BExMoC algorithm """
 # So far: For all subsystems the same settings
-factors_BCs = [6, 0.03]              # order: BC1, BC2, ...
-center_vals_BCs = [16, 0.001]
-amount_lower_vals = [2, 0]
-amount_upper_vals = [2, 1]
+factors_BCs = [4, 0.03]              # order: BC1, BC2, ...
+center_vals_BCs = [24, 0.001]
+amount_lower_vals = [4, 0]
+amount_upper_vals = [4, 1]
 exp_BCs = [1, 1]
 amount_vals_BCs = [1, 1]
 
@@ -31,7 +31,7 @@ cost_gradient = 0
 
 """ Set objective function """
 obj_function = 'Monetary'   #choices: 'Exergy', 'Monetary'
-set_point = [22.0, 0.005]     #set points of the controlled variables
+set_point = [21.0, 0.005]     #set points of the controlled variables
 tolerance = 0.4
 cost_factor = 0.5
 
@@ -43,17 +43,17 @@ prediction_horizon = 3600.0        #Common prediction horizon in seconds
 
 """ Directories and Modelica libraries """
 # Path where the main working directory shall be created
-path_res = r'C:\Temp\Dymola'
-keypath = r'C:\Temp\Dymola\key.txt'
+path_res = r'D:\dymola'
+keypath = r'D:\dymola\key.txt'
 
 # Name of the main working directory
 import time
 timestr = time.strftime("%Y%m%d_%H%M%S")
 name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 # Path to the Modelica libraries to be loaded
-path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
-path_lib2 = r'C:\Git\modelica-buildings\Buildings'
-path_lib3 = r'C:\Git\AixLib\AixLib'
+path_lib1 = r'D:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
+path_lib2 = r'D:\Git\modelica-buildings\Buildings'
+path_lib3 = r'D:\Git\AixLib-master\AixLib'
 path_lib = [path_lib1, path_lib2, path_lib3]
 
 create_FMU = False
@@ -64,7 +64,7 @@ path_fmu = r'ModelicaModels.ControlledSystems.ControlledSystemBoundaries'
 name_fmu = 'ModelicaModels_ControlledSystems_TestHall'
 
 # Path to the *.egg file containing the Python-Dymola-Interface
-path_dymola = r'C:\Program Files\Dymola 2019\Modelica\Library\python_interface\dymola.egg'
+path_dymola = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
 
 """ Simulation settings """
 # Start time of simulation in seconds
@@ -127,6 +127,7 @@ IDs_inputs = []
 cost_factor = []
 model_type = []
 pred_hor = []
+ind_opt_inter = []
 
 """ Subsystems """
 
@@ -150,10 +151,11 @@ IDs_initial_values.append(None)
 IDs_initial_offsets.append(None)
 IDs_inputs.append(["AHU_Bacnet.HumODA","AHU_Bacnet.TempODA"])
 cost_par.append(None)
-variation.append(True)
-cost_factor.append(0.5)
+variation.append(False)
+cost_factor.append(0)
 model_type.append("lin")
 pred_hor.append(3600)
+ind_opt_inter.append(optimization_interval)
 
 # Hall
 name.append('Hall-short')
@@ -168,16 +170,17 @@ start_DVs.append([-10])
 factor_DVs.append([30])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Hall_short')
 names_DVs.append(None)
-output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
+output_vars.append(["volume.T","supplyAirHumidity.phi"])
 initial_names.append(["AirVolumeFlow.k","volume.T_start"])
 IDs_initial_values.append(["AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA"])
-IDs_initial_offsets.append([0,273])
+IDs_initial_offsets.append([0,273,273])
 IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
 cost_par.append(None)
 variation.append(True)
-cost_factor.append(0.5)
+cost_factor.append(3)
 model_type.append("Modelica")
-pred_hor.append(3600)
+pred_hor.append(4*3600)
+ind_opt_inter.append(optimization_interval)
 
 # Steam_humidifier
 name.append('Room_1')
@@ -196,15 +199,17 @@ names_DVs.append(None)
 #output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 output_vars.append(None)
 initial_names.append(None)
-#IDs_initial_values.append(["Room2T","Room2del"])
 IDs_initial_values.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
-IDs_initial_offsets.append([0,0])
+#IDs_initial_values.append(["ZoneModules.RoomTempSet_1","ZoneModules.RoomTemp_1"])
+IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
+IDs_initial_offsets.append([0,273])
 IDs_inputs.append(None)
 cost_par.append('None')
 variation.append(True)
 cost_factor.append(0.5)
 model_type.append("fuzzy")
 pred_hor.append(3600)
+ind_opt_inter.append(optimization_interval)
 
 # Steam_humidifier
 name.append('Room_2')
@@ -223,15 +228,17 @@ names_DVs.append(None)
 #output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
 output_vars.append(None)
 initial_names.append(None)
-#IDs_initial_values.append(["Room2T","Room2del"])
 IDs_initial_values.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
-IDs_initial_offsets.append([0,0])
+#IDs_initial_values.append(["ZoneModules.RoomTempSet_2","ZoneModules.RoomTemp_2"])
+IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
+IDs_initial_offsets.append([0,273])
 IDs_inputs.append(None)
 cost_par.append(None)
 variation.append(True)
 cost_factor.append(0.5)
 model_type.append("fuzzy")
 pred_hor.append(3600)
+ind_opt_inter.append(optimization_interval)
 
 # Hall
 name.append('Hall-long')
@@ -242,17 +249,19 @@ type_subSyst.append('consumer')
 num_DecVars.append(1)
 num_VarsOut.append(2)
 bounds_DVs.append([0,100])
-start_DVs.append([0])
-factor_DVs.append([30])
+start_DVs.append([8])
+factor_DVs.append([6])
 model_path.append('ModelicaModels.SubsystemModels.DetailedModels.Hall_long')
 names_DVs.append(['TempSensors.TempCCAT_amb_mean'])
+#names_DVs.append(None)
 output_vars.append(["supplyAirTemperature.T","supplyAirHumidity.phi"])
-initial_names.append(["AirVolumeFlow.k","volume.T_start"])
-IDs_initial_values.append(["AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA"])
-IDs_initial_offsets.append([0,273])
+initial_names.append(["AirVolumeFlow.k","volume.T_start", "concreteFloor.T"])
+IDs_initial_values.append(["AHU_Bacnet.AirflowSUP","AHU_Bacnet.TempETA","TempSensors.TempCCARet"])
+IDs_initial_offsets.append([0,273,273])
 IDs_inputs.append(["AHU_Bacnet.HumSUP","AHU_Bacnet.TempSUP"])
 cost_par.append(None)
 variation.append(False)
 cost_factor.append(0.5)
 model_type.append("Modelica")
 pred_hor.append(2*86400)
+ind_opt_inter.append(6*3600)

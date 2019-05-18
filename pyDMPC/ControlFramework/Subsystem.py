@@ -14,14 +14,14 @@ gl_commands_costs = []
 gl_measurements_all =[]
 
 class Subsystem():
-
+    
     def __init__(self, name, position,no_parallel,holon,
                  num_DVs,num_BCs, init_DecVars, sim_time,
                  bounds_DVs,start_DVs,factor_DVs,
                  model_path, names_BCs, variation,
                  num_VarsOut, names_DVs,
                  output_vars, initial_names, IDs_initial_values, IDs_initial_offsets,
-                 IDs_inputs,cost_par,cost_factor,model_type,pred_hor,
+                 IDs_inputs,cost_par,cost_factor,model_type,pred_hor,ind_opt_inter,
                  type_subSyst=None):
         self._name = name
         self._type_subSyst = type_subSyst
@@ -51,6 +51,7 @@ class Subsystem():
         self._IDs_inputs = IDs_inputs
         self._model_type = model_type
         self._pred_hor = pred_hor
+        self._ind_opt_inter = ind_opt_inter
 
 
     def GetNeighbour(self, neighbour_name):
@@ -176,7 +177,7 @@ class Subsystem():
                                 Init.center_vals_BCs, Init.factors_BCs, 0, 0)
 
             # Check if optimization phase is due
-            if (time_step-time_storage < Init.optimization_interval and 
+            if (time_step-time_storage < self._ind_opt_inter and 
                 time_step != Init.sync_rate):
                 # Interpolation
                 try:
