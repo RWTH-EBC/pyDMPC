@@ -16,6 +16,25 @@ import shutil
 import pyads
 import pandas as pd
 
+class Logger:
+    
+    def __init__(self, model, data_points):
+        self.model = model
+        self.data_points = data_points
+        self.df = pd.DataFrame([[0] * len(data_points)],index=[time.time()],
+                               columns=data_points)
+    
+    def get_meas(self):
+        cur_vals = [self.model.read_by_name(point, pyads.PLCTYPE_REAL)
+                        for point in self.data_points]
+        return pd.DataFrame([cur_vals],index=[time.time()],
+                               columns=self.data_points)
+        
+    def save_df(self):
+        self.df.append(self.get_meas())
+        self.df.to_csv(path_or_buf = Init.path_res + "\logs.csv")
+            
+
 def main():
     """Create a system and multiple subsystems"""
     AHU = System.System()
@@ -95,22 +114,11 @@ def main():
             storage_commands = np.zeros([5,1])
             supplyTemps = []
             
-            # Variables for logging
-            TempODA = model.read_by_name('AHU_Bacnet.TempODA',
-                                         pyads.PLCTYPE_REAL)
-            TempETA = model.read_by_name('AHU_Bacnet.TempETA',
-                                         pyads.PLCTYPE_REAL)
-            TempAHU = model.read_by_name('TempSensors.TempAHUReheaterTSetAir',
-                                         pyads.PLCTYPE_REAL)
-            TempCCA = model.read_by_name('TempSensors.TempCCAT_amb_mean',
-                                         pyads.PLCTYPE_REAL)
-            df = pd.DataFrame(np.array([[TempODA,TempETA,TempAHU,
-                                           TempCCA]]),
-                              index=[time.time()],
-                              columns=["TempODA","TempETA","TempAHU",
-                                       "TempCCA"])
+            logger = Logger(data_points = 
+                            ['AHU_Bacnet.TempODA','AHU_Bacnet.TempETA',
+                            'TempSensors.TempAHUReheaterTSetAir',
+                            'TempSensors.TempCCAT_amb_mean'], model = model)
             
-            df.to_csv(path_or_buf=Init.path_res + "\logs.csv")
         
             """There are currently three different options:
             1. NC-OPT algorithm
@@ -190,30 +198,8 @@ def main():
                 #For real time experiments, the excecution needs to be paused
                 if Init.realtime:
                     if time_step > 0:
-                        time.sleep(max(Init.sync_rate-time.time()+start,0))
-                        TempODA = model.read_by_name('AHU_Bacnet.TempODA',
-                                                     pyads.PLCTYPE_REAL)
-                        TempETA = model.read_by_name('AHU_Bacnet.TempETA',
-                                                     pyads.PLCTYPE_REAL)
-                        TempAHU = model.read_by_name('TempSensors.TempAHUReheaterTSetAir',
-                                                     pyads.PLCTYPE_REAL)
-                        TempCCA = model.read_by_name('TempSensors.TempCCAT_amb_mean',
-                                                     pyads.PLCTYPE_REAL)
-                        #TempRoom_1 = model.read_by_name('ZoneModules.RoomTemp_1',
-                         #                            pyads.PLCTYPE_REAL)
-                        #TempRoom_2 = model.read_by_name('ZoneModules.RoomTemp_2',
-                          #                           pyads.PLCTYPE_REAL)
-                        #TempRoomSet_1 = model.read_by_name('ZoneModules.RoomTempSet_1',
-                           #                          pyads.PLCTYPE_REAL)
-                        #TempRoomSet_2 = model.read_by_name('ZoneModules.RoomTempSet_2',
-                            #                         pyads.PLCTYPE_REAL)
-                        df_1 = pd.DataFrame(np.array([[TempODA,TempETA,TempAHU,
-                                                       TempCCA]]),
-                                          index=[time.time()],
-                                          columns=["TempODA","TempETA","TempAHU",
-                                                   "TempCCA"])
-                        df = df.append(df_1)
-                        df.to_csv(path_or_buf=Init.path_res + "\logs.csv")
+                        logger.df()
+                        logger.save_df()
                         
                         start = time.time()
                 else:
@@ -229,11 +215,11 @@ def main():
         
         except Exception as e:
             model.close()
-            df.to_csv(path_or_buf=Init.path_res + "\logs.csv")
+            logger.save_df()
             print(getattr(e, 'message', repr(e)))
     
     except KeyboardInterrupt:
-        df.to_csv(path_or_buf=Init.path_res + "\logs.csv")
+        logger.save_df()
         print('Interrupted')
             
 

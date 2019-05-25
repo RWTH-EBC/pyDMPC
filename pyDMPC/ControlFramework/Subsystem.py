@@ -15,43 +15,36 @@ gl_measurements_all =[]
 
 class Subsystem():
     
-    def __init__(self, name, position,no_parallel,holon,
-                 num_DVs,num_BCs, init_DecVars, sim_time,
-                 bounds_DVs,start_DVs,factor_DVs,
-                 model_path, names_BCs, variation,
-                 num_VarsOut, names_DVs,
-                 output_vars, initial_names, IDs_initial_values, IDs_initial_offsets,
-                 IDs_inputs,cost_par,cost_factor,model_type,pred_hor,ind_opt_inter,
-                 type_subSyst=None):
-        self._name = name
-        self._type_subSyst = type_subSyst
-        self._num_DVs = num_DVs
-        self._num_BCs = num_BCs
-        self.init_DecVars = init_DecVars
-        self.sim_time = sim_time
-        self.position = position
-        self.no_parallel = no_parallel
-        self.holon = holon
-        self.num_VarsOut = num_VarsOut
-        self._bounds_DVs = bounds_DVs
-        self.start_DVs = start_DVs
-        self.factor_DVs = factor_DVs
+    def __init__(self, i):
+        self._name = Init.name[i]
+        self._type_subSyst = Init.type_subSyst[i]
+        self._num_BCs = Init.num_BCs[i]
+        self.init_DecVars = Init.init_DecVars[i]
+        self.sim_time = Init.sim_time[i]
+        self.position = Init.position[i]
+        self.no_parallel = Init.no_parallel[i]
+        self.holon = Init.holon[i]
+        self.num_VarsOut = Init.num_VarsOut[i]
+        self._bounds_DVs = Init.bounds_DVs[i]
+        self.start_DVs = Init.start_DVs[i]
+        self.factor_DVs = Init.factor_DVs[i]
         self.values_BCs = None
-        self.variation = variation
+        self.variation = Init.variation[i]
         self.lookUpTables = None
-        self._model_path = model_path
-        self._names_BCs = names_BCs
-        self._cost_par = cost_par
-        self._cost_factor = cost_factor
-        self._names_DVs = names_DVs
-        self._output_vars = output_vars
-        self._initial_names = initial_names
-        self._IDs_initial_values = IDs_initial_values
-        self._IDs_initial_offsets = IDs_initial_offsets
-        self._IDs_inputs = IDs_inputs
-        self._model_type = model_type
-        self._pred_hor = pred_hor
-        self._ind_opt_inter = ind_opt_inter
+        self._model_path = Init.model_path[i]
+        self._names_BCs = Init.names_BCs[i]
+        self._cost_par = Init.cost_par[i]
+        self._cost_factor = Init.cost_factor[i]
+        self._names_DVs = Init.names_DVs[i]
+        self._num_DVs = len(self._names_DVs) if self._names_DVs is not None else 0
+        self._output_vars = Init.output_vars[i]
+        self._initial_names = Init.initial_names[i]
+        self._IDs_initial_values = Init.IDs_initial_values[i]
+        self._IDs_initial_offsets = Init.IDs_initial_offsets[i]
+        self._IDs_inputs = Init.IDs_inputs[i]
+        self._model_type = Init.model_type[i]
+        self._pred_hor = Init.pred_hor[i]
+        self._ind_opt_inter = Init.ind_opt_inter[i]
 
 
     def GetNeighbour(self, neighbour_name):

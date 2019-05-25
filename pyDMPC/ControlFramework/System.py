@@ -34,35 +34,7 @@ class System:
                 Init.names_BCs.insert(0, Init.names_BCs_global)
             if Init.output_vars_global is not None:
                 Init.output_vars.insert(0, Init.output_vars_global)
-            subsystems.append(SubSys.Subsystem(
-                Init.name[i],
-                Init.position[i],
-                Init.no_parallel[i],
-                Init.holon[i],
-                Init.num_DecVars[i],
-                Init.num_BCs[i],
-                Init.init_DecVars[i],
-                Init.sim_time[i],
-                Init.bounds_DVs[i],
-                Init.start_DVs[i],
-                Init.factor_DVs[i],
-                Init.model_path[i],
-                Init.names_BCs[i],
-                Init.variation[i],
-                Init.num_VarsOut[i],
-                Init.names_DVs[i],
-                Init.output_vars[i],
-                Init.initial_names[i],
-                Init.IDs_initial_values[i],
-                Init.IDs_initial_offsets[i],
-                Init.IDs_inputs[i],
-                Init.cost_par[i],
-                Init.cost_factor[i],
-                Init.model_type[i],
-                Init.pred_hor[i],
-                Init.ind_opt_inter[i],
-                Init.type_subSyst[i]
-                ))
+            subsystems.append(SubSys.Subsystem(i))
         subsystems.sort(key = lambda x: x.position)
         for i,subsys in enumerate(subsystems):
             if i != Init.amount_subsystems-1:
