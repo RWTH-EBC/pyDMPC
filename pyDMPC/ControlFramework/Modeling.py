@@ -38,6 +38,11 @@ class Paths:
         self.dym_path = Init.dym_path[sys_id]
         self.mod_path = Init.mod_path[sys_id]
 
+class Modifs:
+    def __init__(self, sys_id):
+        self.factors = Init.factors[sys_id]
+    
+
 class Model:
     
     def __init__(self, sys_id):
@@ -133,10 +138,11 @@ class ModelicaMod(Model):
         import os
         # Get the simulation result
         sim = SimRes(os.path.join(self.paths.res_path, 'dsres.mat'))
-
+        self.states.outputs = []
+        
         if self.states.output_names is not None:
             for i,out in enumerate(self.states.output_names):
-                self.states.outputs = sim[out].values()
+                self.states.outputs.append(sim[out].values())
                     
 class SciMod(Model):
     def __init__(self, sys_id):
@@ -155,12 +161,37 @@ class SciMod(Model):
         
         inputs = np.stack((commands + inputs), axis = 1)
         
-        print(inputs)
-        
         self.scal_inputs = self.scaler.transform(inputs)
         
     def predict(self):
         self.states.outputs = self.model.predict(self.scal_inputs)
+        
+class LinMod(Model):
+    
+    def __init__(self, sys_id):
+        super().__init__(sys_id)
+        self.modifs = Modifs(sys_id)
+        
+    def predict(self, start_val):
+        self.states.outputs = (start_val + 
+                               self.modifs.factors[0] * self.states.inputs[0] + 
+                               self.modifs.factors[1] * self.states.commands[0])
+        
+class FuzMod(Model):
+    
+    def __init__(self, sys_id):
+        super().__init__(sys_id)
+
+    def predict(self):
+        import functions.fuzzy as fuz
+        self.states.outputs = self.states.inputs[0]
+        self.states.set_points = fuz.control(self.states.inputs[0],
+                                             self.states.inputs[1])
+        
+        
+    
+    
+    
         
     
 
