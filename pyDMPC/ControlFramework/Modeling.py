@@ -8,6 +8,38 @@ Created on Sun May 26 10:16:05 2019
 import Init
 
 class States:
+    """This class holds all the states relevant for the models.
+
+    Parameters
+    ----------
+    sys_id: int
+        The unique identifier of a subsystem as specified in the Init
+
+    Attributes
+    ----------
+    inputs : list of floats
+        The inputs into a subsystem model
+    input_names : list of strings
+        The names of the inputs. These are the identifiers for logging and for
+        the Modelica models 
+    outputs : list of floats
+        The outputs of a subsystem model
+    output_names : list of strings
+        The names of the outputs. These are the identifiers for logging and for
+        the Modelica models
+    set_points : list of floats
+        The set points relevant to the subsystem
+    set_point_names : list of strings
+        The names of the set points. These are the identifiers for logging 
+    state_vars : list of floats
+        The state variables of a subsystem. 
+    state_var_names : list of strings
+        The names of the state variables. These are the identifiers for logging
+        and for the Modelica models
+    commands : list of floats
+    command_names : The names of the commands. These are the identifiers for 
+        logging and for the Modelica models
+    """
     
     def __init__(self, sys_id):
         self.inputs = []
