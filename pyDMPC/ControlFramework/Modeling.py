@@ -125,6 +125,7 @@ class ModelicaMod(Model):
 
     def translate(self):
         ModelicaMod.dymola.cd(self.paths.res_path)
+        print(self.paths.res_path)
         check = ModelicaMod.dymola.translateModel(self.paths.mod_path)
         print("Translation successful " + str(check))
         

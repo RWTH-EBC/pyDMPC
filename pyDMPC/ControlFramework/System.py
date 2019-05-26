@@ -2,46 +2,66 @@
 # System class that can generate subsystem agents
 ##################################################################
 
-import Subsystem as SubSys
+import Subsystem
+import ControlledSystem
+import Modeling
 import Init
 
 class System:
 
+    contr_sys = None
+    contr_sys_typ = Init.contr_sys_typ
+    
     def __init__(self):
-        self._name = Init.name_system
-        self._measurements_IDs = Init.measurements_IDs
-        self._amount_consumer = Init.amount_consumer
-        self._amount_generator = Init.amount_generator
-        self._algorithm = Init.algorithm
-        self._obj_function = Init.obj_function
+        self.prep_mod()
+        self.amo_subsys = len(Init.sys_id)
+        self.subsystems = self.gen_subsys()
+        
 
-
-    def GenerateSubSys(self):
+    def gen_subsys(self):
         subsystems = []
-        num_SubSys = Init.amount_consumer+Init.amount_generator
-        for i in range(0,(num_SubSys)):
-            if Init.sim_time_global is not None:
-                Init.sim_time.insert(0, Init.sim_time_global)
-            if Init.init_DecVars_global is not None:
-                Init.init_DecVars.insert(0, Init.init_DecVars_global)
-            if Init.num_BCs_global is not None:
-                Init.num_BCs.insert(0, Init.num_BCs_global)
-            if Init.num_VarsOut_global is not None:
-                Init.num_VarsOut.insert(0, Init.num_VarsOut_global)
-            if Init.bounds_DVs_global is not None:
-                Init.bounds_DVs.insert(0, Init.bounds_DVs_global)
-            if Init.names_BCs_global is not None:
-                Init.names_BCs.insert(0, Init.names_BCs_global)
-            if Init.output_vars_global is not None:
-                Init.output_vars.insert(0, Init.output_vars_global)
-            subsystems.append(SubSys.Subsystem(i))
-        subsystems.sort(key = lambda x: x.position)
-        for i,subsys in enumerate(subsystems):
-            if i != Init.amount_subsystems-1:
-                neighbour_name = subsystems[subsys.position+subsys.holon]._name
-            else:
-                neighbour_name = None
-            subsystems[i].GetNeighbour(neighbour_name)
-            print("System: " + str(subsystems[i]._name) + ", Neighbor: " + str(neighbour_name))
-
+        
+        for i in range(self.amo_subsys):
+            subsystems.append(Subsystem.Subsystem(i))
+            
         return subsystems
+    
+    def prep_mod(self):
+        
+        for i,typ in enumerate(Init.model_type):
+            if typ == "Modelica": 
+                Modeling.ModelicaMod.make_dymola()
+                print('Dymola established')
+                break
+            
+    def close_mod(self):
+        
+        for i,typ in enumerate(Init.model_type):
+            if typ == "Modelica": 
+                Modeling.ModelicaMod.del_dymola()
+                break
+    
+    @classmethod
+    def prep_cont_sys(cls):
+        if cls.contr_sys_typ == "PLC":
+            cls.contr_sys = ControlledSystem.PLCSys()
+        elif cls.contr_sys_typ == "Modelica":
+            cls.contr_sys = ControlledSystem.ModelicaSys()
+            
+    @classmethod
+    def close_cont_sys(cls):
+        if cls.contr_sys_typ == "PLC":
+            cls.contr_sys.close()
+    
+    @classmethod
+    def read_cont_sys(cls, datapoint):
+        return cls.contr_sys.read(datapoint)
+    
+    @classmethod
+    def write_cont_sys(cls, datapoint, value):
+        return cls.contr_sys.write(datapoint, value)
+    
+    @classmethod
+    def proceed(cls, cur_time, incr):
+        if cls.contr_sys_typ == "Modelica":
+            cls.contr_sys.proceed(cur_time, incr)
