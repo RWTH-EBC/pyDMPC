@@ -65,3 +65,21 @@ class System:
     def proceed(cls, cur_time, incr):
         if cls.contr_sys_typ == "Modelica":
             cls.contr_sys.proceed(cur_time, incr)
+            
+    def broadcast(self, subsystem = None):
+        if subsystem is None:
+            subsystem = self.subsystems
+            
+        for i,sub in enumerate(subsystem):
+            if sub.ups_neigh is not None:
+                self.subsystems[sub.ups_neigh].cost_rec = (
+                        sub.cost_send)
+            if sub.downs_neigh is not None:
+                self.subsystems[sub.downs_neigh].coup_vars_rec = (
+                        sub.coup_vars_send)
+
+            
+    def bexmoc(self):
+        for i,sub in enumerate(self.subsystems):
+            sub.optimize()
+            self.broadcast([sub])

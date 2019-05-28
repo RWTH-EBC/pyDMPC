@@ -10,6 +10,9 @@ import time
 timestr = time.strftime("%Y%m%d_%H%M%S")
 wkdir = r'pyDMPC_' + 'wkdir' + timestr
 
+# Algorithm
+alg_typ = "BExMoC"
+
 # Controlled system
 contr_sys_typ = "Modelica"
 ads_id = '5.59.199.202.1.1'
@@ -42,19 +45,29 @@ command_names = []
 
 # Modifiers
 factors = []
+cost_fac = []
 
+# Variation
+min_var = []
+max_var = []
+inc_var = []
+
+# Subsystem Config
 model_type = []
 sys_id = []
+ups_neigh = []
+downs_neigh = []
 
 # Subsystems
 sys_id.append(0)
 model_type.append("Modelica")
+ups_neigh.append(1)
+downs_neigh.append(None)
 inputs.append(None)
 input_names.append(None)
 output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
-#state_var_names.append([r"heatCapacitor.T.start"])
 state_var_names.append(None)
 start.append(0.)
 stop.append(7200.)
@@ -67,12 +80,18 @@ dym_path.append(glob_dym_path)
 mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.test_model')
 command_names.append(None)
 factors.append(None)
+min_var.append(10)
+max_var.append(12)
+inc_var.append(1)
+cost_fac.append([0.5, 0.5, 0.5])
 
 sys_id.append(1)
-model_type.append("Scikit")
+model_type.append("Modelica")
+ups_neigh.append(None)
+downs_neigh.append(0)
 inputs.append(None)
 input_names.append(None)
-output_names.append(None)
+output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
 state_var_names.append(None)
@@ -84,46 +103,10 @@ samp_time.append(60)
 lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path)
 dym_path.append(glob_dym_path)
-mod_path.append(r'C:\TEMP\Dymola\heater')
+mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.test_model')
 command_names.append(None)
 factors.append(None)
-
-sys_id.append(2)
-model_type.append("Linear")
-inputs.append(None)
-input_names.append(None)
-output_names.append(None)
-set_points.append(None)
-set_point_names.append(None)
-state_var_names.append(None)
-start.append(0.)
-stop.append(7200.)
-incr.append(10.)
-opt_time.append(600)
-samp_time.append(60)
-lib_paths.append(glob_lib_paths)
-res_path.append(glob_res_path)
-dym_path.append(glob_dym_path)
-mod_path.append(None)
-command_names.append(None)
-factors.append([1,0.1])
-
-sys_id.append(3)
-model_type.append("Fuzzy")
-inputs.append(None)
-input_names.append(None)
-output_names.append(None)
-set_points.append(None)
-set_point_names.append(None)
-state_var_names.append(None)
-start.append(0.)
-stop.append(7200.)
-incr.append(10.)
-opt_time.append(600)
-samp_time.append(60)
-lib_paths.append(glob_lib_paths)
-res_path.append(glob_res_path)
-dym_path.append(glob_dym_path)
-mod_path.append(None)
-command_names.append(None)
-factors.append([1,0.1])
+min_var.append(10)
+max_var.append(12)
+inc_var.append(1)
+cost_fac.append([0.5, 0.5, 0.5])

@@ -176,6 +176,10 @@ class ModelicaMod(Model):
         if self.states.output_names is not None:
             for i,out in enumerate(self.states.output_names):
                 self.states.outputs.append(sim[out].values())
+    
+    def predict(self):
+        self.simulate()
+        self.get_outputs()
                     
 class SciMod(Model):
     def __init__(self, sys_id):
@@ -197,6 +201,7 @@ class SciMod(Model):
         self.scal_inputs = self.scaler.transform(inputs)
         
     def predict(self):
+        self.write_inputs()
         self.states.outputs = self.model.predict(self.scal_inputs)
         
 class LinMod(Model):

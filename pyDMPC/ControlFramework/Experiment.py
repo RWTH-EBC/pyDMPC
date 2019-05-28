@@ -11,13 +11,7 @@ def main():
 
     hall = System.System()
     
-    try:
-
-        hall.prep_cont_sys()
-
-    except:
-        hall.close_mod()
-        hall.close_cont_sys()
+    hall.bexmoc()
         
     hall.close_mod()
     hall.close_cont_sys()
