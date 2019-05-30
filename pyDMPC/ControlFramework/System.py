@@ -1,13 +1,25 @@
-##################################################################
-# System class that can generate subsystem agents
-##################################################################
-
 import Subsystem
 import ControlledSystem
 import Modeling
 import Init
+import Time
 
 class System:
+    """This class represents the overall control system that creates the agents
+    that are assigned to the subsystems.
+
+    Parameters
+    ----------
+
+    Attributes
+    ----------
+    subsystems : Subsystem objects
+        The subsystem control agents
+    
+    amo_subsys : int
+        The total amount of subsystems
+    
+    """
 
     contr_sys = None
     contr_sys_typ = Init.contr_sys_typ
@@ -16,7 +28,17 @@ class System:
         self.prep_mod()
         self.amo_subsys = len(Init.sys_id)
         self.subsystems = self.gen_subsys()
+        self.sys_time = Time.Time()
+        self.prep_wkdir()
         
+    def set_time(self):
+        Time.Time.set_time()
+        
+    def prep_wkdir(self):
+        import os
+        os.chdir(Init.glob_res_path)
+        os.mkdir(str(Init.name_wkdir))
+        os.chdir(str(Init.name_wkdir))
 
     def gen_subsys(self):
         subsystems = []
@@ -40,6 +62,23 @@ class System:
             if typ == "Modelica": 
                 Modeling.ModelicaMod.del_dymola()
                 break
+            
+    def find_times(self):
+        """ This method finds the minimum sample rate and the minimum 
+        optimization interval of all subsystems """
+        
+        opt_inter = []
+        samp_inter = []
+        
+        for i,sub in enumerate(self.subsystems):
+            opt_inter.append(sub.model.times.opt_time)
+            samp_inter.append(sub.model.times.samp_time)
+            
+        min_opt_inter = min(opt_inter)
+        min_samp_inter = min(samp_inter)
+        
+        return [min_opt_inter, min_samp_inter]
+        
     
     @classmethod
     def prep_cont_sys(cls):
@@ -78,8 +117,31 @@ class System:
                 self.subsystems[sub.downs_neigh].coup_vars_rec = (
                         sub.coup_vars_send)
 
-            
-    def bexmoc(self):
+        
+class Bexmoc(System):
+    
+    def __init__(self):
+        super().__init__()
+        
+    def initialize(self):
         for i,sub in enumerate(self.subsystems):
+            if Bexmoc.contr_sys_typ == "Modelica":
+                Time.Time.set_time(20)
+                sub.get_inputs()
+
+
+    def execute(self):
+        
+        for i,sub in enumerate(self.subsystems):
+            sub.get_state_vars()
             sub.optimize()
             self.broadcast([sub])
+        
+        for i,sub in enumerate(self.subsystems):
+            sub.get_inputs()
+            sub.interp(iter_real = "real")
+            sub.send_commands()
+            
+        if Bexmoc.contr_sys_typ == "Modelica":
+            Bexmoc.proceed()
+            

@@ -8,7 +8,7 @@ glob_dym_path = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_inte
 # Working directory
 import time
 timestr = time.strftime("%Y%m%d_%H%M%S")
-wkdir = r'pyDMPC_' + 'wkdir' + timestr
+name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 
 # Algorithm
 alg_typ = "BExMoC"
@@ -17,9 +17,10 @@ alg_typ = "BExMoC"
 contr_sys_typ = "Modelica"
 ads_id = '5.59.199.202.1.1'
 ads_port = 851
-name_fmu = 'ModelicaModels_ControlledSystems_TestHall.fmu'
+name_fmu = 'pyDMPCFMU.fmu'
 orig_fmu_path = glob_res_path + '\\' + name_fmu
-dest_fmu_path = glob_res_path + '\\' + wkdir + '\\' + name_fmu
+dest_fmu_path = glob_res_path + '\\' + name_wkdir + '\\' + name_fmu
+time_incr = 10
 
 # States
 inputs = []
@@ -63,8 +64,7 @@ sys_id.append(0)
 model_type.append("Modelica")
 ups_neigh.append(1)
 downs_neigh.append(None)
-inputs.append(None)
-input_names.append(None)
+input_names.append(["AHUTemperature"])
 output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
@@ -73,7 +73,7 @@ start.append(0.)
 stop.append(7200.)
 incr.append(10.)
 opt_time.append(600)
-samp_time.append(60)
+samp_time.append(10)
 lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path)
 dym_path.append(glob_dym_path)
@@ -89,8 +89,7 @@ sys_id.append(1)
 model_type.append("Modelica")
 ups_neigh.append(None)
 downs_neigh.append(0)
-inputs.append(None)
-input_names.append(None)
+input_names.append((["AHUTemperature"]))
 output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
@@ -99,7 +98,7 @@ start.append(0.)
 stop.append(7200.)
 incr.append(10.)
 opt_time.append(600)
-samp_time.append(60)
+samp_time.append(10)
 lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path)
 dym_path.append(glob_dym_path)
