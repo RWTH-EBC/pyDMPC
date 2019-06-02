@@ -91,6 +91,8 @@ class System:
     def close_cont_sys(cls):
         if cls.contr_sys_typ == "PLC":
             cls.contr_sys.close()
+        if cls.contr_sys_typ == "Modelica":
+            cls.contr_sys.close()
     
     @classmethod
     def read_cont_sys(cls, datapoint):
@@ -126,9 +128,10 @@ class Bexmoc(System):
     def initialize(self):
         for i,sub in enumerate(self.subsystems):
             if Bexmoc.contr_sys_typ == "Modelica":
+                Bexmoc.proceed(0, 20)
                 Time.Time.set_time(20)
                 sub.get_inputs()
-
+                
 
     def execute(self):
         
@@ -143,5 +146,12 @@ class Bexmoc(System):
             sub.send_commands()
             
         if Bexmoc.contr_sys_typ == "Modelica":
-            Bexmoc.proceed()
+            cur_time = Time.Time.get_time()
+            
+            Bexmoc.proceed(cur_time, Time.Time.time_incr)
+            Time.Time.set_time()
+            
+    def terminate(self):
+        Bexmoc.close_cont_sys()
+        
             

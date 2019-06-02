@@ -135,44 +135,40 @@ class Subsystem:
         else:
             inp = self.model.states.inputs
         
-        print(inp)
-        self.fin_command = self.command_send(inp[0])
-        self.fin_coup_vars = self.coup_vars_send(inp[0])
+        if self.command_send != []:
+            self.fin_command = self.command_send(inp[0])
+            print(self.fin_command)
+        if self.coup_vars_send != []:
+            self.fin_coup_vars = self.coup_vars_send(inp[0])
+            
         
                 
     def get_inputs(self):
         
         cur_time = Time.Time.get_time()
         print(cur_time)
-        print(cur_time - self.last_read)
         print(self.model.times.samp_time)
         
-        if (cur_time - self.last_read) > self.model.times.samp_time:
-            self.last_read = cur_time
-            
-            self.model.states.inputs = []
-            print(self.model.states.input_names)
-        
-            if self.model.states.input_names is not None:
-                for nam in self.model.states.input_names:
-                    print("check")
-                    self.model.states.inputs.append(
-                            System.Bexmoc.read_cont_sys(nam))
-                    print(self.model.states.inputs)
+        self.model.states.inputs = []
+        print(self.model.states.input_names)
+    
+        if self.model.states.input_names is not None:
+            for nam in self.model.states.input_names:
+                print("check")
+                self.model.states.inputs.append(
+                        System.Bexmoc.read_cont_sys(nam))
+                print("Inputs" + str(self.model.states.inputs))
     
     def get_state_vars(self):
         
         cur_time = Time.Time.get_time()
         
-        if (cur_time - self.last_read) > self.model.times.samp_time:
-            self.last_read = cur_time
-            
-            self.model.states.state_vars = []
-            
-            if self.model.states.state_var_names is not None:
-                for nam in self.model.states.state_var_names:
-                    self.model.states.state_vars.append(
-                            System.Bexmoc.read_cont_sys(nam))
+        self.model.states.state_vars = []
+        
+        if self.model.states.state_var_names is not None:
+            for nam in self.model.states.state_var_names:
+                self.model.states.state_vars.append(
+                        System.Bexmoc.read_cont_sys(nam))
             
     def send_commands(self):
         

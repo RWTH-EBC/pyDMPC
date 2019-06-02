@@ -20,7 +20,7 @@ ads_port = 851
 name_fmu = 'pyDMPCFMU.fmu'
 orig_fmu_path = glob_res_path + '\\' + name_fmu
 dest_fmu_path = glob_res_path + '\\' + name_wkdir + '\\' + name_fmu
-time_incr = 10
+time_incr = 120
 
 # States
 inputs = []
@@ -64,7 +64,7 @@ sys_id.append(0)
 model_type.append("Modelica")
 ups_neigh.append(1)
 downs_neigh.append(None)
-input_names.append(["AHUTemperature"])
+input_names.append(["preHeaterReturnTemperatureOutput"])
 output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
@@ -89,7 +89,7 @@ sys_id.append(1)
 model_type.append("Modelica")
 ups_neigh.append(None)
 downs_neigh.append(0)
-input_names.append((["AHUTemperature"]))
+input_names.append((["preHeaterReturnTemperatureOutput"]))
 output_names.append(["heatCapacitor.port.T"])
 set_points.append(None)
 set_point_names.append(None)
