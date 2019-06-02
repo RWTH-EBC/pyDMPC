@@ -32,6 +32,7 @@ class Subsystem:
     def __init__(self, sys_id):
         self.sys_id = sys_id
         print(sys_id)
+        self.name = Init.name[sys_id]
         self.model_type = Init.model_type[sys_id]
         self.model = self.prepare_model()
         self.ups_neigh = Init.ups_neigh[sys_id]
@@ -69,7 +70,7 @@ class Subsystem:
             for i,nam in enumerate(self.model.states.state_var_names):
                 state_vars.append(System.System.read_cont_sys(nam))
             
-        self.model.states.inputs = inputs
+        self.model.states.inputs = [inputs]
         self.model.states.state_vars = state_vars
         self.model.states.commands = commands
         
@@ -106,8 +107,15 @@ class Subsystem:
                 min_ind = costs.index(min(costs))
                 
                 opt_costs.append(costs[min_ind])
-                opt_outputs.append(outputs[min_ind])
+                temp = outputs[min_ind]
+                opt_outputs.append(temp[0][-1])
                 opt_command.append(command[min_ind])
+                
+            print(inputs)
+            print(opt_costs)
+            print(opt_outputs)
+            print(opt_command)
+            
                 
             self.cost_send = it.interp1d(inputs, opt_costs, 
                                        fill_value = "extrapolate")

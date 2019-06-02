@@ -15,6 +15,7 @@ def main():
     # Generate a system for the experiment
     Time.Time.contr_sys_type = "Modelica"
     hall = System.Bexmoc()
+
     System.Bexmoc.prep_cont_sys()
     
     # Minimum sample interval in seconds

@@ -25,26 +25,31 @@ class System:
     contr_sys_typ = Init.contr_sys_typ
     
     def __init__(self):
+        self.wkdir = Init.glob_res_path + "\\" + Init.name_wkdir
         self.prep_mod()
+        self.prep_wkdir()
         self.amo_subsys = len(Init.sys_id)
         self.subsystems = self.gen_subsys()
         self.sys_time = Time.Time()
-        self.prep_wkdir()
+
         
     def set_time(self):
         Time.Time.set_time()
         
     def prep_wkdir(self):
         import os
-        os.chdir(Init.glob_res_path)
-        os.mkdir(str(Init.name_wkdir))
-        os.chdir(str(Init.name_wkdir))
+        os.mkdir(self.wkdir)
+        os.chdir(self.wkdir)
 
     def gen_subsys(self):
+        import os
         subsystems = []
         
         for i in range(self.amo_subsys):
             subsystems.append(Subsystem.Subsystem(i))
+            
+        for sys in subsystems:
+            os.mkdir(self.wkdir + "\\" + sys.name)
             
         return subsystems
     
@@ -128,8 +133,6 @@ class Bexmoc(System):
     def initialize(self):
         for i,sub in enumerate(self.subsystems):
             if Bexmoc.contr_sys_typ == "Modelica":
-                Bexmoc.proceed(0, 20)
-                Time.Time.set_time(20)
                 sub.get_inputs()
                 
 

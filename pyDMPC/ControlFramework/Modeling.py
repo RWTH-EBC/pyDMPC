@@ -66,7 +66,7 @@ class Paths:
     
     def __init__(self, sys_id):
         self.lib_paths = Init.lib_paths[sys_id]
-        self.res_path = Init.res_path[sys_id]
+        self.res_path = Init.res_path[sys_id] + "\\" + Init.name[sys_id]
         self.dym_path = Init.dym_path[sys_id]
         self.mod_path = Init.mod_path[sys_id]
 
@@ -133,29 +133,17 @@ class ModelicaMod(Model):
         ModelicaMod.dymola.cd(self.paths.res_path)
         for k in range(3):
             try:
-                if self.states.state_var_names is None:
-                        print(ModelicaMod.dymola.simulateExtendedModel(
-                        problem=self.paths.mod_path,
-                        startTime=self.times.start,
-                        stopTime=self.times.stop,
-                        outputInterval=self.times.incr,
-                        method="Dassl",
-                        tolerance=0.001,
-                        resultFile= self.paths.res_path  + r'\dsres',
-                        finalNames = self.states.output_names))
-
-                else:
-                    print(ModelicaMod.dymola.simulateExtendedModel(
-                        problem=self.paths.mod_path,
-                        startTime=self.times.start,
-                        stopTime=self.times.stop,
-                        outputInterval=self.times.incr,
-                        method="Dassl",
-                        tolerance=0.001,
-                        resultFile= self.paths.res_path + r'\dsres',
-                        finalNames = self.states.output_names,
-                        initialNames = self.states.state_var_names,
-                        initialValues = self.states.state_vars))
+                print(ModelicaMod.dymola.simulateExtendedModel(
+                    problem=self.paths.mod_path,
+                    startTime=self.times.start,
+                    stopTime=self.times.stop,
+                    outputInterval=self.times.incr,
+                    method="Dassl",
+                    tolerance=0.001,
+                    resultFile= self.paths.res_path + r'\dsres',
+                    finalNames = self.states.output_names,
+                    initialNames = self.states.state_var_names,
+                    initialValues = self.states.state_vars))
 
                 print("Simulation successful")
                 break

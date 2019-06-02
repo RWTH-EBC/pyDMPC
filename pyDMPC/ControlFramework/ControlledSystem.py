@@ -72,9 +72,11 @@ class ModelicaSys:
         self.contr_sys.exitInitializationMode()
 
     def read(self, datapoint):
-        import numpy as np
+        #import numpy as np
         name = self.vrs[datapoint]
-        return np.asscalar(self.contr_sys.getReal([name]))
+        value = self.contr_sys.getReal([name])
+        print(value)
+        return value
 
     def write(self, datapoint, value):
         name = self.vrs[datapoint]

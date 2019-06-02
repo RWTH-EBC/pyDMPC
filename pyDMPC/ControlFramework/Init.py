@@ -17,7 +17,7 @@ alg_typ = "BExMoC"
 contr_sys_typ = "Modelica"
 ads_id = '5.59.199.202.1.1'
 ads_port = 851
-name_fmu = 'pyDMPCFMU.fmu'
+name_fmu = 'pyDMPCFMU_Geo.fmu'
 orig_fmu_path = glob_res_path + '\\' + name_fmu
 dest_fmu_path = glob_res_path + '\\' + name_wkdir + '\\' + name_fmu
 time_incr = 120
@@ -55,17 +55,19 @@ inc_var = []
 
 # Subsystem Config
 model_type = []
+name = []
 sys_id = []
 ups_neigh = []
 downs_neigh = []
 
 # Subsystems
 sys_id.append(0)
+name.append("Building")
 model_type.append("Modelica")
 ups_neigh.append(1)
 downs_neigh.append(None)
-input_names.append(["preHeaterReturnTemperatureOutput"])
-output_names.append(["heatCapacitor.port.T"])
+input_names.append(["fieldTemperature"])
+output_names.append(["returnTemperature"])
 set_points.append(None)
 set_point_names.append(None)
 state_var_names.append(None)
@@ -75,9 +77,9 @@ incr.append(10.)
 opt_time.append(600)
 samp_time.append(10)
 lib_paths.append(glob_lib_paths)
-res_path.append(glob_res_path)
+res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
-mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.test_model')
+mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Building')
 command_names.append(None)
 factors.append(None)
 min_var.append(10)
@@ -86,11 +88,12 @@ inc_var.append(1)
 cost_fac.append([0.5, 0.5, 0.5])
 
 sys_id.append(1)
+name.append("Field")
 model_type.append("Modelica")
 ups_neigh.append(None)
 downs_neigh.append(0)
-input_names.append((["preHeaterReturnTemperatureOutput"]))
-output_names.append(["heatCapacitor.port.T"])
+input_names.append((["fieldTemperature_in"]))
+output_names.append(["returnTemperature.T"])
 set_points.append(None)
 set_point_names.append(None)
 state_var_names.append(None)
@@ -100,9 +103,9 @@ incr.append(10.)
 opt_time.append(600)
 samp_time.append(10)
 lib_paths.append(glob_lib_paths)
-res_path.append(glob_res_path)
+res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
-mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.test_model')
+mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field_new')
 command_names.append(None)
 factors.append(None)
 min_var.append(10)
