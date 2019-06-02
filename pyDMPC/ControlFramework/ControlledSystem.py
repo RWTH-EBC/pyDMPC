@@ -8,9 +8,7 @@ Created on Sun May 26 21:12:29 2019
 import Init
 
 class PLCSys:
-    
 
-    
     def __init__(self):
         import pyads
         self.plc_typ = pyads.PLCTYPE_REAL
@@ -42,18 +40,54 @@ class ModelicaSys:
     def get_fmu(self):
         
         import shutil
-        from pyfmi import load_fmu
+        from fmpy import read_model_description, extract
+        from fmpy.fmi2 import FMU2Slave
         
         shutil.copyfile(self.orig_fmu_path, self.dest_fmu_path)
-        self.contr_sys = load_fmu(self.dest_fmu_path)
-        self.contr_sys.initialize()
+        
+        # read the model description
+        self.model_description = read_model_description(self.dest_fmu_path)
+
+        # collect the value references
+        self.vrs = {}
+        for variable in self.model_description.modelVariables:
+            self.vrs[variable.name] = variable.valueReference
+        
+        print(variable)
+            
+        # extract the FMU
+        self.unzipdir = extract(self.dest_fmu_path)
+
+        self.contr_sys = FMU2Slave(guid=self.model_description.guid,
+                unzipDirectory=self.unzipdir,
+                modelIdentifier=
+                self.model_description.coSimulation.modelIdentifier,
+                instanceName='instance1')
+        
+        print(self.contr_sys)
+            
+        self.contr_sys.instantiate()
+        self.contr_sys.setupExperiment(startTime=0.0)
+        self.contr_sys.enterInitializationMode()
+        self.contr_sys.exitInitializationMode()
 
     def read(self, datapoint):
         import numpy as np
-        return np.asscalar(self.contr_sys.get(datapoint))
+        name = self.vrs[datapoint]
+        return np.asscalar(self.contr_sys.getReal([name]))
 
     def write(self, datapoint, value):
-        self.contr_sys.set(datapoint, value)
+        name = self.vrs[datapoint]
+        self.contr_sys.setReal([name], [value])
 
     def proceed(self, cur_time, incr):
-        self.contr_sys.do_step(cur_time, incr)
+        print("Time: " + str(cur_time))
+        print("Increment: " + str(incr))
+        self.contr_sys.doStep(currentCommunicationPoint = cur_time, 
+                               communicationStepSize = incr)
+        
+    def close(self):
+        import shutil
+        self.contr_sys.terminate()
+        self.contr_sys.freeInstance()
+        shutil.rmtree(self.unzipdir)
