@@ -185,7 +185,7 @@ model SimpleModelGeo "extends Modelica.Icons.Example;extends ModelicaModels.Base
         extent={{-6,-6},{6,6}},
         rotation=90,
         origin={-88,-48})));
-  Modelica.Blocks.Math.Gain maxHeatFlowRate(k=0.02) "Convert from percent"
+  Modelica.Blocks.Math.Gain maxHeatFlowRate(k=0.01) "Convert from percent"
     annotation (Placement(transformation(
         extent={{-6,-6},{6,6}},
         rotation=270,
