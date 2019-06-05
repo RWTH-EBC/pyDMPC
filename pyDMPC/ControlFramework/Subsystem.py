@@ -88,7 +88,7 @@ class Subsystem:
             
             inputs = range(self.vars.min_var, self.vars.max_var, 
                            self.vars.inc_var)
-            command = range(0,10,5)
+            command = range(0,100,5)
             
             opt_costs = []
             opt_outputs =  []

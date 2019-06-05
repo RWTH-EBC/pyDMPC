@@ -72,7 +72,6 @@ class ModelicaSys:
         self.contr_sys.exitInitializationMode()
 
     def read(self, datapoint):
-        #import numpy as np
         name = self.vrs[datapoint]
         value = self.contr_sys.getReal([name])
         print(value)

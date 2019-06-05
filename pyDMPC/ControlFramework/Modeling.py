@@ -142,8 +142,10 @@ class ModelicaMod(Model):
                     tolerance=0.001,
                     resultFile= self.paths.res_path + r'\dsres',
                     finalNames = self.states.output_names,
-                    initialNames = self.states.state_var_names,
-                    initialValues = self.states.state_vars))
+                    initialNames = (self.states.state_var_names + 
+                        ["variation.table[1,2]"]),
+                    initialValues = (self.states.state_vars + 
+                         self.states.inputs)))
 
                 print("Simulation successful")
                 break
