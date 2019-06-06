@@ -25,6 +25,8 @@ time_incr = 120
 # States
 inputs = []
 input_names = []
+input_variables = []
+commands = []
 output_names = []
 set_points = []
 set_point_names = []
@@ -60,7 +62,6 @@ sys_id = []
 ups_neigh = []
 downs_neigh = []
 
-# Subsystems
 sys_id.append(0)
 name.append("Building")
 model_type.append("Modelica")
@@ -81,12 +82,13 @@ res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
 mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Building')
 command_names.append(None)
+commands.append(range(0,10,5))
 factors.append(None)
-min_var.append(298)
-max_var.append(300)
-inc_var.append(1)
+input_variables.append([r"variation.table[1,2]"])   # ["variation.table[1,2]"]
+inputs.append(range(298,300,1))
 cost_fac.append([0.5, 0.5, 0.5])
 
+# Subsystems
 sys_id.append(1)
 name.append("Field")
 model_type.append("Modelica")
@@ -108,7 +110,8 @@ dym_path.append(glob_dym_path)
 mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field')
 command_names.append(None)
 factors.append(None)
-min_var.append(298)
-max_var.append(300)
-inc_var.append(1)
+commands.append(range(0,100,5))
+input_variables.append(["external"])
+inputs.append([])
 cost_fac.append([0.5, 0.5, 0.5])
+

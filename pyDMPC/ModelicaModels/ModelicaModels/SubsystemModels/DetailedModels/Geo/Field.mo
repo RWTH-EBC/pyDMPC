@@ -2,7 +2,11 @@ within ModelicaModels.SubsystemModels.DetailedModels.Geo;
 model Field "Simplified model of geothermal field"
 
   extends
-    ModelicaModels.SubsystemModels.DetailedModels.Geo.GeoCommunicationBaseClass;
+    ModelicaModels.SubsystemModels.DetailedModels.Geo.GeoCommunicationBaseClass(variation(
+        extrapolation=Modelica.Blocks.Types.Extrapolation.Periodic, table=[0,
+          10000; 2635200,12000; 5270400,9000; 7905600,3000; 10540800,-5000;
+          13176000,-12000; 15811200,-12000; 18446400,-13000; 21081600,-5000;
+          23716800,4000; 26352000,8000; 28987200,12000]));
 
   extends ModelicaModels.Subsystems.Geo.BaseClasses.FieldBaseClass;
 

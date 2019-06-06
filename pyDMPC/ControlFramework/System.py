@@ -120,9 +120,11 @@ class System:
             if sub.ups_neigh is not None:
                 self.subsystems[sub.ups_neigh].cost_rec = (
                         sub.cost_send)
+                print("Broadcast" + str(sub.cost_send))
             if sub.downs_neigh is not None:
                 self.subsystems[sub.downs_neigh].coup_vars_rec = (
                         sub.coup_vars_send)
+                print("Broadcast" + str(sub.coup_vars_send))
 
         
 class Bexmoc(System):

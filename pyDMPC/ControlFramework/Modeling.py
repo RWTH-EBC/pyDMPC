@@ -44,12 +44,14 @@ class States:
     def __init__(self, sys_id):
         self.inputs = []
         self.input_names = Init.input_names[sys_id]
+        self.input_variables = Init.input_variables[sys_id]
         self.outputs = []
         self.output_names = Init.output_names[sys_id]
         self.set_points = Init.set_points[sys_id]
         self.set_point_names = Init.set_point_names[sys_id]
         self.state_vars = []
         self.state_var_names = Init.state_var_names[sys_id]
+        print("init: " + str(self.state_var_names))
         self.commands = []
         self.command_names = Init.command_names[sys_id]
 
@@ -131,6 +133,17 @@ class ModelicaMod(Model):
         
     def simulate(self):
         ModelicaMod.dymola.cd(self.paths.res_path)
+        
+        if self.states.input_variables[0] == "external":
+            initialNames = self.states.state_var_names
+            initialValues = self.states.state_vars
+        else:
+            initialValues = self.states.state_vars + self.states.inputs
+            initialNames = self.states.state_var_names + self.states.input_variables
+
+            
+        print(initialNames)
+        print(initialValues)
         for k in range(3):
             try:
                 print(ModelicaMod.dymola.simulateExtendedModel(
@@ -142,10 +155,8 @@ class ModelicaMod(Model):
                     tolerance=0.001,
                     resultFile= self.paths.res_path + r'\dsres',
                     finalNames = self.states.output_names,
-                    initialNames = (self.states.state_var_names + 
-                        ["variation.table[1,2]"]),
-                    initialValues = (self.states.state_vars + 
-                         self.states.inputs)))
+                    initialNames = initialNames,
+                    initialValues = initialValues))
 
                 print("Simulation successful")
                 break
