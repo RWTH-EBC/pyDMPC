@@ -27,10 +27,12 @@ inputs = []
 input_names = []
 input_variables = []
 commands = []
+command_variables = []
 output_names = []
 set_points = []
 set_point_names = []
 state_var_names = []
+model_state_var_names = []
 
 # Times
 start = []
@@ -62,7 +64,36 @@ sys_id = []
 ups_neigh = []
 downs_neigh = []
 
+# Subsystems
 sys_id.append(0)
+name.append("Field")
+model_type.append("Modelica")
+ups_neigh.append(None)
+downs_neigh.append(0)
+input_names.append((["returnTemperature.T"]))
+output_names.append(["returnTemperature.T"])
+set_points.append([283])
+set_point_names.append(None)
+state_var_names.append([])
+model_state_var_names.append([])
+start.append(0.)
+stop.append(3600.0*24*365.25*3)
+incr.append(3600.)
+opt_time.append(600)
+samp_time.append(10)
+lib_paths.append(glob_lib_paths)
+res_path.append(glob_res_path + "\\" + name_wkdir)
+dym_path.append(glob_dym_path)
+mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field')
+command_names.append(["heatShare"])
+command_variables.append(["decisionVariables.table[1,2]"])
+factors.append(None)
+commands.append(range(0,105,5))
+input_variables.append(["external"])
+inputs.append([])
+cost_fac.append([0.5, 0.5, 0.5])
+
+sys_id.append(1)
 name.append("Building")
 model_type.append("Modelica")
 ups_neigh.append(1)
@@ -71,7 +102,8 @@ input_names.append(["supplyTemperature.T"])
 output_names.append(["returnTemperature"])
 set_points.append(None)
 set_point_names.append(None)
-state_var_names.append([])
+state_var_names.append(["sine.y"])
+model_state_var_names.append(["const.k"])
 start.append(0.)
 stop.append(7200.)
 incr.append(10.)
@@ -81,37 +113,11 @@ lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
 mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Building')
-command_names.append(None)
-commands.append(range(0,10,5))
+command_names.append(["heatShare"])
+command_variables.append(["decisionVariables.table[1,2]"])
+commands.append(range(0,105,5))
 factors.append(None)
 input_variables.append([r"variation.table[1,2]"])   # ["variation.table[1,2]"]
-inputs.append(range(298,300,1))
-cost_fac.append([0.5, 0.5, 0.5])
-
-# Subsystems
-sys_id.append(1)
-name.append("Field")
-model_type.append("Modelica")
-ups_neigh.append(None)
-downs_neigh.append(0)
-input_names.append((["returnTemperature.T"]))
-output_names.append(["returnTemperature.T"])
-set_points.append(None)
-set_point_names.append(None)
-state_var_names.append([])
-start.append(0.)
-stop.append(7200.)
-incr.append(10.)
-opt_time.append(600)
-samp_time.append(10)
-lib_paths.append(glob_lib_paths)
-res_path.append(glob_res_path + "\\" + name_wkdir)
-dym_path.append(glob_dym_path)
-mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field')
-command_names.append(None)
-factors.append(None)
-commands.append(range(0,100,5))
-input_variables.append(["external"])
-inputs.append([])
+inputs.append(range(280,310,10))
 cost_fac.append([0.5, 0.5, 0.5])
 

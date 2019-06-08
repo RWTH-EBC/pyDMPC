@@ -154,7 +154,8 @@ class Bexmoc(System):
             cur_time = Time.Time.get_time()
             
             Bexmoc.proceed(cur_time, Time.Time.time_incr)
-            Time.Time.set_time()
+            tim = Time.Time.set_time()
+            print("Time: " + str(tim))
             
     def terminate(self):
         Bexmoc.close_cont_sys()

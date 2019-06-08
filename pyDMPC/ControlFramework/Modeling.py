@@ -51,9 +51,11 @@ class States:
         self.set_point_names = Init.set_point_names[sys_id]
         self.state_vars = []
         self.state_var_names = Init.state_var_names[sys_id]
+        self.model_state_var_names = Init.model_state_var_names[sys_id]
         print("init: " + str(self.state_var_names))
         self.commands = []
         self.command_names = Init.command_names[sys_id]
+        self.command_variables = Init.command_variables[sys_id]
 
 class Times:
     
@@ -135,15 +137,28 @@ class ModelicaMod(Model):
         ModelicaMod.dymola.cd(self.paths.res_path)
         
         if self.states.input_variables[0] == "external":
-            initialNames = self.states.state_var_names
-            initialValues = self.states.state_vars
+            initialNames = (self.states.model_state_var_names + 
+                            self.states.command_variables)
+            initialValues = (self.states.state_vars + self.states.commands)
         else:
-            initialValues = self.states.state_vars + self.states.inputs
-            initialNames = self.states.state_var_names + self.states.input_variables
-
+            initialValues = (self.states.state_vars + self.states.inputs +
+                             self.states.commands)
+            #print(self.states.state_vars)
+            #print(self.states.inputs)
+            #print(self.states.command_variables)
             
-        print(initialNames)
-        print(initialValues)
+            initialNames = (self.states.model_state_var_names + 
+                            self.states.input_variables + 
+                            self.states.command_variables)
+            #print(self.states.model_state_var_names)
+            #print(self.states.input_variables)
+            #print(self.states.commands)
+            
+            #print(initialValues)
+            #print(initialNames)
+             
+        #print(initialNames)
+        #print(initialValues)
         for k in range(3):
             try:
                 print(ModelicaMod.dymola.simulateExtendedModel(
@@ -176,7 +191,8 @@ class ModelicaMod(Model):
         
         if self.states.output_names is not None:
             for i,out in enumerate(self.states.output_names):
-                self.states.outputs.append(sim[out].values())
+                otpt_arr = sim[out].values()
+                self.states.outputs.append(otpt_arr.tolist())
     
     def predict(self):
         self.simulate()

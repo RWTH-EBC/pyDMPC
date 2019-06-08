@@ -42,6 +42,7 @@ class Subsystem:
         self.last_write = 0
         self.commands = Init.commands[sys_id]
         self.inputs = Init.inputs[sys_id]
+        self.fin_command = 0 
             
     def prepare_model(self):
         if self.model_type == "Modelica":
@@ -70,10 +71,11 @@ class Subsystem:
                 inputs = [inputs]
         
         self.model.states.inputs = inputs
-        self.model.states.state_vars = state_vars
+        #self.model.states.state_vars = state_vars
         self.model.states.commands = commands
         
         self.model.predict() 
+        #print("predict: " + str(self.model.states.outputs))
         
         return self.model.states.outputs
     
@@ -94,9 +96,14 @@ class Subsystem:
         opt_outputs =  []
         opt_command = []
         
+        states = self.get_state_vars()
+        if states != []:
+            self.model.states.state_vars = states[0]
+        
         if self.model.states.input_variables[0] != "external":
             if self.inputs == []:
                 inputs = self.get_inputs()
+                inputs = inputs[0]
             else:
                 inputs = self.inputs
         else:
@@ -109,11 +116,13 @@ class Subsystem:
             costs = []
             
             for com in self.commands:
-                results = self.predict(inp, com)
+                results = self.predict(inp, [com])
                 outputs.append(results)
-                costs.append(self.calc_cost(results, com, inp))
+                costs.append(self.calc_cost(com, results[-1][-1]))
             
             min_ind = costs.index(min(costs))
+            print("costs: " + str(costs))
+            print("index: " + str(min_ind))
             
             opt_costs.append(costs[min_ind])
             temp = outputs[min_ind]
@@ -132,19 +141,30 @@ class Subsystem:
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
                 
-    def calc_cost(self, own_cost, command, outputs):
+    def calc_cost(self, command, outputs):
         cost = self.cost_fac[0] * command
+        
+        #print("cost_fac[0]: " + str(self.cost_fac[0]))
+        #print("command: " + str(command))
         
         if self.cost_rec != []:
             cost += self.cost_fac[1] * self.cost_rec(outputs)
+        #print("cost_fac[1]: " + str(self.cost_fac[1]))    
+        #print("cost_rec: " + str(self.cost_rec))
         
         if self.model.states.set_points is not None:
             cost += (self.cost_fac[2] * (outputs - 
-                                 self.model.states.set_points)**2)
+                                 self.model.states.set_points[0])**2)
+        #print("cost_fac[2]: " + str(self.cost_fac[2]))
+            
+        #print("outputs: " + str(outputs))
+        #print("model.states.set_points[0]: " + 
+        #     str(self.model.states.set_points[0]))
             
         return cost
     
     def interp(self, iter_real):
+        import scipy.interpolate
 
         if iter_real == "iter":
             inp = self.coup_vars_rec
@@ -152,10 +172,18 @@ class Subsystem:
             inp = self.model.states.inputs
         
         if self.command_send != []:
-            self.fin_command = self.command_send(inp[0])
-            print("Final command: " + str(self.fin_command))
+            if type(self.command_send) is scipy.interpolate.interpolate.interp1d:
+                self.fin_command = self.command_send(inp[0])
+            else:
+                self.fin_command = self.command_send
+                print("Final command: " + str(self.fin_command))
+              
         if self.coup_vars_send != []:
-            self.fin_coup_vars = self.coup_vars_send(inp[0])
+            if type(self.coup_vars_send) is scipy.interpolate.interpolate.interp1d:
+                self.fin_coup_vars = self.coup_vars_send(inp[0])
+            else:
+                self.fin_coup_vars = self.coup_vars_send
+                
                 
     def get_inputs(self):
         
@@ -178,14 +206,13 @@ class Subsystem:
         
         cur_time = Time.Time.get_time()
         
-        self.model.states.state_vars = []
-        
-        print("get_state_vars: " + str(self.model.states.state_var_names))
+        states = []
         
         if self.model.states.state_var_names is not None:
             for nam in self.model.states.state_var_names:
-                self.model.states.state_vars.append(
-                        System.Bexmoc.read_cont_sys(nam))
+                states.append(System.Bexmoc.read_cont_sys(nam))
+                
+        return states
             
     def send_commands(self):
         

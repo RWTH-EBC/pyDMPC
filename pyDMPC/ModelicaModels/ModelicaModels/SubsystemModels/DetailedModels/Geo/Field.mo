@@ -6,7 +6,8 @@ model Field "Simplified model of geothermal field"
         extrapolation=Modelica.Blocks.Types.Extrapolation.Periodic, table=[0,
           10000; 2635200,12000; 5270400,9000; 7905600,3000; 10540800,-5000;
           13176000,-12000; 15811200,-12000; 18446400,-13000; 21081600,-5000;
-          23716800,4000; 26352000,8000; 28987200,12000]));
+          23716800,4000; 26352000,8000; 28987200,12000]), decisionVariables(
+        table=[0.0,50]));
 
   extends ModelicaModels.Subsystems.Geo.BaseClasses.FieldBaseClass;
 
@@ -40,4 +41,12 @@ equation
           80},{-14,60},{-92,60},{-92,42},{-82,42}},     color={255,0,255}));
   connect(negate.u,switch1. y)
     annotation (Line(points={{-55.2,42},{-59,42}}, color={0,0,127}));
+  annotation (
+    experiment(StopTime=94672800, Interval=3600),
+    __Dymola_experimentSetupOutput,
+    __Dymola_experimentFlags(
+      Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+      Evaluate=false,
+      OutputCPUtime=false,
+      OutputFlatModelica=false));
 end Field;
