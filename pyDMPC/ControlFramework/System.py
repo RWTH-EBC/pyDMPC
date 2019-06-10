@@ -33,8 +33,8 @@ class System:
         self.sys_time = Time.Time()
 
         
-    def set_time(self):
-        Time.Time.set_time()
+    #def set_time(self):
+    #    Time.Time.set_time()
         
     def prep_wkdir(self):
         import os
@@ -105,6 +105,8 @@ class System:
     
     @classmethod
     def write_cont_sys(cls, datapoint, value):
+        print("datapoint: " + str(datapoint))
+        print("value: " + str(value))
         return cls.contr_sys.write(datapoint, value)
     
     @classmethod

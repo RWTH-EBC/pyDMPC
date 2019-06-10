@@ -14,5 +14,12 @@ equation
   connect(sine.y, prescribedHeatFlow.Q_flow) annotation (Line(points={{-59,49},
           {-39.5,49},{-39.5,42},{-18,42}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-        coordinateSystem(preserveAspectRatio=false)));
+        coordinateSystem(preserveAspectRatio=false)),
+    experiment(StopTime=94672800, Interval=3600),
+    __Dymola_experimentSetupOutput,
+    __Dymola_experimentFlags(
+      Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+      Evaluate=false,
+      OutputCPUtime=false,
+      OutputFlatModelica=false));
 end GeothermalField;

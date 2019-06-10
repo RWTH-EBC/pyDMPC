@@ -14,7 +14,6 @@ class PLCSys:
         self.plc_typ = pyads.PLCTYPE_REAL
         self.ads_id = Init.ads_id
         self.ads_port = Init.ads_port
-        self.plc_typ = pyads.PLCTYPE_REAL
     
     def connect(self):
         import pyads

@@ -142,19 +142,29 @@ class Subsystem:
             self.command_send = opt_command[0]
                 
     def calc_cost(self, command, outputs):
+        import scipy.interpolate
+        
         cost = self.cost_fac[0] * command
         
         #print("cost_fac[0]: " + str(self.cost_fac[0]))
         #print("command: " + str(command))
         
         if self.cost_rec != []:
-            cost += self.cost_fac[1] * self.cost_rec(outputs)
+            if type(self.cost_rec) is scipy.interpolate.interpolate.interp1d:
+                cost += self.cost_fac[1] * self.cost_rec(outputs)
+            else:
+                cost += self.cost_fac[1] * self.cost_rec
+            
         #print("cost_fac[1]: " + str(self.cost_fac[1]))    
         #print("cost_rec: " + str(self.cost_rec))
         
-        if self.model.states.set_points is not None:
+        if self.model.states.set_points != []:
             cost += (self.cost_fac[2] * (outputs - 
                                  self.model.states.set_points[0])**2)
+            
+        print("cost: " + str(cost))
+        print("outputs: " + str(outputs))
+        
         #print("cost_fac[2]: " + str(self.cost_fac[2]))
             
         #print("outputs: " + str(outputs))

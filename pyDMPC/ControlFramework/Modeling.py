@@ -123,9 +123,6 @@ class ModelicaMod(Model):
         if cls.dymola is not None:
             cls.dymola.close()
             cls.dymola = None
-            
-    def write_inputs(self):
-        pass
 
     def translate(self):
         ModelicaMod.dymola.cd(self.paths.res_path)
