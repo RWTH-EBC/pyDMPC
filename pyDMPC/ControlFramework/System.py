@@ -143,7 +143,7 @@ class Bexmoc(System):
     def execute(self):
         
         for i,sub in enumerate(self.subsystems):
-            sub.get_state_vars()
+            #sub.get_state_vars()
             sub.optimize()
             self.broadcast([sub])
         

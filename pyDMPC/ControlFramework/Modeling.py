@@ -48,7 +48,6 @@ class States:
         self.outputs = []
         self.output_names = Init.output_names[sys_id]
         self.set_points = Init.set_points[sys_id]
-        self.set_point_names = Init.set_point_names[sys_id]
         self.state_vars = []
         self.state_var_names = Init.state_var_names[sys_id]
         self.model_state_var_names = Init.model_state_var_names[sys_id]
@@ -180,16 +179,22 @@ class ModelicaMod(Model):
                     print('Final simulation error')
                     
     def get_outputs(self):
+        self.states.outputs = []
+        
+        if self.states.output_names is not None:
+            for nam in self.states.output_names:
+                self.states.outputs.append(self.get_results(nam))
+                
+    def get_results(self, name):
         from modelicares import SimRes
         import os
         # Get the simulation result
         sim = SimRes(os.path.join(self.paths.res_path, 'dsres.mat'))
-        self.states.outputs = []
+    
+        arr = sim[name].values()
+        results = arr.tolist()
         
-        if self.states.output_names is not None:
-            for i,out in enumerate(self.states.output_names):
-                otpt_arr = sim[out].values()
-                self.states.outputs.append(otpt_arr.tolist())
+        return results
     
     def predict(self):
         self.simulate()

@@ -10,9 +10,6 @@ import time
 timestr = time.strftime("%Y%m%d_%H%M%S")
 name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 
-# Algorithm
-alg_typ = "BExMoC"
-
 # Controlled system
 contr_sys_typ = "Modelica"
 ads_id = '5.59.199.202.1.1'
@@ -25,14 +22,15 @@ time_incr = 120
 # States
 inputs = []
 input_names = []
+traj_points = []
 input_variables = []
 commands = []
 command_variables = []
 output_names = []
 set_points = []
-set_point_names = []
 state_var_names = []
 model_state_var_names = []
+traj_var = []
 
 # Times
 start = []
@@ -49,7 +47,6 @@ mod_path = []
 command_names = []
 
 # Modifiers
-factors = []
 cost_fac = []
 
 # Variation
@@ -70,12 +67,13 @@ name.append("Field")
 model_type.append("Modelica")
 ups_neigh.append(1)
 downs_neigh.append(None)
-input_names.append((["returnTemperature.T"]))
+input_names.append(["returnTemperature.T"])
+input_variables.append(["external"])
+inputs.append([])
 output_names.append(["returnTemperature.T"])
 set_points.append([287])
-set_point_names.append(None)
-state_var_names.append([])
-model_state_var_names.append([])
+state_var_names.append(["supplyTemperature.T"])
+model_state_var_names.append(["vol.T_start"])
 start.append(0.)
 stop.append(3600.0*24*365.25*3)
 incr.append(3600.)
@@ -87,10 +85,9 @@ dym_path.append(glob_dym_path)
 mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field')
 command_names.append(["heatShare"])
 command_variables.append(["decisionVariables.table[1,2]"])
-factors.append(None)
 commands.append(range(0,105,5))
-input_variables.append(["external"])
-inputs.append([])
+traj_points.append(range(278,310,1))
+traj_var.append(["supplyTemperature.T"])
 cost_fac.append([0.0, 0.0, 1.0])
 
 sys_id.append(1)
@@ -99,9 +96,10 @@ model_type.append("Modelica")
 ups_neigh.append(None)
 downs_neigh.append(0)
 input_names.append(["supplyTemperature.T"])
+input_variables.append([r"variation.table[1,2]"])
+inputs.append(range(280,310,10))
 output_names.append(["returnTemperature"])
-set_points.append([289])
-set_point_names.append(None)
+set_points.append([])
 state_var_names.append(["sine.y"])
 model_state_var_names.append(["const.k"])
 start.append(0.)
@@ -116,8 +114,7 @@ mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Building')
 command_names.append([])
 command_variables.append(["decisionVariables.table[1,2]"])
 commands.append(range(0,105,5))
-factors.append(None)
-input_variables.append([r"variation.table[1,2]"])   # ["variation.table[1,2]"]
-inputs.append(range(280,310,10))
-cost_fac.append([-0.01, 1.0, 1.0])
+traj_points.append([])
+traj_var.append([])
+cost_fac.append([-0.01, 1.0, 0.0])
 

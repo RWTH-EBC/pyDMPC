@@ -43,6 +43,8 @@ class Subsystem:
         self.commands = Init.commands[sys_id]
         self.inputs = Init.inputs[sys_id]
         self.fin_command = 0 
+        self.traj_var = Init.traj_var[sys_id]
+        self.traj_points = Init.traj_points[sys_id]
             
     def prepare_model(self):
         if self.model_type == "Modelica":
@@ -102,8 +104,9 @@ class Subsystem:
         
         if self.model.states.input_variables[0] != "external":
             if self.inputs == []:
-                inputs = self.get_inputs()
-                inputs = inputs[0]
+                self.get_inputs()
+
+                inputs = self.model.states.inputs[0]
             else:
                 inputs = self.inputs
         else:
@@ -128,16 +131,33 @@ class Subsystem:
             temp = outputs[min_ind]
             opt_outputs.append(temp[0][-1])
             opt_command.append(self.commands[min_ind])
-        
-        if len(inputs) >= 2:                
-            self.cost_send = it.interp1d(inputs, opt_costs, 
+            
+        if self.traj_var != []:
+            traj_costs = []
+            traj = self.model.get_results(self.traj_var[0])
+            set_point = traj[10]
+            for pts in self.traj_points:
+                traj_costs.append((pts - set_point)**2)
+                
+            print("set_point: " + str(set_point))
+            print("traj_costs: " + str(traj_costs))
+                
+            self.cost_send = it.interp1d(self.traj_points, traj_costs, 
                                        fill_value = "extrapolate")
+        else:
+        
+            if len(inputs) >= 2:   
+                self.cost_send = it.interp1d(inputs, opt_costs, 
+                                           fill_value = "extrapolate")
+            else:
+                self.cost_send = opt_costs[0]
+                
+        if len(inputs) >= 2: 
             self.coup_vars_send = it.interp1d(inputs, opt_outputs, 
                                          fill_value = "extrapolate")
             self.command_send = it.interp1d(inputs, opt_command,
                                          fill_value = "extrapolate")
         else:
-            self.cost_send = opt_costs[0]
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
                 
@@ -210,7 +230,7 @@ class Subsystem:
                 inputs.append(System.Bexmoc.read_cont_sys(nam))
                 print("Inputs" + str(inputs))
         
-        return inputs
+        self.model.states.inputs = inputs
     
     def get_state_vars(self):
         

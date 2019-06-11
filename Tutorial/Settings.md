@@ -1,103 +1,174 @@
-# pyDMPC air handler tutorial
+# pyDMPC settings
+All required inputs are inserted into the Init file. The required selection
+is described in detail in the following. In order to just run the demo without
+any changes, you can skip this part.
 
-## Case Study
-Similar to the previous tutorial, in this case study an air handling unit (AHU) is decomposed into five different modules and controlled in a distributed way. This time, a detailed model of the AHU is used and intgerated into the control framework using the Fnctional Mockup Interface (FMI).
+### Global paths
+There are 3 global library paths, namely
+- pyDMPC Modelica Models
+- Modelica Buildings
+- AixLib.
 
-## Modelica libraries
-We use two external libraries, namely
-- AixLib (https://github.com/RWTH-EBC/AixLib.git)
-- Buildings (https://github.com/lbl-srg/modelica-buildings.git)
+Moreover, specify the result path, where the working directories will be created
+automatically.
 
-## Init
-All required inputs are inserted into the Init file. The required selection is described in detail in the following. IN order to just run the demo without any changes, you can skip this part.
-
-### Basic system layout
-Start by giving your system a name and the right number of subsystems you intend to control. There are three different types of subsystems, namely generator, consumers and distributor. This distinction refers to a typical suppy chain. The generator uses some kind of external input such as gas, electricity or simply outdoor air in case of an air handling unit. The consumer can be a room subsystem but also the last the subsystem in an air handling unti. The important function of the consumer subsystem is that it penalized deviations from the set points. The distributors are subsystems that can be parts of the distributions system of a supply chain or simply the subsystems of an air handling unit that are neither consumers nor generator.
-
-```Python
-"""System configuration"""
-name_system = 'AHU'
-amount_consumer = 4
-amount_generator = 1
-```
-### Measurements
-You need to select all the names of all the measurements in you controlled system (FMU).
+Finally, there is the Dymola path, where the .egg file is stored.
 
 ```Python
-"""Data point IDs in the controlled system"""
-measurements_IDs = ['outdoorTemperatureOutput',...]
+glob_lib_paths = [r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels',
+             r'C:\Git\modelica-buildings\Buildings',
+             r'C:\Git\AixLib\AixLib']
+glob_res_path = r'C:\TEMP\Dymola'
+glob_dym_path = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
 ```
 
-### Algorithm settings
-Select on of the two currently available algorithms. Refer to the [Introduction](Tutorial/Introduction.md) for further information on the algorithms. In both cases, you should specify if you intend to run a real-life experiment/experiment in realtime or a simulation
+### Working directory
+The working directory is automatically created out of the current time stamp.
 ```Python
-""" General algorithm settings """
-algorithm = 'BExMoC'   #choices: 'NC_DMPC', 'BExMoC'
-parallelization = True  #run calculations in parallel if possible
-realtime = True         #Choose True for a real-life experiment
-```
-Insert the folders, where you stored the libraries.
-
-### Directories
-If you are using Dymola for simulating the models, you need to specify the path where you would like the simulation results to be stored. pyDMPC will create the required folder structure in the work directory directory automatically.
-```Python
-path_res = r'C:\TEMP'
-name_wkdir = r'pyDMPC_wkdir'
-```
-Furthermore, select the paths, in which pyDMPC can find the package.mo files of the Modelica libraries.
-```Python
-path_lib1 = r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels'
-path_lib2 = r'C:\Git\modelica-buildings\Buildings'
-path_lib3 = r'C:\Git\SimContrCaseStudies\SimulationMPC\SimulationMPC'
-```
-Finally, specify, where in the pyDMPC ModelicaModels package the model of the controlled system to be translated into a FMU is stored and the name you would like the FMU to have.
-```Python
-path_fmu = r'ModelicaModels.ControlledSystems.ControlledSystemBoundaries'
-name_fmu = 'pyDMPCFMU'
-path_dymola = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
-```
-### Subsystem definitions
-There are several parameters that define a pyDMPC subsystem. For each subsystem, the parameter values are appended to lists.
-
-Start by defining the name, position and type of the subsystem. The type of the subsystem can be generator, distributor or consumer as explained above.
-```Python
-name.append('Heat_recovery_system')
-position.append(5)
-type_subSyst.append('generator')
-```
-The next two paramters are relevant if the subsystem is part of a holon. A holon is a group of subsystems that are connected in parallel and that are assumed not to influence each other. the
-```Python
-no_parallel.append(0)
-```
-indicates the number of this subsystem in the holon. We simply number all the subsystems in a holon. This is important to tell the algorithm how many subsystems have to store their cost in one folder, namely the folder of the first subsystem before the holon. The
-```Python
-holon.append(0)
-```
-indicates how many parallel systems there are (beside the considered subsystem) in the holon.
-
-
-Next, make the necessary specifications regarding the variables, i.e. the number of decision variables in that subsystem, the number of output variables and the bounds of the decision variables
-```Python
-num_DecVars.append(1)
-num_VarsOut.append(2)
-bounds_DVs.append([0,100])
-```
-The
-```Python
-start_DVs.append(280)
-factor_DVs.append(30)
-```
-are used to convert the descision variable in a linear function ax+b.
-
-All the other parameters are either paths or they map the names of variables in the subsystem models to the data points in the controlled system.  
-The model path refers to the Modelica package, in which the respective subsystem model is included.
-```Python
-model_path.append('ModelicaModels.SubsystemModels.DetailedModels.HeatRecovery')
+import time
+timestr = time.strftime("%Y%m%d_%H%M%S")
+name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 ```
 
+### Identifiers
+The unique identifier is an integer. Additionally, a subsystem name can be given
+as a string.
+```Python
+sys_id.append(0)
+name.append("Field")
+```
 
-## Set up the Modelica models
-The Modelica models are translated and simulated automatically using the Python-Dymola interface. They provide the cost forecast in the respective prediction horizon.
+### Controlled system
+The controlled system type can either be "Modelica" or "PLC". There is only
+one controlled system for each main system. In case of the
+PLC controlled system, an ADS address and a port have to be specified.
+In case of a Modelica model, which is provided as an FMU model, the name of
+the FMU file has to be provided. The file should be stored in the global result
+path. The time increment is the minimal time step that is used for
+communication with the FMU.
 
-## Run
-In order to excute a control experiment, simply execute the test_main.py.
+```Python
+contr_sys_typ = "Modelica"
+ads_id = '5.59.199.202.1.1'
+ads_port = 851
+name_fmu = 'pyDMPCFMU_Geo.fmu'
+orig_fmu_path = glob_res_path + '\\' + name_fmu
+dest_fmu_path = glob_res_path + '\\' + name_wkdir + '\\' + name_fmu
+time_incr = 120
+```
+
+### Neighbors
+Each subsystem can have upstream and downstram neighbors. To assign a subsystem
+to its neighbors, provide the IDs of the neighboring subsystems or None.
+
+```Python
+ups_neigh.append(None)
+downs_neigh.append(0)
+```
+
+### Inputs
+The input names are given as a list of strings. These are the names of the
+variables in the FMU model or the data point names on the PLC. By contrast,
+the inputs_variables are the names in the subsystem model. Be sure to use the
+same order in both lists so that the mapping is correct. Finally, a list of
+inputs can be provided using the range function. The algorithms will use these
+values to vary the inputs to the models and create lookup tables. Alternatively,
+use a list with only the entry "external" to use an external input. In that
+case, the algorithms do not vary the inputs but, instead, inputs should be
+provided in the model. This can be useful, if the model has a much longer
+prediction horizon than the other models and relies on some kind of long-term
+prediction, e.g. weather or load prediciton.
+
+```Python
+input_names.append(["supplyTemperature.T"])
+input_variables.append([r"variation.table[1,2]"])
+inputs.append(range(280,310,10))
+```
+### Commands
+The commands are speicified just like the inputs, with the names referring to
+the controlled system and teh variables to the subsystem models. Again, the
+values to be used can be given using the range function. All these commands are
+evaluated in a brute-force manner. In future versions, there will be more
+sophisticated optimization algorithms.
+
+```Python
+command_names.append(["heatShare"])
+command_variables.append(["decisionVariables.table[1,2]"])
+commands.append(range(0,105,5))
+```
+
+### Outputs
+The names of the outputs are a list of strings and represent the variable
+names as used in the subsystem models.
+
+```Python
+output_names.append(["returnTemperature.T"])
+```
+
+### Set points
+The set points are given as a list of floats. The list should have the same
+order as the outputs list as the algorithms compare the set points to the
+corresponding output.
+
+```Python
+set_points.append([287])
+```
+
+### State variables
+The state variables are used to initialized the subsystem models. There are
+currently no state estimators. Therefore, use the state_var_names to provide
+the names of the variables in the controlled system and model_state_var_names
+as their counterpart in the subsystem model.
+
+```Python
+state_var_names.append(["supplyTemperature.T"])
+model_state_var_names.append(["vol.T_start"])
+```
+
+### Prediction times
+Specify when a prediction should start (usually a relative time 0) and when it
+should stop. Also indicate the increment, which will be the sampling time of the
+result time series. The opt_time is the interval (referring to the global system
+time), in which the subsystem is optimized. The samp_time is the interval, in
+which a subsystem communicates with the controlled system.
+
+```Python
+start.append(0.)
+stop.append(3600.0*24*365.25*3)
+incr.append(3600.)
+opt_time.append(600)
+samp_time.append(10)
+```
+
+### Subsystem paths
+Most of the paths can remain unchanged as they are formed based on the global
+paths. The path that should be specified, yet only in case of a Modelica
+subsystem model, is the path to the model in the Modelica-specific package
+structure.
+
+```Python
+mod_path.append(r'ModelicaModels.SubsystemModels.DetailedModels.Geo.Field')
+```
+
+### Trajectories
+Some subsystems require their neigbors to follow certain trajectories. To get
+an upstream subsystem to provide the trajectory, the subsystem assigns costs to
+deviations from the trajectory that is calculated in the model. The name of the
+variable is provided in the traj_var. The trajectory points are used to
+approximate the costs that are cause if the upstream system does not follow the
+trajectory.
+```Python
+traj_points.append(range(278,310,1))
+traj_var.append(["supplyTemperature.T"])
+```
+
+### Cost factors
+The cost factors are essential to select which types of costs should be
+considered and how they should be weighted. The first element in the list is
+the cost related to the control effort. The second is the cost that is received
+from the dowmstream neighbor and the third is the cost due to deviations form
+the set point.
+
+```Python
+cost_fac.append([0.0, 0.0, 1.0])
+```
