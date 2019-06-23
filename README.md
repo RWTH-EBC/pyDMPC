@@ -39,7 +39,7 @@ The settings are done in the Init.py and are described in [Settings](Tutorial/Se
 
 We continuously improve **pyDMPC** and try to keep the community up-to-date with citable papers:
 
-- Distributed exergy-based simulation-assisted control of HVAC supply chains.
-  Baranski M., Fütterer J., Müller D..
+- Comparative study of neighbor communication approaches for distributed model predictive control in building energy systems.
+  Baranski M., Meyer, L., Fütterer J., Müller D..
   Energy and Buildings, in press.
-  [link](https://doi.org/10.1016/j.enbuild.2018.07.006)
+  [DOI](https://doi.org/10.1016/j.energy.2019.06.037)
