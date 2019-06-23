@@ -142,10 +142,10 @@ equation
   connect(extractAirSource.ports[1], hex.port_a2) annotation (Line(points={{128,
           70},{88,70},{88,64},{46,64}}, color={0,127,255}));
   connect(toTotAir.XiTotalAir, extractAirSource.X_in[1]) annotation (Line(
-        points={{-89,66},{-76,66},{-76,126},{168,126},{168,74},{150,74}}, color
-        ={0,0,127}));
-  connect(toTotAir.XNonVapor, extractAirSource.X_in[2]) annotation (Line(points
-        ={{-89,62},{-82,62},{-82,130},{176,130},{176,74},{150,74}}, color={0,0,
+        points={{-89,66},{-76,66},{-76,126},{168,126},{168,74},{150,74}}, color=
+         {0,0,127}));
+  connect(toTotAir.XNonVapor, extractAirSource.X_in[2]) annotation (Line(points=
+         {{-89,62},{-82,62},{-82,130},{176,130},{176,74},{150,74}}, color={0,0,
           127}));
   connect(mflowExtract.y, extractAirSource.m_flow_in) annotation (Line(points={
           {195,22},{172,22},{172,62},{148,62}}, color={0,0,127}));

@@ -13,9 +13,6 @@ The developed control framework is able to construct a system composed of subsys
 
 The control framework furthermore includes a module containing the specific control algorithm. At the moment, one may choose between the sequential algorithm working with look-up tables and the iterative one. By including a further module, the objective function is integrated into the control algorithm. This  module contains an interface, which starts the subsystem model simulation.
 
-The basic control framework structure is illustrated in the following figure:
-![E.ON EBC RWTH Aachen University](./pyDMPC/Resources/Images/Framework.png)
-
 ### Installation
 
 If you actively develop pyDMPC you can clone this repository by using:
@@ -29,35 +26,20 @@ and then run:
 ### Dependencies
 
 If you intend to use Modelica models: pyDMPC currently works with the Dymola Python interface.
-- pathos
+- fmpy
 - modelicares
-- pyFMI (see below)
-
-### pyFMI
-In order to use pyFMI, please follow these instructions:
-- Download wheel files pyFMI and assimulo for your python version (https://www.lfd.uci.edu/~gohlke/pythonlibs/)
-- execute `pip install wheel_file_path.whl`
+- pyads
 
 ### Documentation
 The control approaches are described in  [Introduction](Tutorial/Introduction.md).
 
-Try out the short [Tutorial](Tutorial/Tutorial.md).
-
-### Use the GUI - in progress -
-Wooey is a browser-based UI.
-
-cd C:\WinPython-64bit-3.6.2.0\scripts\ProjectName
-
-celery -A ProjectName worker --pool=eventlet -l info
-
-python manage.py runserver
-
+The settings are done in the Init.py and are described in [Settings](Tutorial/Settings.md)
 
 ### How to cite pyDMPC
 
 We continuously improve **pyDMPC** and try to keep the community up-to-date with citable papers:
 
-- Distributed exergy-based simulation-assisted control of HVAC supply chains.
-  Baranski M., Fütterer J., Müller D..
+- Comparative study of neighbor communication approaches for distributed model predictive control in building energy systems.
+  Baranski M., Meyer, L., Fütterer J., Müller D..
   Energy and Buildings, in press.
-  [link](https://doi.org/10.1016/j.enbuild.2018.07.006)
+  [DOI](https://doi.org/10.1016/j.energy.2019.06.037)

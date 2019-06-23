@@ -45,24 +45,24 @@ parameter Modelica.SIunits.Pressure defaultPressure = 101300 "Default pressure";
         origin={-58,-56})));
   AixLib.Fluid.Actuators.Dampers.Exponential dam(m_flow_nominal=0.5, redeclare
       package Medium =                                                                          MediumAir,
-
     linearized=true)
     annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=90,
         origin={22,34})));
+
   Modelica.Blocks.Math.Add add(k2=-1)
     annotation (Placement(transformation(extent={{-16,4},{-4,16}})));
   Modelica.Blocks.Sources.Constant const(k=1)
     annotation (Placement(transformation(extent={{-40,8},{-28,20}})));
   AixLib.Fluid.Actuators.Dampers.Exponential dam1(m_flow_nominal=0.5, redeclare
       package Medium =                                                                           MediumAir,
-
     linearized=true)
     annotation (Placement(transformation(
         extent={{-10,-10},{10,10}},
         rotation=0,
         origin={44,-10})));
+
   inner Modelica.Fluid.System system
     annotation (Placement(transformation(extent={{-72,140},{-52,160}})));
   AixLib.Fluid.FixedResistances.PressureDrop exhaustPressureDrop(m_flow_nominal=

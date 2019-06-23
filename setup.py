@@ -12,7 +12,7 @@ setup(name='pydmpc',
       packages=[
           'pyDMPC',
           'pyDMPC.ControlFramework',
-          'pyDMPC.ControlFramework.algorithm'],
+		  'pyDMPC.ControlFramework.functions'],
       package_data={},
       classifiers=[
           'License :: MIT License',
@@ -25,5 +25,5 @@ setup(name='pydmpc',
           'Topic :: Software Development :: Code Generators',
           'Topic :: Scientific/Engineering',
           'Topic :: Utilities'],
-      install_requires=['pytz', 'scipy', 'numpy', 'datetime',
-      'pathos', 'modelicares'])
+      install_requires=['scipy', 'numpy', 'pyads',
+      'fmpy', 'modelicares', ])
