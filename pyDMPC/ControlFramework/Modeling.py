@@ -139,22 +139,12 @@ class ModelicaMod(Model):
         else:
             initialValues = (self.states.state_vars + self.states.inputs +
                              self.states.commands)
-            #print(self.states.state_vars)
-            #print(self.states.inputs)
-            #print(self.states.command_variables)
             
             initialNames = (self.states.model_state_var_names + 
                             self.states.input_variables + 
                             self.states.command_variables)
-            #print(self.states.model_state_var_names)
-            #print(self.states.input_variables)
-            #print(self.states.commands)
             
-            #print(initialValues)
-            #print(initialNames)
-             
-        #print(initialNames)
-        #print(initialValues)
+
         for k in range(3):
             try:
                 print(ModelicaMod.dymola.simulateExtendedModel(

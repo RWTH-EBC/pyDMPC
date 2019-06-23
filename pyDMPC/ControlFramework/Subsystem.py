@@ -73,11 +73,8 @@ class Subsystem:
                 inputs = [inputs]
         
         self.model.states.inputs = inputs
-        #self.model.states.state_vars = state_vars
         self.model.states.commands = commands
-        
         self.model.predict() 
-        #print("predict: " + str(self.model.states.outputs))
         
         return self.model.states.outputs
     
@@ -85,7 +82,7 @@ class Subsystem:
         
         cur_time = Time.Time.get_time()
         
-        if (cur_time - self.last_opt) > self.model.times.opt_time:
+        if (cur_time - self.last_opt) >= self.model.times.opt_time:
             self.last_opt = cur_time
             
             self.interp_minimize(interp)
@@ -93,6 +90,8 @@ class Subsystem:
     def interp_minimize(self, interp):
         
         from scipy import interpolate as it
+        
+        print('minimizing')
             
         opt_costs = []
         opt_outputs =  []
@@ -109,7 +108,10 @@ class Subsystem:
             else:
                 inputs = self.inputs
         else:
-            inputs = [-1.0]
+            if self.inputs == []:
+                inputs = [-1.0]
+            else: 
+                inputs = self.inputs
             
            
         for inp in inputs:
@@ -162,6 +164,7 @@ class Subsystem:
                 self.command_send = it.interp1d(inputs, opt_command,
                                              fill_value = "extrapolate")
             else:
+                print("self.coup_vars_send: " + str(self.coup_vars_send))
                 self.coup_vars_send = opt_outputs
                 self.command_send = opt_command
                 
@@ -173,31 +176,20 @@ class Subsystem:
         import scipy.interpolate
         
         cost = self.cost_fac[0] * command
-        
-        #print("cost_fac[0]: " + str(self.cost_fac[0]))
-        #print("command: " + str(command))
+
         
         if self.cost_rec != []:
             if type(self.cost_rec) is scipy.interpolate.interpolate.interp1d:
                 cost += self.cost_fac[1] * self.cost_rec(outputs)
+            elif type(self.cost_rec) is list:
+                cost += self.cost_fac[1] * self.cost_rec[0]
             else:
                 cost += self.cost_fac[1] * self.cost_rec
-            
-        #print("cost_fac[1]: " + str(self.cost_fac[1]))    
-        #print("cost_rec: " + str(self.cost_rec))
+        
         
         if self.model.states.set_points != []:
             cost += (self.cost_fac[2] * (outputs - 
                                  self.model.states.set_points[0])**2)
-            
-        print("cost: " + str(cost))
-        print("outputs: " + str(outputs))
-        
-        #print("cost_fac[2]: " + str(self.cost_fac[2]))
-            
-        #print("outputs: " + str(outputs))
-        #print("model.states.set_points[0]: " + 
-        #     str(self.model.states.set_points[0]))
             
         return cost
     

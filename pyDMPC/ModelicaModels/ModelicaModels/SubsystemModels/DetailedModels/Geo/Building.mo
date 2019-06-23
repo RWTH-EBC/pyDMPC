@@ -1,7 +1,8 @@
 within ModelicaModels.SubsystemModels.DetailedModels.Geo;
 model Building "Simplified building model"
 
-  extends ModelicaModels.SubsystemModels.DetailedModels.Geo.GeoCommunicationBaseClass;
+  extends ModelicaModels.SubsystemModels.DetailedModels.Geo.GeoCommunicationBaseClass(variation(
+        table=[0,293]));
 
   extends ModelicaModels.Subsystems.Geo.BaseClasses.BuildingBaseClass;
 

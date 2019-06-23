@@ -143,7 +143,6 @@ class Bexmoc(System):
     def execute(self):
         
         for i,sub in enumerate(self.subsystems):
-            #sub.get_state_vars()
             sub.optimize(interp=True)
             self.broadcast([sub])
         
@@ -163,16 +162,21 @@ class Bexmoc(System):
         for i,sub in enumerate(self.subsystems):
             
             sub.get_inputs()
+            inputs = sub.model.states.inputs[0]
             
             if i == 0:
-                if sub.model.states.inputs[0] < sub.model.states.set_points[0]:
+                print(inputs[0])
+                print(sub.model.states.set_points[0])
+                if inputs[0] < sub.model.states.set_points[0]:
                     sub.model.states.inputs = [
-                            min(sub.model.states.inputs[0], 
+                            min(inputs[0], 
                                 sub.model.states.set_points[0] - 0.5)]
                 else:
                     sub.model.states.inputs = [
-                            max(sub.model.states.inputs[0], 
+                            max(inputs[0], 
                                 sub.model.states.set_points[0] + 0.5)]
+            else:
+                sub.model.states.inputs = [inputs[0]]
                     
             sub.inputs = [sub.model.states.set_points[0], 
                           sub.model.states.inputs[0]]
@@ -180,32 +184,34 @@ class Bexmoc(System):
             sub.inputs.sort()
             sub.optimize(interp = False)
         
-        for i,sub in enumerate(self.subsystems):
-            self.broadcast([sub])
+        self.broadcast()
         
 
         for ino in range(0,4,1):
             for i,sub in enumerate(self.subsystems):
                 if i == 0:
                     sub.get_inputs()
-                    sub.inputs = [sub.model.states.inputs[0] - 0.1, 
-                                  sub.model.states.inputs[0] + 0.1]
+                    inputs = sub.model.states.inputs[0]
+                    sub.inputs = [inputs[0] - 0.1, 
+                                  inputs[0] + 0.1]
                 else:
-                    if (self.subsystems[0].model.states.inputs[0] <
+                    if (self.subsystems[0].inputs[0] <
                         self.subsystems[0].model.states.set_points[0]):
-                        sub.model.states.inputs = [
+                        print(sub.coup_vars_rec[0])
+                        sub.inputs = [
                                 min(sub.coup_vars_rec[0], 
                                     sub.model.states.set_points[0] - 0.5)]
                     else:
-                        sub.model.states.inputs = [
+                        print(i)
+                        print(sub.coup_vars_rec[0])
+                        sub.inputs = [
                                 min(sub.coup_vars_rec[1], 
                                     sub.model.states.set_points[0] + 0.5)]
                         
                 sub.inputs.sort()
                 sub.optimize(interp = False)
         
-            for i,sub in enumerate(self.subsystems):
-                self.broadcast([sub])
+            self.broadcast()
 
         
         for i,sub in enumerate(self.subsystems):
