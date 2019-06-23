@@ -1,4 +1,4 @@
-> Thank you for making a Pull Request to TEASER!
+> Thank you for making a Pull Request to pyDMPC!
 
 > Please consider these points before submitting:
 > - Mention the issue that this Pull Request intends to solve, and briefly describe what the main changes are.
