@@ -143,8 +143,7 @@ class Bexmoc(System):
     def execute(self):
         
         for i,sub in enumerate(self.subsystems):
-            #sub.get_state_vars()
-            sub.optimize()
+            sub.optimize(interp=True)
             self.broadcast([sub])
         
         for i,sub in enumerate(self.subsystems):
@@ -158,8 +157,68 @@ class Bexmoc(System):
             Bexmoc.proceed(cur_time, Time.Time.time_incr)
             tim = Time.Time.set_time()
             print("Time: " + str(tim))
+    
+    def iterate(self):
+        for i,sub in enumerate(self.subsystems):
+            
+            sub.get_inputs()
+            inputs = sub.model.states.inputs[0]
+            
+            if i == 0:
+                print(inputs[0])
+                print(sub.model.states.set_points[0])
+                if inputs[0] < sub.model.states.set_points[0]:
+                    sub.model.states.inputs = [
+                            min(inputs[0], 
+                                sub.model.states.set_points[0] - 0.5)]
+                else:
+                    sub.model.states.inputs = [
+                            max(inputs[0], 
+                                sub.model.states.set_points[0] + 0.5)]
+            else:
+                sub.model.states.inputs = [inputs[0]]
+                    
+            sub.inputs = [sub.model.states.set_points[0], 
+                          sub.model.states.inputs[0]]
+            
+            sub.inputs.sort()
+            sub.optimize(interp = False)
+        
+        self.broadcast()
+        
+
+        for ino in range(0,4,1):
+            for i,sub in enumerate(self.subsystems):
+                if i == 0:
+                    sub.get_inputs()
+                    inputs = sub.model.states.inputs[0]
+                    sub.inputs = [inputs[0] - 0.1, 
+                                  inputs[0] + 0.1]
+                else:
+                    if (self.subsystems[0].inputs[0] <
+                        self.subsystems[0].model.states.set_points[0]):
+                        print(sub.coup_vars_rec[0])
+                        sub.inputs = [
+                                min(sub.coup_vars_rec[0], 
+                                    sub.model.states.set_points[0] - 0.5)]
+                    else:
+                        print(i)
+                        print(sub.coup_vars_rec[0])
+                        sub.inputs = [
+                                min(sub.coup_vars_rec[1], 
+                                    sub.model.states.set_points[0] + 0.5)]
+                        
+                sub.inputs.sort()
+                sub.optimize(interp = False)
+        
+            self.broadcast()
+
+        
+        for i,sub in enumerate(self.subsystems):
+            sub.interp(iter_real = "iter")
+            sub.send_commands()
             
     def terminate(self):
         Bexmoc.close_cont_sys()
         
-            
+ 
