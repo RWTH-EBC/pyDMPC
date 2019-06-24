@@ -1,6 +1,8 @@
 BaseClasses
 Heater
+GenericHeaterModel
 Cooler
+GenericCoolerModel
 HeatRecovery
 Humidifier
 DetailedModels

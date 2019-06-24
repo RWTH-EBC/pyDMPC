@@ -1,8 +1,11 @@
 InOutlets
 Heater
+GenericHeater
+GenericMainHeater
 PreHeater
 BaseClasses
 Cooler
+GenericCooler
 Humidifier
 Hall
 Geo
