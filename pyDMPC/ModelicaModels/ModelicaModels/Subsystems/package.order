@@ -1,6 +1,7 @@
 InOutlets
 Heater
 GenericHeater
+GenericMainHeater
 PreHeater
 BaseClasses
 Cooler
