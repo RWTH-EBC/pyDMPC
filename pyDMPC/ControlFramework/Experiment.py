@@ -28,7 +28,7 @@ def main():
     
             for cur_time in range(0, 86400 , min_samp_inter):
                 start_time = time.time()
-                sys.iterate()
+                sys.execute()
                 time.sleep(max(0, min_samp_inter - time.time() + start_time))
                         
                         
