@@ -112,7 +112,8 @@ package BaseClasses
       annotation (Placement(transformation(extent={{90,-10},{110,10}})));
     Modelica.Blocks.Interfaces.RealInput u
       annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
-    Modelica.Blocks.Sources.IntegerExpression integerExpression(y=integer(u))
+    Modelica.Blocks.Sources.IntegerExpression integerExpression(y=integer(u) +
+          1)
       annotation (Placement(transformation(extent={{-48,-44},{-28,-24}})));
   equation
     connect(step.y, extractor.u[1]) annotation (Line(points={{-39,70},{-20,70},
