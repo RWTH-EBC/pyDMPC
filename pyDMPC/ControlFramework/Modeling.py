@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 10:16:05 2019
-
-@author: mba
-"""
-
 import Init
 
 class States:
@@ -57,6 +50,28 @@ class States:
         self.command_variables = Init.command_variables[sys_id]
 
 class Times:
+    """This class holds all the times relevant for the models.
+
+    Parameters
+    ----------
+    sys_id: int
+        The unique identifier of a subsystem as specified in the Init
+
+    Attributes
+    ----------
+    start : float
+        The start time of the model, typically 0
+    stop : float
+        The stop time of the model, start - stop = prediction horizon
+    incr : float
+        The increment of the model, only applicable to Modelica models
+    opt_time : float
+        The interval (referring to the global system time), in which the 
+        subsystem is optimized
+    samp_time : float
+        The interval, in which a subsystem communicates with the controlled 
+        system
+    """
     
     def __init__(self, sys_id):
         self.start = Init.start[sys_id] 
@@ -66,6 +81,25 @@ class Times:
         self.samp_time = Init.samp_time[sys_id]
         
 class Paths:
+    """This class holds all the paths relevant for the models.
+
+    Parameters
+    ----------
+    sys_id: int
+        The unique identifier of a subsystem as specified in the Init
+
+    Attributes
+    ----------
+    lib_paths : string
+        The paths where the Modelica libraries are stored
+    res_path : string
+        The path where the results are to be stored
+    dym_path : string
+        The path where the files required for the Python-Dymola interface
+        are stored (.egg)
+    mod_path : string
+        The path to the model in the Modelica-specific package structure
+    """
     
     def __init__(self, sys_id):
         self.lib_paths = Init.lib_paths[sys_id]
@@ -74,11 +108,41 @@ class Paths:
         self.mod_path = Init.mod_path[sys_id]
 
 class Modifs:
+    """This class holds modifier factors for linear models.
+
+    Parameters
+    ----------
+    sys_id: int
+        The unique identifier of a subsystem as specified in the Init
+
+    Attributes
+    ----------
+    factors : list of floats
+        The modifier factors for the linear model. The first element 
+        transforms the system input, the second the control input
+    """
+    
     def __init__(self, sys_id):
         self.factors = Init.factors[sys_id]
     
 
 class Model:
+    
+    """The super class for all model classes
+
+    Parameters
+    ----------
+    sys_id: int
+        The unique identifier of a subsystem as specified in the Init
+
+    Attributes
+    ----------
+    model_type : string
+        The type of the model
+    states : States
+    times : Times
+    paths : Paths
+    """
     
     def __init__(self, sys_id):
         self.model_type = Init.model_type[sys_id]
