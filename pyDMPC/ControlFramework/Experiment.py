@@ -1,16 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 13:01:49 2019
-
-@author: mba
-"""
-
 import System
 import time
 import Time
 
 def main():
-    
 
     # Generate a system for the experiment
     Time.Time.contr_sys_type = "Modelica"

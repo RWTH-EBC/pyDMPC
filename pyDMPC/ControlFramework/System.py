@@ -10,14 +10,24 @@ class System:
 
     Parameters
     ----------
+    
+    Class attributes
+    ----------
+    contr_sys : ControlledSystem
+        The controlled system object
+    contr_sys_typ : string
+        The type of the controlled system
 
     Attributes
     ----------
-    subsystems : Subsystem objects
-        The subsystem control agents
-    
+    wkdir : string
+        The current work directory
     amo_subsys : int
         The total amount of subsystems
+    subsystems : Subsystem objects
+        The subsystem control agents
+    sys_time : float
+        The current time of the system
     
     """
 
@@ -31,17 +41,26 @@ class System:
         self.amo_subsys = len(Init.sys_id)
         self.subsystems = self.gen_subsys()
         self.sys_time = Time.Time()
-
-        
-    #def set_time(self):
-    #    Time.Time.set_time()
         
     def prep_wkdir(self):
+        """Prepares the working directory for the current experiment
+        """
+        
         import os
         os.mkdir(self.wkdir)
         os.chdir(self.wkdir)
 
     def gen_subsys(self):
+        """Generates the subsystems/agent.
+    
+        Parameters
+        ----------
+    
+        Returns
+        ----------
+        subsystems : list of Subsystem objects
+            The created subsystem objects
+        """
         import os
         subsystems = []
         
@@ -54,6 +73,9 @@ class System:
         return subsystems
     
     def prep_mod(self):
+        """Checks if the model type of any of the subsystems is Modelica and
+        in that case establishes the Dymola environment.
+        """
         
         for i,typ in enumerate(Init.model_type):
             if typ == "Modelica": 
@@ -62,7 +84,9 @@ class System:
                 break
             
     def close_mod(self):
-        
+        """Checks if the model type of any of the subsystems is Modelica and
+        in that case destroys the Dymola environment.
+        """
         for i,typ in enumerate(Init.model_type):
             if typ == "Modelica": 
                 Modeling.ModelicaMod.del_dymola()
@@ -70,7 +94,13 @@ class System:
             
     def find_times(self):
         """ This method finds the minimum sample rate and the minimum 
-        optimization interval of all subsystems """
+        optimization interval of all subsystems 
+        
+        Returns
+        ----------
+        subsystems : list of floats
+            The found minimum optimization and sampling times of all subsystems
+        """
         
         opt_inter = []
         samp_inter = []
@@ -87,6 +117,9 @@ class System:
     
     @classmethod
     def prep_cont_sys(cls):
+        """Creates a controlled system object, which is either a Modelica 
+        simulation or a pyads PLC object
+        """
         if cls.contr_sys_typ == "PLC":
             cls.contr_sys = ControlledSystem.PLCSys()
         elif cls.contr_sys_typ == "Modelica":
@@ -94,6 +127,9 @@ class System:
             
     @classmethod
     def close_cont_sys(cls):
+        """Terminates the Modelica simulation or closes the connection to the 
+        pyads PLC, respectively. 
+        """
         if cls.contr_sys_typ == "PLC":
             cls.contr_sys.close()
         if cls.contr_sys_typ == "Modelica":
@@ -101,20 +137,66 @@ class System:
     
     @classmethod
     def read_cont_sys(cls, datapoint):
+        """ This method reads the value of a certain data point in the 
+        controlled system.
+        
+        Parameters
+        ----------
+        datapoint : string
+            The considered data point identifier
+        
+        Returns
+        ----------
+        value : float
+            The the value of the data point 
+        """
+        
         return cls.contr_sys.read(datapoint)
     
     @classmethod
     def write_cont_sys(cls, datapoint, value):
+        """ This method writes a value of a certain data point in the 
+        controlled system.
+        
+        Parameters
+        ----------
+        datapoint : string
+            The considered data point identifier
+
+        value : float
+            The the value of the data point to be written
+        """
+        
         print("datapoint: " + str(datapoint))
         print("value: " + str(value))
-        return cls.contr_sys.write(datapoint, value)
+        cls.contr_sys.write(datapoint, value)
     
     @classmethod
     def proceed(cls, cur_time, incr):
+        """ This method makes a step in the controlled system if it is a 
+        Modelica simulation
+        
+        Parameters
+        ----------
+        cur_time : float
+            The ccurrent time
+        
+        incr : The time increment = step size
+        """
+
         if cls.contr_sys_typ == "Modelica":
             cls.contr_sys.proceed(cur_time, incr)
             
     def broadcast(self, subsystem = None):
+        """ This method broadcasts the values of relevant varaibles among
+        neighboring subsystems/agents.
+        
+        Parameters
+        ----------
+        subsystem : list of Subsystem or None
+            If a list is given, only this list is considered, otherwise all
+            subsystems are considered.
+        """
         if subsystem is None:
             subsystem = self.subsystems
             

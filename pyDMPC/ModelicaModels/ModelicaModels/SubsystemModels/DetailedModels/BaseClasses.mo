@@ -99,4 +99,32 @@ package BaseClasses
           coordinateSystem(preserveAspectRatio=false)),
       experiment(StopTime=86400, Interval=10));
   end HallBaseClass;
+
+  model Selector "Select from various signal sources"
+    Modelica.Blocks.Routing.Extractor extractor(nin=2)
+      annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+    Modelica.Blocks.Sources.Step step
+      annotation (Placement(transformation(extent={{-60,60},{-40,80}})));
+    Modelica.Blocks.Sources.Step step1
+      annotation (Placement(transformation(extent={{-60,20},{-40,40}})));
+    Modelica.Blocks.Interfaces.RealOutput y1
+                 "Connector of Real output signal"
+      annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+    Modelica.Blocks.Interfaces.RealInput u
+      annotation (Placement(transformation(extent={{-120,-20},{-80,20}})));
+    Modelica.Blocks.Sources.IntegerExpression integerExpression(y=integer(u) +
+          1)
+      annotation (Placement(transformation(extent={{-48,-44},{-28,-24}})));
+  equation
+    connect(step.y, extractor.u[1]) annotation (Line(points={{-39,70},{-20,70},
+            {-20,-1},{-12,-1}}, color={0,0,127}));
+    connect(step1.y, extractor.u[2]) annotation (Line(points={{-39,30},{-30,30},
+            {-30,1},{-12,1}}, color={0,0,127}));
+    connect(extractor.y, y1)
+      annotation (Line(points={{11,0},{100,0}}, color={0,0,127}));
+    connect(integerExpression.y, extractor.index)
+      annotation (Line(points={{-27,-34},{0,-34},{0,-12}}, color={255,127,0}));
+    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+          coordinateSystem(preserveAspectRatio=false)));
+  end Selector;
 end BaseClasses;

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 21:12:29 2019
-
-@author: mba
-"""
-
 import Init
 
 class PLCSys:

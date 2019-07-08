@@ -11,15 +11,59 @@ class Subsystem:
 
     Parameters
     ----------
+    sys_id : int
+        The unique identifier of a subsystem as specified in the Init
 
     Attributes
     ----------
-    subsystems : Subsystem objects
-        The subsystem control agents
-    
-    amo_subsys : int
-        The total amount of subsystems
-    
+    sys_id : int
+        The unique identifier of a subsystem as specified in the Init
+    name : string
+        
+    model_type : string
+        The type of the model that this subsystem uses
+    model : Model
+        The model object created according to the model type
+    ups_neigh : int or None
+        The ID of the upstream neighbor if it exists
+    downs_neigh : int
+        The ID of the downstream neighbor if it exists
+    coup_vars_send : list of floats
+        A list of the current values of coupling variables that should be sent
+    coup_vars_rec : list of floats
+        A list of the current values of coupling variables that are received
+    cost_send : list of floats
+        A list of the current values of cost variables that should be sent
+    cost_rec : list of floats
+        A list of the current values of cost variables that are received
+    command_send : list of floats
+        A list of the current values of command variables that should be sent
+    command_rec : list of floats
+        A list of the current values of cost variablesare received
+    cost_fac : list of floats
+        The cost factors are essential to select which types of costs should 
+        be considered and how they should be weighted. The first element in the 
+        list is the cost related to the control effort. The second is the cost 
+        that is received from the dowmstream neighbor and the third is the cost 
+        due to deviations form the set point.
+    last_opt : float
+        Time when the last optimization was conducted
+    last_read : float
+        Time when the last measurement was taken
+    last_write : float
+        Time when the last command was sent
+    commands : list of floats
+        The possible commands of a subsystem
+    inputs : list of floats
+        The considered inputs of a subsystem
+    fin_command : float
+        The final command that results from the optimization
+    traj_var : list of strings
+        The variable in the subsystem that represents a trajectory that other 
+        subsystems should follow
+    traj_points : list of floats
+        Possible values of the trajectory variable considered in advance to
+        calculate the cost of deviating from the ideal value
     """
     
     def __init__(self, sys_id):
@@ -47,6 +91,18 @@ class Subsystem:
         self.traj_points = Init.traj_points[sys_id]
             
     def prepare_model(self):
+        """Prepares the model of a subsystem according to the subsystem's model 
+        type.
+    
+        Parameters
+        ----------
+    
+        Returns
+        ----------
+        model : Model
+            The created model object
+        """
+        
         if self.model_type == "Modelica":
             model = Modeling.ModelicaMod(self.sys_id)
             model.translate()
