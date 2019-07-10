@@ -74,6 +74,7 @@ class Subsystem:
         self.model = self.prepare_model()
         self.ups_neigh = Init.ups_neigh[sys_id]
         self.downs_neigh = Init.downs_neigh[sys_id]
+        self.par_neigh = Init.par_neigh[sys_id]
         self.coup_vars_send = []
         self.coup_vars_rec = []
         self.cost_send = []
@@ -156,6 +157,7 @@ class Subsystem:
         states = self.get_state_vars()
         if states != []:
             self.model.states.state_vars = states[0]
+            print(f"States: {self.model.states.state_vars}")
         
         if self.model.states.input_variables[0] != "external":
             if self.inputs == []:
@@ -179,9 +181,11 @@ class Subsystem:
                 results = self.predict(inp, [com])
                 outputs.append(results)
                 costs.append(self.calc_cost(com, results[-1][-1]))
+                print(f"Results: {results[-1][-1]}")
+                print(f"Costs: {costs[-1]}")
             
             min_ind = costs.index(min(costs))
-            print("costs: " + str(costs))
+
             print("index: " + str(min_ind))
             
             opt_costs.append(costs[min_ind])
@@ -227,20 +231,27 @@ class Subsystem:
         else:
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
+            
+        print(f"Cost2send: {self.cost_send}")
                 
     def calc_cost(self, command, outputs):
         import scipy.interpolate
         
         cost = self.cost_fac[0] * command
-
+        print(f"Cost after the 1st step: {cost}")
         
+        print(f"Received cost: {self.cost_rec}")
+
         if self.cost_rec != []:
-            if type(self.cost_rec) is scipy.interpolate.interpolate.interp1d:
-                cost += self.cost_fac[1] * self.cost_rec(outputs)
-            elif type(self.cost_rec) is list:
-                cost += self.cost_fac[1] * self.cost_rec[0]
-            else:
-                cost += self.cost_fac[1] * self.cost_rec
+            for c in self.cost_rec:
+                if type(c) is scipy.interpolate.interpolate.interp1d:
+                    cost += self.cost_fac[1] * c(outputs)
+                    print(f"Interp. cost: {c(outputs)}")
+                elif type(c) is list:
+                    cost += self.cost_fac[1] * c[0]
+                else:
+                    cost += self.cost_fac[1] * c
+        print(f"Cost after the 2nd step: {cost}")
         
         
         if self.model.states.set_points != []:

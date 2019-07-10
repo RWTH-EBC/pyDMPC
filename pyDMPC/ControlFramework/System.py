@@ -187,28 +187,36 @@ class System:
         if cls.contr_sys_typ == "Modelica":
             cls.contr_sys.proceed(cur_time, incr)
             
-    def broadcast(self, subsystem = None):
-        """ This method broadcasts the values of relevant varaibles among
+    def broadcast(self, sys_list = None):
+        """ This method broadcasts the values of relevant variables among
         neighboring subsystems/agents.
-        
-        Parameters
-        ----------
-        subsystem : list of Subsystem or None
-            If a list is given, only this list is considered, otherwise all
-            subsystems are considered.
+
         """
-        if subsystem is None:
-            subsystem = self.subsystems
+        if sys_list == None:
+            sys_list = range(len(self.subsystems))
             
-        for i,sub in enumerate(subsystem):
-            if sub.ups_neigh is not None:
-                self.subsystems[sub.ups_neigh].cost_rec = (
-                        sub.cost_send)
-                print("Broadcast" + str(sub.cost_send))
-            if sub.downs_neigh is not None:
-                self.subsystems[sub.downs_neigh].coup_vars_rec = (
-                        sub.coup_vars_send)
-                print("Broadcast" + str(sub.coup_vars_send))
+        for i in sys_list:
+            if self.subsystems[i].ups_neigh is not None:
+                cost = [self.subsystems[i].cost_send]
+                if self.subsystems[i].par_neigh is not None:
+                    for j in self.subsystems[i].par_neigh:
+                        cost.append(self.subsystems[j].cost_send)
+                else:
+                    j = 0
+                
+                self.subsystems[self.subsystems[i].ups_neigh].cost_rec = cost
+                
+            else:
+                j = 0                    
+
+            if self.subsystems[i].downs_neigh is not None:
+                for k in self.subsystems[i].downs_neigh:
+                    print(k)
+                    print(self.subsystems[k])
+                    self.subsystems[k].coup_vars_rec = self.subsystems[i].coup_vars_send
+            
+            i += j
+
 
         
 class Bexmoc(System):
@@ -224,9 +232,16 @@ class Bexmoc(System):
 
     def execute(self):
         
-        for i,sub in enumerate(self.subsystems):
-            sub.optimize(interp=True)
-            self.broadcast([sub])
+        for i in range(len(self.subsystems)):
+            self.subsystems[i].optimize(interp=True)
+            if self.subsystems[i].par_neigh is not None:
+                for j in self.subsystems[i].par_neigh:
+                    self.subsystems[j].optimize(interp=True)
+                self.broadcast([i] + self.subsystems[i].par_neigh)
+            else:
+                print(f"Broadcasting: {i}")
+                self.broadcast([i])
+                    
         
         for i,sub in enumerate(self.subsystems):
             sub.get_inputs()

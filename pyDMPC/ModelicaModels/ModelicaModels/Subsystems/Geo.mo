@@ -80,11 +80,12 @@ package Geo
       AixLib.Fluid.MixingVolumes.MixingVolume vol1(
         redeclare package Medium = Water,
         energyDynamics=Modelica.Fluid.Types.Dynamics.DynamicFreeInitial,
-        m_flow_small=50,
         nPorts=3,
-        p_start=100000,
         m_flow_nominal=16,
-        V=2)                         annotation (
+        V=2,
+        p_start=100000,
+        T_start=285.15,
+        m_flow_small=0.001)          annotation (
           Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
@@ -94,8 +95,8 @@ package Geo
           redeclare package Medium = Water,
         m_flow_nominal=baseParam.m_flow_tot,
         inputType=AixLib.Fluid.Types.InputType.Constant,
-        constantMassFlowRate=baseParam.m_flow_tot)
-                                            "Main geothermal pump"
+        constantMassFlowRate=baseParam.m_flow_tot,
+        T_start=285.15)                     "Main geothermal pump"
         annotation (Placement(transformation(extent={{46,-10},{66,10}})));
       AixLib.Fluid.FixedResistances.PressureDrop res(m_flow_nominal=16, dp_nominal(
             displayUnit="bar") = 100000, redeclare package Medium = Water)
@@ -127,12 +128,12 @@ package Geo
         annotation (Placement(transformation(extent={{74,-78},{94,-58}})));
       AixLib.Fluid.MixingVolumes.MixingVolume vol(
         redeclare package Medium = Water,
-        m_flow_small=50,
         nPorts=2,
         V=9000,
+        m_flow_nominal=16,
         p_start=150000,
         T_start=285.15,
-        m_flow_nominal=16)              annotation (
+        m_flow_small=0.001)             annotation (
           Placement(transformation(
             extent={{-10,-10},{10,10}},
             rotation=0,
