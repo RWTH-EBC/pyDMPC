@@ -139,7 +139,8 @@ class Subsystem:
         
         cur_time = Time.Time.get_time()
         
-        if (cur_time - self.last_opt) >= self.model.times.opt_time:
+        if (cur_time - self.last_opt) >= self.model.times.opt_time or (
+                cur_time == 0):
             self.last_opt = cur_time
             
             self.interp_minimize(interp)

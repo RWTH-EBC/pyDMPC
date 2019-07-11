@@ -11,6 +11,26 @@ model Heater "Subsystem model of the heater"
 
 
 
+  Modelica.Blocks.Sources.Constant mas1(k=0.4) annotation (Placement(
+        transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-230,-50})));
+  Modelica.Blocks.Sources.Constant mas2(k=0.4) annotation (Placement(
+        transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-230,-90})));
+  Modelica.Blocks.Sources.Constant mas3(k=0.4) annotation (Placement(
+        transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-230,-130})));
+  Modelica.Blocks.Sources.Constant mas4(k=0.4) annotation (Placement(
+        transformation(
+        extent={{10,-10},{-10,10}},
+        rotation=180,
+        origin={-230,-170})));
 equation
   connect(hex.port_b2, supplyAirTemperature.port)
     annotation (Line(points={{8,70},{104,70},{104,38}},  color={0,127,255}));

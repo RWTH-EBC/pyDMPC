@@ -52,18 +52,6 @@ model HeaterML "Detailed model of the heater for machine learning"
   Modelica.Blocks.Interfaces.RealInput inflowTemp
     "Prescribed fluid temperature"
     annotation (Placement(transformation(extent={{-160,0},{-120,40}})));
-  Modelica.Thermal.HeatTransfer.Celsius.ToKelvin toKelvin annotation (
-      Placement(transformation(
-        extent={{10,-10},{-10,10}},
-        rotation=180,
-        origin={-84,20})));
-  Modelica.Thermal.HeatTransfer.Celsius.FromKelvin
-                                                 fromKelvin
-                                                          annotation (
-      Placement(transformation(
-        extent={{10,-10},{-10,10}},
-        rotation=180,
-        origin={82,98})));
 equation
   connect(toTotAir.XiTotalAir, IntakeAirSource.X_in[1])
     annotation (Line(points={{-89,66},{-62,66}}, color={0,0,127}));
@@ -89,14 +77,10 @@ equation
     annotation (Line(points={{-111,66},{-119,66}}, color={0,0,127}));
   connect(mflow.y, IntakeAirSource.m_flow_in) annotation (Line(points={{-89,100},
           {-74,100},{-74,78},{-60,78}}, color={0,0,127}));
-  connect(inflowTemp, toKelvin.Celsius)
-    annotation (Line(points={{-140,20},{-96,20}}, color={0,0,127}));
-  connect(toKelvin.Kelvin, IntakeAirSource.T_in) annotation (Line(points={{-73,
-          20},{-70,20},{-70,74},{-62,74}}, color={0,0,127}));
-  connect(supplyAirTemperature.T, fromKelvin.Kelvin)
-    annotation (Line(points={{49,98},{70,98}}, color={0,0,127}));
-  connect(fromKelvin.Celsius, supplyTemp)
-    annotation (Line(points={{93,98},{136,98}}, color={0,0,127}));
+  connect(supplyAirTemperature.T, supplyTemp)
+    annotation (Line(points={{49,98},{136,98}}, color={0,0,127}));
+  connect(inflowTemp, IntakeAirSource.T_in) annotation (Line(points={{-140,20},
+          {-72,20},{-72,74},{-62,74}}, color={0,0,127}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
         coordinateSystem(preserveAspectRatio=false)),
     experiment(StopTime=3600, Interval=10));
