@@ -277,7 +277,7 @@ class SciMod(Model):
     def predict(self):
         self.write_inputs()
         self.states.outputs = [self.model.predict(self.scal_inputs)]
-        #print(f"MLP outputs: {self.states.outputs}")
+        print(f"MLP outputs: {self.states.outputs}")
 
 class LinMod(Model):
 
