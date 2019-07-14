@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 def main():
 
-    module = "cooler"
+    module = "heater"
     command = []        # The manipulated variable in the model
     T_cur = []          # The current inflow temperature
 
@@ -17,12 +17,12 @@ def main():
 
 
     """ Random inflow temperatures for training """
-    T = [275]
+    T = [283]
 
-    for k in range(49):
-        T.append(random.uniform(275, 320.0))
+    for k in range(100):
+        T.append(random.uniform(283, 313.0))
 
-    T.append(320)
+    T.append(313)
 
     """ Simulate the FMU to generate the training data """
     sync_rate = 60  # Synchronisation rate of the FMU
@@ -38,10 +38,12 @@ def main():
     time_step = sync_rate
 
     """ Actual training sequence """
-    for k in range(50):
-        for t in range(60):
+    for k in range(40):
+        for t in range(12000):
             """Write random values to the controlled variables"""
-            if t%120 == 0:
+            if t < 100:
+                command.append(0)
+            elif t%120 == 0:
                 command.append(random.uniform(0.0,100.0))
             else:
                 command.append(command[-1])
