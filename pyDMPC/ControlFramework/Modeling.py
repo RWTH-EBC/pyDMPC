@@ -195,19 +195,28 @@ class ModelicaMod(Model):
 
     def simulate(self):
         ModelicaMod.dymola.cd(self.paths.res_path)
+        
+        command_variables = [f"decisionVariables.table[{i+1},2]" 
+                             for i in range(1)]
+        
+        time_variables = [f"decisionVariables.table[{i+1},1]"
+                          for i in range(1)]
+        
+        times = [i*600 for i in range(1)]
 
         if self.states.input_variables[0] == "external":
             initialNames = (self.states.command_variables  +
-                            self.states.model_state_var_names)
-            initialValues = (self.states.commands + self.states.state_vars)
+                            self.states.model_state_var_names + time_variables)
+            initialValues = (self.states.commands + self.states.state_vars + times)
         else:
             initialValues = (self.states.commands + self.states.inputs +
-                             self.states.state_vars)
+                             self.states.state_vars + times)
 
-            initialNames = (self.states.command_variables +
+            initialNames = (command_variables +
                             self.states.input_variables +
-                            self.states.model_state_var_names)
+                            self.states.model_state_var_names + time_variables)
             print(initialNames)
+            print(initialValues)
 
 
         for k in range(3):
