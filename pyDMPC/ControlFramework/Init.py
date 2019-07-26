@@ -1,8 +1,8 @@
 # Global paths
-glob_lib_paths = [r'C:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels',
-             r'C:\Git\modelica-buildings\Buildings',
-             r'C:\Git\AixLib\AixLib']
-glob_res_path = r'C:\TEMP\Dymola'
+glob_lib_paths = [r'D:\Git\pyDMPC\pyDMPC\ModelicaModels\ModelicaModels',
+             r'D:\Git\modelica-buildings\Buildings',
+             r'D:\Git\AixLib-master\AixLib']
+glob_res_path = r'D:\dymola'
 glob_dym_path = r'C:\Program Files\Dymola 2018 FD01\Modelica\Library\python_interface\dymola.egg'
 
 # Working directory
@@ -14,7 +14,7 @@ name_wkdir = r'pyDMPC_' + 'wkdir' + timestr
 contr_sys_typ = "Modelica"
 ads_id = '5.59.199.202.1.1'
 ads_port = 851
-name_fmu = 'pyDMPCFMU_AHU.fmu'
+name_fmu = r'ModelicaModels_ControlledSystems_ControlledSystemBoundaries.fmu'
 orig_fmu_path = glob_res_path + '\\' + name_fmu
 dest_fmu_path = glob_res_path + '\\' + name_wkdir + '\\' + name_fmu
 time_incr = 120
@@ -84,7 +84,7 @@ samp_time.append(10)
 lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
-mod_path.append(r'C:\TEMP\Dymola\heater')
+mod_path.append(r'D:\dymola\heater')
 command_names.append(["valveHeater"])
 command_variables.append(["decisionVariables.table[1,2]"])
 commands.append(range(0,105,5))
@@ -113,7 +113,7 @@ samp_time.append(10)
 lib_paths.append(glob_lib_paths)
 res_path.append(glob_res_path + "\\" + name_wkdir)
 dym_path.append(glob_dym_path)
-mod_path.append(r'C:\TEMP\Dymola\cooler')
+mod_path.append(r'D:\dymola\cooler')
 command_names.append(["valveCooler"])
 command_variables.append(["decisionVariables.table[1,2]"])
 commands.append(range(0,105,5))

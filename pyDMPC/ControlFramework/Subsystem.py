@@ -183,10 +183,6 @@ class Subsystem:
                 results = self.predict(inp, [com])
                 outputs.append(results)
                 costs.append(self.calc_cost(com, results[-1][-1]))
-                #print(f"{self.name}: {results[-1][-1]} - {costs[-1]}")
-                #print(f"{self.name}: {self.cost_rec}")
-                #print(f"Results: {results[-1][-1]}")
-                #print(f"Costs: {costs[-1]}")
 
             min_ind = costs.index(min(costs))
 
@@ -203,9 +199,6 @@ class Subsystem:
             set_point = traj[10]
             for pts in self.traj_points:
                 traj_costs.append((pts - set_point)**2)
-
-            #print("set_point: " + str(set_point))
-            #print("traj_costs: " + str(traj_costs))
 
             self.traj_points.insert(self.traj_points[0] - 1.)
             traj_costs.insert(traj_costs[0] * 5)
@@ -228,13 +221,11 @@ class Subsystem:
 
         if len(inputs) >= 2:
             if interp:
-                #self.coup_vars_send = it.interp1d(inputs, opt_outputs,
-                #                             fill_value = "extrapolate")
+
                 self.coup_vars_send = opt_outputs
                 self.command_send = it.interp1d(inputs, opt_command,
                                              fill_value = (100,100), bounds_error = False)
             else:
-                #print("self.coup_vars_send: " + str(self.coup_vars_send))
                 self.coup_vars_send = opt_outputs
                 self.command_send = opt_command
 
@@ -242,17 +233,10 @@ class Subsystem:
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
 
-        #print(f"{self.name}: {self.command_send}")
-        #time.sleep(2)
-        #print(f"Cost: {self.cost_send}")
-
     def calc_cost(self, command, outputs):
         import scipy.interpolate
 
         cost = self.cost_fac[0] * command
-        #print(f"Cost after the 1st step: {cost}")
-
-        #print(f"Received cost: {self.cost_rec}")
 
         if self.cost_rec != [] and self.cost_rec != [[]]:
             for c in self.cost_rec:
@@ -263,7 +247,6 @@ class Subsystem:
                     cost += self.cost_fac[1] * c[0]
                 else:
                     cost += self.cost_fac[1] * c
-        #print(f"Cost after the 2nd step: {cost}")
 
 
         if self.model.states.set_points != []:
