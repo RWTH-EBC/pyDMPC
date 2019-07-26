@@ -276,10 +276,13 @@ class SciMod(Model):
     def write_inputs(self):
         import numpy as np
 
-        commands = [com*np.ones(60) for com in self.states.commands]
-        inputs = [inp*np.ones(60) for inp in self.states.inputs]
+        commands_1 = self.states.commands[0]*np.ones(10)
+        commands_2 = self.states.commands[1]*np.ones(50)
+        commands = commands_1.tolist() + commands_2.tolist()
+        inputs = self.states.inputs[0]*np.ones(60)
+        inputs = inputs.tolist()
 
-        inputs = np.stack((commands + inputs), axis=1)
+        inputs = np.stack(([commands] + [inputs]), axis=1)
 
         self.scal_inputs = self.scaler.transform(inputs)
 

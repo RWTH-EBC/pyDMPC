@@ -273,32 +273,32 @@ class Subsystem:
         import numpy as np
         "Element in nd array `a` closest to the scalar value `a0`"
         idx = np.abs(a - a0).argmin()
-        return a.flat[idx]
+        
+        return idx
 
     def interp(self, iter_real):
         import scipy.interpolate
+        import numpy as np
 
         if iter_real == "iter" and self.coup_vars_rec != []:
             inp = self.coup_vars_rec
         else:
             inp = self.model.states.inputs
 
-        #print(f"{self.name}: {inp}")
+        idx = self.find_nearest(np.asarray(self.inputs), inp[0])
 
         if self.command_send != []:
             if (type(self.command_send) is scipy.interpolate.interpolate.interp1d):
                 self.fin_command = self.command_send(inp[0])
             else:
-                self.fin_command = self.command_send[self.find_nearest(self.command_send, inp[0])]
+                self.fin_command = self.command_send[idx]
 
         if self.coup_vars_send != []:
             if type(self.coup_vars_send) is scipy.interpolate.interpolate.interp1d:
                 self.fin_coup_vars = self.coup_vars_send(inp[0])
             else:
-                self.fin_coup_vars = self.coup_vars_send[self.find_nearest(self.command_send, inp[0])]
+                self.fin_coup_vars = self.coup_vars_send[idx]
 
-        #print(f"{self.name}: {self.fin_command}")
-        #time.sleep(2)
 
     def get_inputs(self):
 
@@ -329,6 +329,8 @@ class Subsystem:
 
         if (cur_time - self.last_write) > self.model.times.samp_time:
             self.last_write = cur_time
+            
+            print(self.fin_command[0])
 
             if self.model.states.command_names is not None:
                 for nam in self.model.states.command_names:
