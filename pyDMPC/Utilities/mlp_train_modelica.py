@@ -1,14 +1,15 @@
-from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 from pyfmi import load_fmu
 import random
-from joblib import dump, load
+from joblib import dump
 from matplotlib import pyplot as plt
 
 def main():
 
     module = "heater"
+    path = "D:\dymola"
     command = []        # The manipulated variable in the model
     T_cur = []          # The current inflow temperature
 
@@ -28,7 +29,7 @@ def main():
     sync_rate = 60  # Synchronisation rate of the FMU
 
     # Load exisiting FMU
-    model = load_fmu(f"C:\TEMP\Dymola\{module}.fmu")
+    model = load_fmu(f"{path}\\{module}.fmu")
 
     """ Initialize the FMU """
     model.set('valveOpening',0)
@@ -39,7 +40,7 @@ def main():
 
     """ Actual training sequence """
     for k in range(40):
-        for t in range(12000):
+        for t in range(1200):
             """Write random values to the controlled variables"""
             if t < 100:
                 command.append(0)
@@ -92,7 +93,7 @@ def main():
     plt.show()
 
     """ Save the model and the scaler for later use """
-    dump(MLPModel, f"C:\TEMP\Dymola\{module}.joblib")
-    dump(scaler, f"C:\TEMP\Dymola\{module}_scaler.joblib")
+    dump(MLPModel, f"{path}\\{module}.joblib")
+    dump(scaler, f"{path}\\{module}_scaler.joblib")
 
 if __name__=="__main__": main()
