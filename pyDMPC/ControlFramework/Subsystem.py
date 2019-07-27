@@ -148,6 +148,7 @@ class Subsystem:
     def interp_minimize(self, interp):
 
         from scipy import interpolate as it
+        import time
 
         opt_costs = []
         opt_outputs =  []
@@ -239,12 +240,13 @@ class Subsystem:
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
 
-        #print(f"{self.name}: {self.command_send}")
-        #time.sleep(2)
-        #print(f"Cost: {self.cost_send}")
+        print(f"self.cost_send: {self.cost_send}")
+        time.sleep(2)
+        print(f"Command: {self.command_send}")
 
     def calc_cost(self, command, outputs):
         import scipy.interpolate
+        import numpy as np
 
         cost = self.cost_fac[0] * sum(command)
         #print(f"Cost after the 1st step: {cost}")
@@ -257,7 +259,8 @@ class Subsystem:
                     cost += self.cost_fac[1] * c(outputs)
                     #print(f"Interp. cost: {c(outputs)}")
                 elif type(c) is list:
-                    cost += self.cost_fac[1] * c[0]
+                    idx = self.find_nearest(np.asarray(self.inputs), outputs)
+                    cost += self.cost_fac[1] * c[idx]
                 else:
                     cost += self.cost_fac[1] * c
         #print(f"Cost after the 2nd step: {cost}")
@@ -286,6 +289,8 @@ class Subsystem:
             inp = self.model.states.inputs
 
         idx = self.find_nearest(np.asarray(self.inputs), inp[0])
+        #print(f"self.inputs): {self.inputs}")
+        #print(f"inp[0]: {inp[0]}")
 
         if self.command_send != []:
             if (type(self.command_send) is scipy.interpolate.interpolate.interp1d):
@@ -298,7 +303,8 @@ class Subsystem:
                 self.fin_coup_vars = self.coup_vars_send(inp[0])
             else:
                 self.fin_coup_vars = self.coup_vars_send[idx]
-
+        print(f"self.fin_command: {self.fin_command}")
+        print(f"idx: {idx}")
 
     def get_inputs(self):
 
