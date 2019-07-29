@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 def main():
 
-    module = "heater"
+    module = "cooler"
     path = "D:\dymola"
     command = []        # The manipulated variable in the model
     T_cur = []          # The current inflow temperature
@@ -45,7 +45,7 @@ def main():
             if t < 100:
                 command.append(0)
             elif t%120 == 0:
-                command.append(random.uniform(0.0,100.0))
+                command.append(random.uniform(0.0,10.0))
             else:
                 command.append(command[-1])
 
