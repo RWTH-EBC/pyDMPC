@@ -234,10 +234,10 @@ class Bexmoc(System):
     def execute(self):
 
         for i in range(len(self.subsystems)):
-            self.subsystems[i].optimize(interp=True)
+            self.subsystems[i].optimize(interp=False)
             if self.subsystems[i].par_neigh is not None:
                 for j in self.subsystems[i].par_neigh:
-                    self.subsystems[j].optimize(interp=True)
+                    self.subsystems[j].optimize(interp=False)
                 self.broadcast([i] + self.subsystems[i].par_neigh)
             else:
                 #print(f"Broadcasting: {i}")
@@ -253,8 +253,7 @@ class Bexmoc(System):
             cur_time = Time.Time.get_time()
 
             Bexmoc.proceed(cur_time, Time.Time.time_incr)
-            tim = Time.Time.set_time()
-            #print("Time: " + str(tim))
+            Time.Time.set_time()
 
     def iterate(self):
         import time
@@ -292,10 +291,13 @@ class Bexmoc(System):
                         #print(f"Coupling: {sub.coup_vars_rec[0]}")
                         if (self.subsystems[1].inputs[0] <
                             self.subsystems[1].model.states.set_points[0]):
-                            sub.inputs = [min(sub.coup_vars_rec[0],               sub.model.states.set_points[0] - 0.5), sub.model.states.set_points[0]]
+                            sub.inputs = [min(sub.coup_vars_rec[0],
+                                              sub.model.states.set_points[0] - 0.5), 
+                                                sub.model.states.set_points[0]]
                         else:
                             sub.inputs = [max(sub.coup_vars_rec[1],
-                                        sub.model.states.set_points[0] + 0.5), sub.model.states.set_points[0]]
+                                        sub.model.states.set_points[0] + 0.5), 
+                                sub.model.states.set_points[0]]
 
                 sub.inputs.sort()
                 print(f"{sub.name}: {sub.inputs}")
