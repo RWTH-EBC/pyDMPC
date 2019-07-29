@@ -122,7 +122,6 @@ class Subsystem:
 
         if self.model.states.state_var_names != []:
             for i,nam in enumerate(self.model.states.state_var_names):
-                #print("State variable names: " + str(nam))
                 state_vars.append(System.Bexmoc.read_cont_sys(nam))
 
         if inputs != "external":
@@ -157,7 +156,6 @@ class Subsystem:
         states = self.get_state_vars()
         if states != []:
             self.model.states.state_vars = states[0]
-            #print(f"States: {self.model.states.state_vars}")
 
         if self.model.states.input_variables[0] != "external":
             if self.inputs == []:
@@ -181,14 +179,8 @@ class Subsystem:
                 results = self.predict(inp, com)
                 outputs.append(results)
                 costs.append(self.calc_cost(com, results[-1][-1]))
-                #print(f"{self.name}: {results[-1][-1]} - {costs[-1]}")
-                #print(f"{self.name}: {self.cost_rec}")
-                #print(f"Results: {results[-1][-1]}")
-                #print(f"Costs: {costs[-1]}")
 
             min_ind = costs.index(min(costs))
-
-            #print("index: " + str(min_ind))
 
             opt_costs.append(costs[min_ind])
             temp = outputs[min_ind]
@@ -202,8 +194,6 @@ class Subsystem:
             for pts in self.traj_points:
                 traj_costs.append((pts - set_point)**2)
 
-            #print("set_point: " + str(set_point))
-            #print("traj_costs: " + str(traj_costs))
 
             self.traj_points.insert(self.traj_points[0] - 1.)
             traj_costs.insert(traj_costs[0] * 5)
@@ -226,13 +216,10 @@ class Subsystem:
 
         if len(inputs) >= 2:
             if interp:
-                #self.coup_vars_send = it.interp1d(inputs, opt_outputs,
-                #                             fill_value = "extrapolate")
                 self.coup_vars_send = opt_outputs
                 self.command_send = it.interp1d(inputs, opt_command,
                                              fill_value = (100,100), bounds_error = False)
             else:
-                #print("self.coup_vars_send: " + str(self.coup_vars_send))
                 self.coup_vars_send = opt_outputs
                 self.command_send = opt_command
 
@@ -249,22 +236,16 @@ class Subsystem:
         import numpy as np
 
         cost = self.cost_fac[0] * sum(command)
-        #print(f"Cost after the 1st step: {cost}")
-
-        #print(f"Received cost: {self.cost_rec}")
 
         if self.cost_rec != [] and self.cost_rec != [[]]:
             for c in self.cost_rec:
                 if type(c) is scipy.interpolate.interpolate.interp1d:
                     cost += self.cost_fac[1] * c(outputs)
-                    #print(f"Interp. cost: {c(outputs)}")
                 elif type(c) is list:
                     idx = self.find_nearest(np.asarray(self.inputs), outputs)
                     cost += self.cost_fac[1] * c[idx]
                 else:
                     cost += self.cost_fac[1] * c
-        #print(f"Cost after the 2nd step: {cost}")
-
 
         if self.model.states.set_points != []:
             cost += (self.cost_fac[2] * (outputs -
@@ -289,8 +270,6 @@ class Subsystem:
             inp = self.model.states.inputs
 
         idx = self.find_nearest(np.asarray(self.inputs), inp[0])
-        #print(f"self.inputs): {self.inputs}")
-        #print(f"inp[0]: {inp[0]}")
 
         if self.command_send != []:
             if (type(self.command_send) is scipy.interpolate.interpolate.interp1d):
@@ -303,19 +282,14 @@ class Subsystem:
                 self.fin_coup_vars = self.coup_vars_send(inp[0])
             else:
                 self.fin_coup_vars = self.coup_vars_send[idx]
-        print(f"self.fin_command: {self.fin_command}")
-        print(f"idx: {idx}")
 
     def get_inputs(self):
 
         inputs = []
-        #print("Input variables: "+ str(self.model.states.input_variables))
 
         if self.model.states.input_variables is not None:
             for nam in self.model.states.input_names:
-                #print("check")
                 inputs.append(System.Bexmoc.read_cont_sys(nam))
-                #print("Inputs" + str(inputs))
 
         self.model.states.inputs = inputs
 
