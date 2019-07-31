@@ -211,38 +211,34 @@ class System:
 
             if self.subsystems[i].downs_neigh is not None:
                 for k in self.subsystems[i].downs_neigh:
-                    #print(k)
-                    #print(self.subsystems[k])
-                    self.subsystems[k].coup_vars_rec = self.subsystems[i].coup_vars_send
-                    #print(f"{self.subsystems[k].name}: #{self.subsystems[k].coup_vars_rec}")
-
+                    self.subsystems[k].coup_vars_rec = (
+                    self.subsystems[i].coup_vars_send)
+                    
             i += j
 
 
 
 class Bexmoc(System):
 
-    def __init__(self):
+    def __init__(self, interp):
         super().__init__()
+        self.interp = interp
 
     def initialize(self):
         for i,sub in enumerate(self.subsystems):
             if Bexmoc.contr_sys_typ == "Modelica":
                 sub.get_inputs()
 
-
     def execute(self):
 
         for i in range(len(self.subsystems)):
-            self.subsystems[i].optimize(interp=False)
+            self.subsystems[i].optimize(interp=self.interp)
             if self.subsystems[i].par_neigh is not None:
                 for j in self.subsystems[i].par_neigh:
-                    self.subsystems[j].optimize(interp=False)
+                    self.subsystems[j].optimize(interp=self.interp)
                 self.broadcast([i] + self.subsystems[i].par_neigh)
             else:
-                #print(f"Broadcasting: {i}")
                 self.broadcast([i])
-
 
         for i,sub in enumerate(self.subsystems):
             sub.get_inputs()
@@ -256,7 +252,6 @@ class Bexmoc(System):
             Time.Time.set_time()
 
     def iterate(self):
-        import time
         for i,sub in enumerate(self.subsystems):
             print(sub.name)
 
@@ -269,10 +264,7 @@ class Bexmoc(System):
                 sub.inputs = [inputs[0], sub.model.states.set_points[0]]
 
             sub.inputs.sort()
-            #print(sub.inputs)
-            #time.sleep(2)
             sub.optimize(interp = True)
-            #sub.interp(iter_real = "iter")
             self.broadcast([i])
 
 
@@ -280,15 +272,11 @@ class Bexmoc(System):
             for i,sub in enumerate(self.subsystems):
                 if i == 1:
                     sub.get_inputs()
-                    #print(f"Measurement: {sub.model.states.inputs[0]}")
-                    #time.sleep(2)
                     inputs = sub.model.states.inputs[0]
                     sub.inputs = [inputs[0] - 0.1, inputs[0] + 0.1]
 
                 else:
-                    #print(sub.coup_vars_rec)
                     if sub.coup_vars_rec != []:
-                        #print(f"Coupling: {sub.coup_vars_rec[0]}")
                         if (self.subsystems[1].inputs[0] <
                             self.subsystems[1].model.states.set_points[0]):
                             sub.inputs = [min(sub.coup_vars_rec[0],
@@ -303,8 +291,6 @@ class Bexmoc(System):
                 print(f"{sub.name}: {sub.inputs}")
 
                 sub.optimize(interp = True)
-                #sub.interp(iter_real = "iter")
-                #print(f"{sub.name}: {sub.command_send}")
 
                 self.broadcast([i])
 
@@ -312,15 +298,12 @@ class Bexmoc(System):
         for i,sub in enumerate(self.subsystems):
             sub.interp(iter_real = "iter")
             sub.send_commands()
-            #print(f"{sub.name}: {sub.fin_command}")
-            #time.sleep(2)
 
         if Bexmoc.contr_sys_typ == "Modelica":
             cur_time = Time.Time.get_time()
 
             Bexmoc.proceed(cur_time, Time.Time.time_incr)
-            tim = Time.Time.set_time()
-            #print("Time: " + str(tim))
+            Time.Time.set_time()
 
     def terminate(self):
         Bexmoc.close_cont_sys()

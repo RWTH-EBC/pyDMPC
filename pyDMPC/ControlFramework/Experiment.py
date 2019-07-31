@@ -1,26 +1,25 @@
 import System
-import time
 import Time
+import Init
 
 def main():
 
     # Generate a system for the experiment
     Time.Time.contr_sys_type = "Modelica"
-    sys = System.Bexmoc()
+    sys = System.Bexmoc(interp = False)
 
     System.Bexmoc.prep_cont_sys()
 
     # Minimum sample interval in seconds
-    min_samp_inter = 10
+    min_samp_inter = Init.time_incr
 
     sys.initialize()
 
     try:
         try:
             for cur_time in range(0, 86400 , min_samp_inter):
-                start_time = time.time()
                 sys.execute()
-                #time.sleep(max(0, min_samp_inter - time.time() + start_time))
+                print(f"Time: {cur_time}")
         
             System.Bexmoc.close_mod()
             System.Bexmoc.close_cont_sys()
