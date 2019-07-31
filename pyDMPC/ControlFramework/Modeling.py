@@ -275,7 +275,6 @@ class SciMod(Model):
 
     def write_inputs(self):
         import numpy as np
-
         commands_1 = self.states.commands[0]*np.ones(10)
         commands_2 = self.states.commands[1]*np.ones(50)
         commands = commands_1.tolist() + commands_2.tolist()
