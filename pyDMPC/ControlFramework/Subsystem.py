@@ -216,8 +216,11 @@ class Subsystem:
 
         if len(inputs) >= 2:
             if interp:
+                interp_com = []
                 self.coup_vars_send = opt_outputs
-                self.command_send = it.interp1d(inputs, opt_command,
+                for com in opt_command:
+                    interp_com.append(com[0])
+                self.command_send = it.interp1d(inputs, interp_com,
                                              fill_value = (100,100), bounds_error = False)
             else:
                 self.coup_vars_send = opt_outputs
@@ -227,9 +230,6 @@ class Subsystem:
             self.coup_vars_send = opt_outputs[0]
             self.command_send = opt_command[0]
 
-        print(f"self.cost_send: {self.cost_send}")
-        time.sleep(2)
-        print(f"Command: {self.command_send}")
 
     def calc_cost(self, command, outputs):
         import scipy.interpolate
@@ -310,8 +310,11 @@ class Subsystem:
         if (cur_time - self.last_write) > self.model.times.samp_time:
             self.last_write = cur_time
             
-            print(self.fin_command[0])
+            if type(self.fin_command) is list:
+                com = self.fin_command[0]
+            else:
+                com = self.fin_command
 
             if self.model.states.command_names is not None:
                 for nam in self.model.states.command_names:
-                   System.Bexmoc.write_cont_sys(nam, self.fin_command[0])
+                   System.Bexmoc.write_cont_sys(nam, com)
