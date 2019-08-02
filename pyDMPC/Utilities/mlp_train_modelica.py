@@ -1,14 +1,15 @@
-from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 from pyfmi import load_fmu
 import random
-from joblib import dump, load
+from joblib import dump
 from matplotlib import pyplot as plt
 
 def main():
 
     module = "cooler"
+    path = "D:\dymola"
     command = []        # The manipulated variable in the model
     T_cur = []          # The current inflow temperature
 
@@ -17,18 +18,18 @@ def main():
 
 
     """ Random inflow temperatures for training """
-    T = [275]
+    T = [283]
 
-    for k in range(49):
-        T.append(random.uniform(275, 320.0))
+    for k in range(100):
+        T.append(random.uniform(283, 313.0))
 
-    T.append(320)
+    T.append(313)
 
     """ Simulate the FMU to generate the training data """
     sync_rate = 60  # Synchronisation rate of the FMU
 
     # Load exisiting FMU
-    model = load_fmu(f"C:\TEMP\Dymola\{module}.fmu")
+    model = load_fmu(f"{path}\\{module}.fmu")
 
     """ Initialize the FMU """
     model.set('valveOpening',0)
@@ -38,11 +39,13 @@ def main():
     time_step = sync_rate
 
     """ Actual training sequence """
-    for k in range(50):
-        for t in range(60):
+    for k in range(40):
+        for t in range(1200):
             """Write random values to the controlled variables"""
-            if t%120 == 0:
-                command.append(random.uniform(0.0,100.0))
+            if t < 100:
+                command.append(0)
+            elif t%120 == 0:
+                command.append(random.uniform(0.0,10.0))
             else:
                 command.append(command[-1])
 
@@ -90,7 +93,7 @@ def main():
     plt.show()
 
     """ Save the model and the scaler for later use """
-    dump(MLPModel, f"C:\TEMP\Dymola\{module}.joblib")
-    dump(scaler, f"C:\TEMP\Dymola\{module}_scaler.joblib")
+    dump(MLPModel, f"{path}\\{module}.joblib")
+    dump(scaler, f"{path}\\{module}_scaler.joblib")
 
 if __name__=="__main__": main()

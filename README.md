@@ -41,5 +41,5 @@ We continuously improve **pyDMPC** and try to keep the community up-to-date with
 
 - Comparative study of neighbor communication approaches for distributed model predictive control in building energy systems.
   Baranski M., Meyer, L., Fütterer J., Müller D..
-  Energy and Buildings, in press.
+  Energy and Buildings.
   [DOI](https://doi.org/10.1016/j.energy.2019.06.037)

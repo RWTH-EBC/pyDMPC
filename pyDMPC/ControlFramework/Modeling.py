@@ -195,19 +195,28 @@ class ModelicaMod(Model):
 
     def simulate(self):
         ModelicaMod.dymola.cd(self.paths.res_path)
+        
+        command_variables = [f"decisionVariables.table[{i+1},2]" 
+                             for i in range(1)]
+        
+        time_variables = [f"decisionVariables.table[{i+1},1]"
+                          for i in range(1)]
+        
+        times = [i*600 for i in range(1)]
 
         if self.states.input_variables[0] == "external":
             initialNames = (self.states.command_variables  +
-                            self.states.model_state_var_names)
-            initialValues = (self.states.commands + self.states.state_vars)
+                            self.states.model_state_var_names + time_variables)
+            initialValues = (self.states.commands + self.states.state_vars + times)
         else:
             initialValues = (self.states.commands + self.states.inputs +
-                             self.states.state_vars)
+                             self.states.state_vars + times)
 
-            initialNames = (self.states.command_variables +
+            initialNames = (command_variables +
                             self.states.input_variables +
-                            self.states.model_state_var_names)
+                            self.states.model_state_var_names + time_variables)
             print(initialNames)
+            print(initialValues)
 
 
         for k in range(3):
@@ -266,18 +275,19 @@ class SciMod(Model):
 
     def write_inputs(self):
         import numpy as np
+        commands_1 = self.states.commands[0]*np.ones(10)
+        commands_2 = self.states.commands[1]*np.ones(50)
+        commands = commands_1.tolist() + commands_2.tolist()
+        inputs = self.states.inputs[0]*np.ones(60)
+        inputs = inputs.tolist()
 
-        commands = [com*np.ones(60) for com in self.states.commands]
-        inputs = [inp*np.ones(60) for inp in self.states.inputs]
-
-        inputs = np.stack((commands + inputs), axis=1)
+        inputs = np.stack(([commands] + [inputs]), axis=1)
 
         self.scal_inputs = self.scaler.transform(inputs)
 
     def predict(self):
         self.write_inputs()
         self.states.outputs = [self.model.predict(self.scal_inputs)]
-        print(f"MLP outputs: {self.states.outputs}")
 
 class LinMod(Model):
 
