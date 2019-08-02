@@ -31,8 +31,14 @@ the following settings:
 
 ![FMU](../pyDMPC/Resources/Images/FMU.png)
 
+Make sure to tick the flag "Store results in mat file".
 The FMU filename and the file's location has to be included into the Init.py.
 
 ### Settings
 All settings are given in the Init.py according as described in the
 [Settings](Settings.md).
+
+### Check the results
+pyDMPC automatically creates a folder in your working directory, which is
+called pyDMPC_wkdir + the current date and time. You will find the result stored
+by the FMU in that folder.
