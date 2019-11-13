@@ -112,7 +112,7 @@ class Subsystem:
             model.load_mod()
         elif self.model_type == "Linear":
             model = Modeling.LinMod(self.sys_id)
-        else:
+        elif self.model_type == "Fuzzy":
             model = Modeling.FuzMod(self.sys_id)
         return model
 
