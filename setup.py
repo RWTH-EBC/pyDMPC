@@ -26,4 +26,4 @@ setup(name='pydmpc',
           'Topic :: Scientific/Engineering',
           'Topic :: Utilities'],
       install_requires=['scipy', 'numpy', 'pyads',
-      'fmpy', 'modelicares', ])
+      'fmpy', 'modelicares'])
