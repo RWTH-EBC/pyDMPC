@@ -21,7 +21,7 @@ def main():
                 sys.execute()
                 print(f"Time: {cur_time}")
         
-            System.Bexmoc.close_mod()
+            sys.close_mod()
             System.Bexmoc.close_cont_sys()
             print("Success")
 

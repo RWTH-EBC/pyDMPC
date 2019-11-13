@@ -1,0 +1,6 @@
+scipy
+numpy
+pyads
+fmpy
+modelicares
+scikit-fuzzy
