@@ -21,7 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
+
 ##############################################################################
+
 The fuzzy.py file is derived from the scikit-fuzzy team.
 Unless otherwise specified by LICENSE.txt files in subdirectories (or below),
 all code is:
