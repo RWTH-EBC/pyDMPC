@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ##############################################################################
+
 ModelicaRes Copyright (c) 2010-2014, Kevin Davies, Hawaii Natural Energy Institute (HNEI),
 and Georgia Tech Research Corporation (GTRC).
 All rights reserved.
@@ -94,6 +95,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ##############################################################################
+
 pyFMI Copyright (C) modelon-community.
 It is licensed under the GNU Lesser General Public License v3.0.
 All rights reserved.
