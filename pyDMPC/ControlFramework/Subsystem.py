@@ -269,11 +269,11 @@ class Subsystem:
         else:
             inp = self.model.states.inputs
 
-        idx = self.find_nearest(np.asarray(self.inputs), inp[0])
+        idx = self.find_nearest(np.asarray(self.inputs), inp[-1])
 
         if self.command_send != []:
             if (type(self.command_send) is scipy.interpolate.interpolate.interp1d):
-                self.fin_command = self.command_send(inp[0])
+                self.fin_command = self.command_send(inp[-1])
             else:
                 self.fin_command = self.command_send[idx]
 
