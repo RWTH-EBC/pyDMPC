@@ -28,3 +28,13 @@ as controlled system.
 
 ## SystemTime
 The SystemTime module is intended to provide global clocks for all other modules. It distinguishes the simulated controlled system (FMU) and the real-life controlled system (PLC, API). 
+
+# Interaction sequence
+
+The following sequence diagram shows the preparation phase, in which objects of the various classes are created.
+
+![Sequencediagram](sequencediagram.png)
+
+The following sequence diagram shows the operation phase, in which the objects interact to control the controlled system.
+
+![Sequencediagram_Iteration](sequencediagram_iteration.png)
