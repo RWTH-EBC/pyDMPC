@@ -221,7 +221,7 @@ class Subsystem:
                 for com in opt_command:
                     interp_com.append(com[0])
                 self.command_send = it.interp1d(inputs, interp_com,
-                                             fill_value = (100,100), bounds_error = False)
+                                             fill_value = (0,0), bounds_error = False)
             else:
                 self.coup_vars_send = opt_outputs
                 self.command_send = opt_command
