@@ -4,3 +4,5 @@ pyads
 fmpy
 modelicares
 scikit-fuzzy
+scikit-learn
+joblib

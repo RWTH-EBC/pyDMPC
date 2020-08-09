@@ -7,15 +7,13 @@ setup(name='pydmpc',
       url='https://github.com/RWTH-EBC/pyDMPC',
       author='RWTH Aachen University, E.ON Energy Research Center, '
              'Institute of Energy Efficient Buildings and Indoor Climate',
-      author_email='post_ebc@eonerc.rwth-aachen.de',
-      license='MIT',
+      author_email='ebc-office@eonerc.rwth-aachen.de',
       packages=[
           'pyDMPC',
           'pyDMPC.ControlFramework',
 		  'pyDMPC.ControlFramework.functions'],
       package_data={},
       classifiers=[
-          'License :: MIT License',
           'Operating System :: Microsoft :: Windows',
           'Operating System :: POSIX :: Linux',
           'Programming Language :: Python :: 3.4',
@@ -26,4 +24,4 @@ setup(name='pydmpc',
           'Topic :: Scientific/Engineering',
           'Topic :: Utilities'],
       install_requires=['scipy', 'numpy', 'pyads',
-      'fmpy', 'modelicares'])
+      'fmpy', 'modelicares', 'scikit-learn==0.21.3', 'joblib'])
