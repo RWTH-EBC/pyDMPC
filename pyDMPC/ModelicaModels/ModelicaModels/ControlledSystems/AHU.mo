@@ -1,6 +1,5 @@
 within ModelicaModels.ControlledSystems;
-model ControlledSystemBoundaries
-  "Version of controlled system with boundary conditions"
+model AHU "Version of air handling unit with boundary conditions"
   extends ModelicaModels.BaseClasses.ControlledSystemBaseClass(volumeFlow(
         tableOnFile=false, table=[0,0.31,0.29]), freshAirSource(nPorts=2));
   Modelica.Blocks.Sources.Sine     outdoorTemperature(
@@ -154,4 +153,4 @@ equation
       Evaluate=false,
       OutputCPUtime=false,
       OutputFlatModelica=false));
-end ControlledSystemBoundaries;
+end AHU;

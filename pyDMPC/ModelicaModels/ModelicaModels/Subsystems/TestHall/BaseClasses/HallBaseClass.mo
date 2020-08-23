@@ -5,7 +5,7 @@ model HallBaseClass "Simplified model of hall 1"
   "Nominal mass flow rate"
   annotation(Dialog(group = "Nominal condition"));
 
-  parameter AixLib.FastHVAC.Media.BaseClasses.MediumSimple medium = AixLib.FastHVAC.Media.WaterSimple();
+  parameter AixLib.FastHVAC.Media.BaseClasses.MediumSimple medium = ModelicaModels.Subsystems.TestHall.BaseClasses.SimpleAir();
 
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature outdoorAir
     annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
@@ -62,6 +62,9 @@ model HallBaseClass "Simplified model of hall 1"
     CInt={10^8},
     T_start=295.15)
     annotation (Placement(transformation(extent={{60,20},{80,42}})));
+  Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPort
+    "Heat transfer into the working fluid"
+    annotation (Placement(transformation(extent={{-10,88},{10,108}})));
 equation
   connect(waterTemperature.Kelvin,supplyWater. T) annotation (Line(points={{-67.4,
           -70},{-62,-70}},                        color={0,0,127}));
@@ -92,6 +95,8 @@ equation
           {4,-70},{4,20},{20,20},{20,9.4}}, color={191,0,0}));
   connect(workingFluid.heatPort, intWalRC.port_a)
     annotation (Line(points={{20,9.4},{20,30},{60,30}}, color={191,0,0}));
+  connect(workingFluid.heatPort, heatPort) annotation (Line(points={{20,9.4},{20,
+          80},{0,80},{0,98}}, color={191,0,0}));
   annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-140,-100},
             {100,100}})),                                        Diagram(
         coordinateSystem(preserveAspectRatio=false, extent={{-140,-100},{100,100}})),
