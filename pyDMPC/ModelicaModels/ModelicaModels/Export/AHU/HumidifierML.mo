@@ -1,7 +1,5 @@
-within ModelicaModels.SubsystemModels.DetailedModels;
-model HumidifierML
-  "Detailed model of the humidifier for machine learning"
-
+within ModelicaModels.Export.AHU;
+model HumidifierML "Detailed model of the humidifier for machine learning"
 
   replaceable package MediumAir =
       AixLib.Media.Air;

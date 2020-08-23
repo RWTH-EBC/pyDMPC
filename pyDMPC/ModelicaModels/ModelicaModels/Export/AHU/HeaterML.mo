@@ -1,4 +1,4 @@
-within ModelicaModels.SubsystemModels.DetailedModels;
+within ModelicaModels.Export.AHU;
 model HeaterML "Detailed model of the heater for machine learning"
 
   extends ModelicaModels.Subsystems.BaseClasses.HeaterBaseClass;

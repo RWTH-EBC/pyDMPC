@@ -1,4 +1,4 @@
-within ModelicaModels.SubsystemModels.DetailedModels;
+within ModelicaModels.Export.AHU;
 model CoolerML "Detailed model of the cooler for machine learning"
 
   extends ModelicaModels.Subsystems.BaseClasses.CoolerBaseClass;

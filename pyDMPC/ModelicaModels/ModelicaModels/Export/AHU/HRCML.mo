@@ -1,6 +1,5 @@
-within ModelicaModels.SubsystemModels.DetailedModels;
-model HRCML
-  "Detailed model of the heat recovery for machine learning"
+within ModelicaModels.Export.AHU;
+model HRCML "Detailed model of the heat recovery for machine learning"
 
   extends ModelicaModels.Subsystems.BaseClasses.HRCBaseClass;
   Modelica.Fluid.Sources.MassFlowSource_T IntakeAirSource(
