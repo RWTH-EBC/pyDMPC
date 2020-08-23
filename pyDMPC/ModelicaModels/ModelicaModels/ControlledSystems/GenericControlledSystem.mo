@@ -22,10 +22,6 @@ model GenericControlledSystem
     annotation (Placement(transformation(extent={{-100,-32},{-80,-12}})));
   Modelica.Blocks.Sources.Constant X(k=0.005)
     annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
-  Subsystems.GenericHeater genericHeater(Tset=273.15 + 38)
-    annotation (Placement(transformation(extent={{20,40},{40,60}})));
-  Subsystems.GenericCooler genericCooler(Tset=273.15 + 33)
-    annotation (Placement(transformation(extent={{20,-20},{40,0}})));
   Modelica.Fluid.Sources.Boundary_pT IntakeAirSink(
     nPorts=2,
     redeclare package Medium = MediumAir,

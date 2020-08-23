@@ -43,6 +43,5 @@ equation
   connect(hex.port_b1, senTemp1.port) annotation (Line(points={{-12,58},{-20,58},
           {-20,20},{40,20},{40,-68},{10,-68},{10,-64}}, color={0,127,255}));
   connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
-          {-44,-10},{-44,1.8},{2,1.8}},
-                                    color={0,0,127}));
+          {-44,-10},{-44,2},{2,2}}, color={0,0,127}));
 end HeaterBaseClass;

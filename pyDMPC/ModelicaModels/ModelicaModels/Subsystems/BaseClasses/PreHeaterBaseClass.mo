@@ -35,8 +35,7 @@ equation
   connect(ValveCharacteristicCurve.y[1], val.y) annotation (Line(points={{-59,
           -50},{-42,-50},{-42,-14},{8,-14}}, color={0,0,127}));
   connect(Pressure1.y, CurculationPump.dp_in) annotation (Line(points={{-59,-10},
-          {-38,-10},{-38,31.8},{8,31.8}},
-                                      color={0,0,127}));
+          {-38,-10},{-38,32},{8,32}}, color={0,0,127}));
   connect(CurculationPump.port_b, hex.port_a1)
     annotation (Line(points={{20,42},{20,58},{8,58}}, color={0,127,255}));
 end PreHeaterBaseClass;
