@@ -1,6 +1,6 @@
 within ModelicaModels.Export.TestHall;
 model HallExport "Model for exprting the hall model to statespace"
-  TestHallRC.BaseClasses.HallBaseClass hallBaseClass
+  Subsystems.TestHall.BaseClasses.HallBaseClass hallBaseClass
     annotation (Placement(transformation(extent={{-12,-10},{12,10}})));
   AixLib.FastHVAC.Components.Pumps.FluidSource
                                         fluidSource

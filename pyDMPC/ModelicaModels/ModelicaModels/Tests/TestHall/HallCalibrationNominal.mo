@@ -1,7 +1,7 @@
 within ModelicaModels.Tests.TestHall;
 model HallCalibrationNominal
   "Calibration of the hall model in conditions for nominal heating power"
-  extends TestHallRC.BaseClasses.HallCalibrationBaseClass;
+  extends ModelicaModels.Subsystems.TestHall.BaseClasses.HallCalibrationBaseClass;
   Modelica.Blocks.Sources.Constant supplyAirTemperature(k=20)
     annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
   Modelica.Blocks.Sources.Constant outdoorAirTemperature(k=-12)

@@ -5,6 +5,8 @@ model HallBaseClass "Simplified model of hall 1"
   "Nominal mass flow rate"
   annotation(Dialog(group = "Nominal condition"));
 
+  parameter AixLib.FastHVAC.Media.BaseClasses.MediumSimple medium = AixLib.FastHVAC.Media.WaterSimple();
+
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature outdoorAir
     annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature supplyWater
@@ -34,7 +36,7 @@ model HallBaseClass "Simplified model of hall 1"
   AixLib.FastHVAC.BaseClasses.WorkingFluid workingFluid(
     T0=295.15,
     m_fluid=1.2*720*8,
-                 medium = TestHallRC.BaseClasses.SimpleAir())
+                 medium = medium)
     annotation (Placement(transformation(extent={{10,-10},{30,10}})));
   AixLib.FastHVAC.Interfaces.EnthalpyPort_a enthalpyPort_a
     annotation (Placement(transformation(extent={{-150,-10},{-130,10}})));

@@ -1,8 +1,7 @@
 within ModelicaModels.Subsystems.TestHall.BaseClasses;
 model HallCalibrationBaseClass
 
-  replaceable package MediumAir = AixLib.Media.Air;
-  replaceable package MediumWater = AixLib.Media.Water;
+  parameter AixLib.FastHVAC.Media.BaseClasses.MediumSimple medium=AixLib.FastHVAC.Media.WaterSimple();
 
   Modelica.Blocks.Math.Feedback feedback1
     annotation (Placement(transformation(extent={{16,-40},{36,-60}})));
@@ -14,11 +13,11 @@ model HallCalibrationBaseClass
         rotation=90,
         origin={-48,-24})));
   AixLib.FastHVAC.Components.Pumps.FluidSource
-                                        fluidSource
+                                        fluidSource(medium = medium)
     annotation (Placement(transformation(extent={{-42,10},{-24,-8}})));
   Modelica.Blocks.Math.Gain gain(k=1.2/3600)
     annotation (Placement(transformation(extent={{-54,8},{-46,16}})));
-  TestHallRC.BaseClasses.HallBaseClass hall
+  HallBaseClass hall
     annotation (Placement(transformation(extent={{-12,-14},{16,14}})));
   AixLib.FastHVAC.Components.Sinks.Vessel vessel
     annotation (Placement(transformation(extent={{48,-10},{68,10}})));
