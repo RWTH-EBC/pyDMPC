@@ -54,7 +54,7 @@ model HallBaseClass "Simplified model of hall 1"
     RExt={1/8000},
     RExtRem=1/7000,
     CExt={10^9},
-    T_start=295.15)
+    T_start=303.15)
     annotation (Placement(transformation(extent={{-20,-80},{0,-58}})));
   AixLib.ThermalZones.ReducedOrder.RC.BaseClasses.InteriorWall intWalRC(
     n=1,

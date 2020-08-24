@@ -26,7 +26,7 @@ model Hall
     annotation (Placement(transformation(extent={{90,-70},{110,-50}})));
   Modelica.Blocks.Interfaces.RealOutput hallEnergy "The total heat of the CCA"
     annotation (Placement(transformation(extent={{90,-100},{110,-80}})));
-  Modelica.Blocks.Sources.RealExpression heatFlux(y=hallBaseClass.floor.port_b.Q_flow)
+  Modelica.Blocks.Sources.RealExpression heatFlux(y=abs(hallBaseClass.floor.port_b.Q_flow))
     "Measures the CCA heat flux"
     annotation (Placement(transformation(extent={{0,-70},{22,-52}})));
   Modelica.Blocks.Continuous.Integrator integrator(k=1/3600000)

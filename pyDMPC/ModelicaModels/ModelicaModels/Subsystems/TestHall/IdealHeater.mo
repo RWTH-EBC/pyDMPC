@@ -2,7 +2,7 @@ within ModelicaModels.Subsystems.TestHall;
 model IdealHeater "Ideal heater or cooler for the hall"
 
   parameter Real setPoint_heating = 23 "The temperature set point of the controlled zone in heating mode";
-  parameter Real setPoint_cooling = 25 "The temperature set point of the controlled zone in cooling mode";
+  parameter Real setPoint_cooling = 26 "The temperature set point of the controlled zone in cooling mode";
 
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow prescribedHeatFlow1
     annotation (Placement(transformation(extent={{24,-10},{44,10}})));
@@ -12,7 +12,7 @@ model IdealHeater "Ideal heater or cooler for the hall"
     annotation (Placement(transformation(extent={{-28,24},{-16,36}})));
   Modelica.Blocks.Sources.Constant minHeatMaxCool(k=0)
     annotation (Placement(transformation(extent={{-48,4},{-38,14}})));
-  Modelica.Blocks.Sources.Constant maxHeat(k=10000)
+  Modelica.Blocks.Sources.Constant maxHeat(k=20000)
     annotation (Placement(transformation(extent={{-48,48},{-38,58}})));
   Modelica.Blocks.Sources.Constant setPointHeating(k=setPoint_heating)
     annotation (Placement(transformation(extent={{-76,42},{-66,52}})));
@@ -28,7 +28,7 @@ model IdealHeater "Ideal heater or cooler for the hall"
     annotation (Placement(transformation(extent={{-26,-36},{-14,-24}})));
   Modelica.Blocks.Sources.Constant setPointHeating1(k=setPoint_cooling)
     annotation (Placement(transformation(extent={{-70,-24},{-60,-14}})));
-  Modelica.Blocks.Sources.Constant maxHeat1(k=-10000)
+  Modelica.Blocks.Sources.Constant maxHeat1(k=-20000)
     annotation (Placement(transformation(extent={{-48,-56},{-38,-46}})));
   Modelica.Blocks.Math.Add add
     annotation (Placement(transformation(extent={{-4,-10},{16,10}})));

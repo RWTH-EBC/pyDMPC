@@ -6,7 +6,7 @@ model HallCalibrationNominal
     annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
   Modelica.Blocks.Sources.Constant outdoorAirTemperature(k=-12)
     annotation (Placement(transformation(extent={{-100,40},{-80,60}})));
-  Modelica.Blocks.Sources.Constant TABSTemperature(k=40)
+  Modelica.Blocks.Sources.Constant TABSTemperature(k=45)
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
   Modelica.Blocks.Sources.Constant supplyAirVolumeFlow(k=8000)
     annotation (Placement(transformation(extent={{-100,0},{-80,20}})));

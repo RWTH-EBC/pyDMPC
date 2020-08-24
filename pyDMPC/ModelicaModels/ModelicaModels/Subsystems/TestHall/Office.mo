@@ -2,22 +2,22 @@ within ModelicaModels.Subsystems.TestHall;
 model Office "Office within the test hall"
 
   parameter Real startTime = 0;
-  parameter Real offset_1 = -3;
-  parameter Real offset_2 = -1;
+  parameter Real amp_1 = 1;
+  parameter Real amp_2 = 3;
   Modelica.Blocks.Interfaces.RealOutput thermostat
     annotation (Placement(transformation(extent={{90,10},{110,30}})));
   Modelica.Blocks.Interfaces.RealOutput T_room
     annotation (Placement(transformation(extent={{90,-30},{110,-10}})));
   Modelica.Blocks.Sources.Pulse pulse(
-    amplitude=6,
-    period=2*3600,
-    offset=offset_1,
+    amplitude=amp_1,
+    period=1*3600,
+    offset=0,
     startTime=startTime)
                annotation (Placement(transformation(extent={{-20,40},{0,60}})));
   Modelica.Blocks.Sources.Pulse pulse1(
-    amplitude=2,
+    amplitude=amp_2,
     period=4*3600,
-    offset=offset_1,
+    offset=0,
     startTime=startTime)
                annotation (Placement(transformation(extent={{-20,0},{0,20}})));
   Modelica.Blocks.Math.Add add
