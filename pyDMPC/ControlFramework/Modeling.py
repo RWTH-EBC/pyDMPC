@@ -1,4 +1,5 @@
 import Init
+import numpy as np
 
 class States:
     """This class holds all the states relevant for the models.
@@ -17,7 +18,7 @@ class States:
         the Modelica models
     outputs : list of floats
         The outputs of a subsystem model
-    output_names : list of strings
+    model_output_names : list of strings
         The names of the outputs. These are the identifiers for logging and for
         the Modelica models
     set_points : list of floats
@@ -39,6 +40,8 @@ class States:
         self.input_names = Init.input_names[sys_id]
         self.input_variables = Init.input_variables[sys_id]
         self.outputs = []
+        self.outputs_his = []
+        self.model_output_names = Init.model_output_names[sys_id]
         self.output_names = Init.output_names[sys_id]
         self.set_points = Init.set_points[sys_id]
         self.state_vars = []
@@ -123,7 +126,14 @@ class Modifs:
     """
 
     def __init__(self, sys_id):
-        self.factors = Init.factors[sys_id]
+        self.state_factors = Init.state_factors[sys_id]
+        self.state_offsets = Init.state_offsets[sys_id]
+        self.input_factors = Init.input_factors[sys_id]
+        self.input_offsets = Init.input_offsets[sys_id]
+        self.output_factors = Init.output_factors[sys_id]
+        self.output_offsets = Init.output_offsets[sys_id]
+        self.linear_model_factors = Init.linear_model_factors[sys_id]
+        self.linear_model_offsets =Init.linear_model_offsets[sys_id]
 
 
 class Model:
@@ -149,6 +159,7 @@ class Model:
         self.states = States(sys_id)
         self.times = Times(sys_id)
         self.paths = Paths(sys_id)
+        self.modifs = Modifs(sys_id)
 
 
 class ModelicaMod(Model):
@@ -245,8 +256,8 @@ class ModelicaMod(Model):
     def get_outputs(self):
         self.states.outputs = []
 
-        if self.states.output_names is not None:
-            for nam in self.states.output_names:
+        if self.states.model_output_names is not None:
+            for nam in self.states.model_output_names:
                 self.states.outputs.append(self.get_results(nam))
 
     def get_results(self, name):
@@ -274,7 +285,6 @@ class SciMod(Model):
         self.scaler = load(self.paths.mod_path + r"_scaler.joblib")
 
     def write_inputs(self):
-        import numpy as np
         commands_1 = self.states.commands[0]*np.ones(10)
         commands_2 = self.states.commands[1]*np.ones(50)
         commands = commands_1.tolist() + commands_2.tolist()
@@ -295,18 +305,86 @@ class LinMod(Model):
         super().__init__(sys_id)
         self.modifs = Modifs(sys_id)
 
-    def predict(self, start_val):
-        self.states.outputs = (start_val +
-                               self.modifs.factors[0] * self.states.inputs[0] +
-                               self.modifs.factors[1] * self.states.commands[0])
+    def predict(self):
+        self.states.outputs = [[self.modifs.linear_model_factors[0] * self.states.inputs[0] +
+                               self.modifs.linear_model_factors[1] * self.states.commands[0] +
+                               self.modifs.linear_model_offsets[0]]]
+
 
 class FuzMod(Model):
 
     def __init__(self, sys_id):
         super().__init__(sys_id)
 
+        import skfuzzy.control as ctrl
+
+        # Define the universe
+        universe = np.linspace(-5, 5, 5)
+        universe_temp = np.linspace(17, 30, 5)
+        universe_out = np.linspace(17, 30, 5)
+
+        # Create the three fuzzy variables
+        temperature = ctrl.Antecedent(universe_temp, 'temperature')
+        delta = ctrl.Antecedent(universe, 'delta')
+        output = ctrl.Consequent(universe_out, 'output')
+
+        names = ['nb', 'ns', 'ze', 'ps', 'pb']
+        temperature.automf(names=names)
+        delta.automf(names=names)
+        output.automf(names=names)
+
+        """
+        Define complex rules
+        --------------------
+        """
+        rule0 = ctrl.Rule(antecedent=((temperature['nb'] & delta['nb']) |
+                                    (temperature['ns'] & delta['nb']) |
+                                    (temperature['ze'] & delta['nb']) |
+                                    (temperature['nb'] & delta['ns'])),
+                        consequent=output['nb'], label='rule nb')
+
+        rule1 = ctrl.Rule(antecedent=((temperature['nb'] & delta['ze']) |
+                                    (temperature['ns'] & delta['ns']) |
+                                    (temperature['ns'] & delta['ze']) |
+                                    (temperature['ze'] & delta['ns']) |
+                                    (temperature['ze'] & delta['nb']) 
+                                    ),
+                        consequent=output['ns'], label='rule ns')
+
+        rule2 = ctrl.Rule(antecedent=((temperature['ze'] & delta['ze']) |
+                                    (temperature['ns'] & delta['ze']) |
+                                    (temperature['ps'] & delta['ze']) 
+                                    ),
+                        consequent=output['ze'], label='rule ze')
+
+        rule3 = ctrl.Rule(antecedent=((temperature['ze'] & delta['ps']) |
+                                    (temperature['ps'] & delta['ps']) |
+                                    (temperature['pb'] & delta['ze']) |
+                                    (temperature['ns'] & delta['ps']) 
+                                    ),
+                        consequent=output['ps'], label='rule ps')
+
+        rule4 = ctrl.Rule(antecedent=((temperature['ps'] & delta['pb']) |
+                                    (temperature['pb'] & delta['pb']) |
+                                    (temperature['pb'] & delta['ps']) |
+                                    (temperature['ze'] & delta['pb']) 
+                                    ),
+                        consequent=output['pb'], label='rule pb')
+
+        """
+        Define a control system
+        """
+        system = ctrl.ControlSystem(rules=[rule0, rule1, rule2, rule3, rule4])
+
+        self.sim = ctrl.ControlSystemSimulation(system, flush_after_run=1)
+
+    def control(self, temp, delt):
+        self.sim.input['temperature'] = temp
+        self.sim.input['delta'] = delt
+        self.sim.compute()
+        return self.sim.output['output']
+
     def predict(self):
-        import functions.fuzzy as fuz
-        self.states.outputs = self.states.inputs[0]
-        self.states.set_points = fuz.control(self.states.inputs[0],
-                                             self.states.inputs[1])
+        self.states.outputs = [[self.states.inputs[0]]]
+        self.states.set_points = [self.control(self.states.state_vars[0],
+                                             self.states.state_vars[1])]

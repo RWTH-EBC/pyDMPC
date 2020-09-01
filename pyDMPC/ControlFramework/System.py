@@ -2,7 +2,7 @@ import Subsystem
 import ControlledSystem
 import Modeling
 import Init
-import Time
+import SystemTime
 
 class System:
     """This class represents the overall control system that creates the agents
@@ -40,7 +40,7 @@ class System:
         self.prep_wkdir()
         self.amo_subsys = len(Init.sys_id)
         self.subsystems = self.gen_subsys()
-        self.sys_time = Time.Time()
+        self.sys_time = SystemTime.Time()
 
     def prep_wkdir(self):
         """Prepares the working directory for the current experiment
@@ -114,7 +114,6 @@ class System:
 
         return [min_opt_inter, min_samp_inter]
 
-
     @classmethod
     def prep_cont_sys(cls):
         """Creates a controlled system object, which is either a Modelica
@@ -187,6 +186,13 @@ class System:
         if cls.contr_sys_typ == "Modelica":
             cls.contr_sys.proceed(cur_time, incr)
 
+
+class Bexmoc(System):
+
+    def __init__(self, interp):
+        super().__init__()
+        self.interp = interp
+
     def broadcast(self, sys_list = None):
         """ This method broadcasts the values of relevant variables among
         neighboring subsystems/agents.
@@ -216,14 +222,6 @@ class System:
                     
             i += j
 
-
-
-class Bexmoc(System):
-
-    def __init__(self, interp):
-        super().__init__()
-        self.interp = interp
-
     def initialize(self):
         for i,sub in enumerate(self.subsystems):
             if Bexmoc.contr_sys_typ == "Modelica":
@@ -246,10 +244,10 @@ class Bexmoc(System):
             sub.send_commands()
 
         if Bexmoc.contr_sys_typ == "Modelica":
-            cur_time = Time.Time.get_time()
+            cur_time = SystemTime.Time.get_time()
 
-            Bexmoc.proceed(cur_time, Time.Time.time_incr)
-            Time.Time.set_time()
+            Bexmoc.proceed(cur_time, SystemTime.Time.time_incr)
+            SystemTime.Time.set_time()
 
     def iterate(self):
         for i,sub in enumerate(self.subsystems):
@@ -258,26 +256,34 @@ class Bexmoc(System):
             sub.get_inputs()
             inputs = sub.model.states.inputs[0]
 
-            if i == 1:
+            if i == 0:
                 sub.inputs = [inputs[0] - 0.1, inputs[0] + 0.1]
             else:
-                sub.inputs = [inputs[0], sub.model.states.set_points[0]]
+                if (self.subsystems[0].inputs[0] <
+                    self.subsystems[1].model.states.set_points[0]):
+                    sub.inputs = [min(self.subsystems[0].inputs[0],
+                                        sub.model.states.set_points[0] - 0.5), 
+                                        sub.model.states.set_points[0]]
+                else:
+                    sub.inputs = [max(self.subsystems[0].inputs[0],
+                                sub.model.states.set_points[0] + 0.5), 
+                        sub.model.states.set_points[0]]
 
             sub.inputs.sort()
             sub.optimize(interp = True)
             self.broadcast([i])
 
 
-        for ino in range(0,8,1):
+        for ino in range(0,3,1):
             for i,sub in enumerate(self.subsystems):
-                if i == 1:
+                if i == 0:
                     sub.get_inputs()
                     inputs = sub.model.states.inputs[0]
                     sub.inputs = [inputs[0] - 0.1, inputs[0] + 0.1]
 
                 else:
                     if sub.coup_vars_rec != []:
-                        if (self.subsystems[1].inputs[0] <
+                        if (self.subsystems[0].inputs[0] <
                             self.subsystems[1].model.states.set_points[0]):
                             sub.inputs = [min(sub.coup_vars_rec[0],
                                               sub.model.states.set_points[0] - 0.5), 
@@ -300,10 +306,10 @@ class Bexmoc(System):
             sub.send_commands()
 
         if Bexmoc.contr_sys_typ == "Modelica":
-            cur_time = Time.Time.get_time()
+            cur_time = SystemTime.Time.get_time()
 
-            Bexmoc.proceed(cur_time, Time.Time.time_incr)
-            Time.Time.set_time()
+            Bexmoc.proceed(cur_time, SystemTime.Time.time_incr)
+            SystemTime.Time.set_time()
 
     def terminate(self):
         Bexmoc.close_cont_sys()

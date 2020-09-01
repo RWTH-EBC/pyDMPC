@@ -1,4 +1,7 @@
 import Init
+import sys
+import time
+
 
 class PLCSys:
 
@@ -21,6 +24,7 @@ class PLCSys:
 
     def write(self, datapoint, value):
         self.contr_sys.write_by_name(datapoint, value, self.plc_typ)
+
 
 class ModelicaSys:
 
@@ -45,8 +49,6 @@ class ModelicaSys:
         for variable in self.model_description.modelVariables:
             self.vrs[variable.name] = variable.valueReference
 
-        #print(variable)
-
         # extract the FMU
         self.unzipdir = extract(self.dest_fmu_path)
 
@@ -55,8 +57,6 @@ class ModelicaSys:
                 modelIdentifier=
                 self.model_description.coSimulation.modelIdentifier,
                 instanceName='instance1')
-
-        #print(self.contr_sys)
 
         self.contr_sys.instantiate()
         self.contr_sys.setupExperiment(startTime=0.0)
@@ -74,8 +74,6 @@ class ModelicaSys:
         self.contr_sys.setReal([name], [value])
 
     def proceed(self, cur_time, incr):
-        #print("Time: " + str(cur_time))
-        #print("Increment: " + str(incr))
         self.contr_sys.doStep(currentCommunicationPoint = cur_time,
                                communicationStepSize = incr)
 
